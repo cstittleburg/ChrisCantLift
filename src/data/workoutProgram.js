@@ -30,15 +30,15 @@ export const WORKOUT_PROGRAM = {
         label: 'Superset A',
         exercises: [
           { id: 'inc-bench-heavy', name: 'Incline Bench Press', sets: 3, repsTarget: 5, type: EXERCISE_TYPE.WEIGHTED },
-          { id: 'pullup-heavy', name: 'Pull-Up', sets: 3, repsTarget: 5, type: EXERCISE_TYPE.WEIGHTED, note: 'add weight or bodyweight' },
+          { id: 'pullup-heavy', name: 'Pull-Up', sets: 3, repsTarget: 5, type: EXERCISE_TYPE.REPS_ONLY },
         ],
       },
       {
         id: 'ss-b',
         label: 'Superset B',
         exercises: [
-          { id: 'db-inc-fly-heavy', name: 'DB Incline Chest Fly', sets: 2, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.WEIGHTED },
-          { id: 'inc-curl-heavy', name: 'Incline Dumbbell Curl', sets: 2, repsTarget: 10, repsMin: 8, note: 'slow eccentric', type: EXERCISE_TYPE.WEIGHTED },
+          { id: 'inc-db-press-heavy', name: 'Incline DB Press', sets: 2, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.WEIGHTED },
+          { id: 'cs-db-row-heavy', name: 'Chest-Supported DB Row', sets: 2, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.WEIGHTED },
         ],
       },
       {
@@ -73,7 +73,7 @@ export const WORKOUT_PROGRAM = {
         label: 'Superset A',
         exercises: [
           { id: 'rdl-heavy', name: 'Romanian Deadlift', sets: 3, repsTarget: 5, type: EXERCISE_TYPE.WEIGHTED },
-          { id: 'core-twist-heavy', name: 'Core Twist', sets: 3, repsTarget: 10, type: EXERCISE_TYPE.REPS_ONLY },
+          { id: 'core-twist-heavy', name: 'Core Twist', sets: 3, repsTarget: 10, type: EXERCISE_TYPE.WEIGHTED },
         ],
       },
       {
@@ -118,15 +118,15 @@ export const WORKOUT_PROGRAM = {
         label: 'Superset A',
         exercises: [
           { id: 'inc-bench-light', name: 'Incline Bench Press', sets: 3, repsTarget: 15, repsMin: 12, type: EXERCISE_TYPE.WEIGHTED },
-          { id: 'lat-pulldown-light', name: 'Lat Pulldown', sets: 3, repsTarget: 15, repsMin: 12, type: EXERCISE_TYPE.WEIGHTED },
+          { id: 'pullup-light', name: 'Pull-Up', sets: 3, repsTarget: 15, repsMin: 12, type: EXERCISE_TYPE.REPS_ONLY },
         ],
       },
       {
         id: 'ss-b',
         label: 'Superset B',
         exercises: [
-          { id: 'inc-db-press-light', name: 'Incline Dumbbell Press', sets: 2, repsTarget: 15, repsMin: 12, type: EXERCISE_TYPE.WEIGHTED },
-          { id: 'cs-db-row-light', name: 'Chest Supported Dumbbell Row', sets: 2, repsTarget: 15, repsMin: 12, type: EXERCISE_TYPE.WEIGHTED },
+          { id: 'db-inc-fly-light', name: 'DB Incline Chest Fly', sets: 2, repsTarget: 15, repsMin: 12, type: EXERCISE_TYPE.WEIGHTED },
+          { id: 'lat-prayer-light', name: 'Lat Prayer', sets: 2, repsTarget: 15, repsMin: 12, type: EXERCISE_TYPE.WEIGHTED },
         ],
       },
       {
@@ -169,7 +169,7 @@ export const WORKOUT_PROGRAM = {
         label: 'Superset B',
         exercises: [
           { id: 'step-down-rev-lunge-medium', name: 'Step Down Reverse Lunge 8-inch', sets: 2, repsTarget: 10, repsMin: 10, note: 'each leg, weighted', type: EXERCISE_TYPE.WEIGHTED },
-          { id: 'core-twist-l2-medium', name: 'Core Twist', sets: 2, repsTarget: 10, type: EXERCISE_TYPE.REPS_ONLY },
+          { id: 'core-twist-l2-medium', name: 'Core Twist', sets: 2, repsTarget: 10, type: EXERCISE_TYPE.WEIGHTED },
         ],
       },
       {
@@ -206,7 +206,7 @@ export const WORKOUT_PROGRAM = {
         label: 'Superset A',
         exercises: [
           { id: 'bench-medium', name: 'Bench Press', sets: 3, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.WEIGHTED },
-          { id: 'pullup-medium', name: 'Pull-Up', sets: 3, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.WEIGHTED },
+          { id: 'pullup-medium', name: 'Pull-Up', sets: 3, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.REPS_ONLY },
         ],
       },
       {
@@ -249,7 +249,7 @@ export const WORKOUT_PROGRAM = {
         label: 'Superset A',
         exercises: [
           { id: 'sldl-medium', name: 'Stiff Leg Deadlift', sets: 3, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.WEIGHTED },
-          { id: 'core-twist-l3-medium', name: 'Core Twist', sets: 3, repsTarget: 10, type: EXERCISE_TYPE.REPS_ONLY },
+          { id: 'core-twist-l3-medium', name: 'Core Twist', sets: 3, repsTarget: 10, type: EXERCISE_TYPE.WEIGHTED },
         ],
       },
       {
