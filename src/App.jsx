@@ -5,7 +5,7 @@ import HistoryTab from './components/history/HistoryTab';
 import NutritionTab from './components/nutrition/NutritionTab';
 import ProgressTab from './components/progress/ProgressTab';
 import { WorkoutProvider } from './context/WorkoutContext';
-import { pullFromCloud } from './utils/cloudSync';
+import { pullFromCloud, onSyncStatusChange } from './utils/cloudSync';
 import { runExerciseIdMigration } from './utils/exerciseIdMigration';
 import { runDataFixes } from './utils/dataFixes';
 
@@ -24,6 +24,15 @@ export default function App() {
       setSyncStatus(success ? 'synced' : 'offline');
       // After 3 seconds, hide the synced indicator
       if (success) setTimeout(() => setSyncStatus('idle'), 3000);
+    });
+  }, []);
+
+  // Surface later push failures/recoveries too (e.g. logging a set mid-workout) —
+  // a failed save should never fail silently, not just a failed initial load.
+  useEffect(() => {
+    return onSyncStatusChange(status => {
+      setSyncStatus(status);
+      if (status === 'synced') setTimeout(() => setSyncStatus('idle'), 3000);
     });
   }, []);
 

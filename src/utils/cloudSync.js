@@ -5,6 +5,19 @@ const TABLE = 'fitness_data';
 // Debounce timers per key
 const timers = {};
 
+// Sync status listeners — lets the UI react to pushes that happen outside
+// the component tree (storage.js calls pushToCloud directly, fire-and-forget).
+const listeners = new Set();
+
+export function onSyncStatusChange(callback) {
+  listeners.add(callback);
+  return () => listeners.delete(callback);
+}
+
+function notify(status) {
+  listeners.forEach(fn => fn(status));
+}
+
 /**
  * Pull all data for this user from Supabase and hydrate localStorage.
  * Returns true on success, false on failure.
@@ -37,6 +50,7 @@ export async function pullFromCloud() {
 /**
  * Push a single key-value pair to Supabase.
  * Debounced per key to avoid hammering on rapid writes.
+ * Notifies sync status listeners on success/failure so a failed save is never silent.
  */
 export function pushToCloud(key, value) {
   if (timers[key]) clearTimeout(timers[key]);
@@ -49,8 +63,10 @@ export function pushToCloud(key, value) {
           { onConflict: 'user_id,key' }
         );
       if (error) throw error;
+      notify('synced');
     } catch (e) {
       console.warn('Cloud push failed (offline?):', e.message);
+      notify('offline');
     }
   }, 1500);
 }
