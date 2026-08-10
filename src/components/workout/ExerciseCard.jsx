@@ -33,6 +33,10 @@ export default function ExerciseCard({ exercise }) {
     return <RepsOnlyExerciseCard exercise={exercise} />;
   }
 
+  if (exercise.type === EXERCISE_TYPE.WEIGHTED_NO_RIR) {
+    return <WeightedNoRirExerciseCard exercise={exercise} />;
+  }
+
   const handleLog = () => {
     const reps = parseInt(input.reps);
     const weight = input.weight !== '' ? parseFloat(input.weight) : (lastWeight || null);
@@ -395,6 +399,204 @@ function RepsOnlyExerciseCard({ exercise }) {
       )}
 
       {allDone && (
+        <div className="text-center py-1">
+          <span className="text-green-400 text-sm font-bold">✓ All sets logged</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Weighted exercises without RIR tracking — log weight + reps only (Core Twist, etc.)
+function WeightedNoRirExerciseCard({ exercise }) {
+  const { activeSession, logSet, updateSet, getLastWeight } = useWorkout();
+
+  const [input, setInput] = useState({ reps: '', weight: '' });
+  const [error, setError] = useState('');
+  const [editingIdx, setEditingIdx] = useState(null);
+  const [editInput, setEditInput] = useState({ reps: '', weight: '' });
+
+  const setsLogged = activeSession?.sets?.[exercise.id] || [];
+  const lastWeight = getLastWeight(exercise.id);
+  const weightPlaceholder = lastWeight ? String(lastWeight) : 'lbs';
+  const allSetsLogged = setsLogged.length >= exercise.sets;
+
+  const prMap = useMemo(() => buildPRMap(activeSession?.id), [activeSession?.id]);
+  const progressionStatus = checkProgression(exercise, setsLogged);
+
+  const sessionPRWeights = new Set();
+
+  const handleLog = () => {
+    const reps = parseInt(input.reps);
+    const weight = input.weight !== '' ? parseFloat(input.weight) : (lastWeight || null);
+
+    if (!reps || reps < 1) { setError('Enter reps'); return; }
+
+    setError('');
+    logSet(exercise.id, {
+      reps,
+      weight,
+      setNumber: setsLogged.length + 1,
+      timestamp: Date.now(),
+    });
+    setInput(p => ({ ...p, reps: '' }));
+  };
+
+  return (
+    <div className="p-4">
+      {/* Header */}
+      <div className="flex items-start justify-between mb-3">
+        <div className="flex-1">
+          <h3 className="font-bold text-white">{exercise.name}</h3>
+          <p className="text-xs text-gray-400 mt-0.5">
+            {exercise.sets}×{exercise.repsMin ? `${exercise.repsMin}–${exercise.repsTarget}` : exercise.repsTarget}
+            {lastWeight && <span className="text-blue-400 ml-2">Last: {lastWeight} lbs</span>}
+          </p>
+          {exercise.note && (
+            <p className="text-xs text-yellow-600 mt-0.5">{exercise.note}</p>
+          )}
+        </div>
+        <span className="text-xs text-gray-600 bg-gray-800 px-2 py-1 rounded-lg">
+          {setsLogged.length}/{exercise.sets}
+        </span>
+      </div>
+
+      {/* Logged sets */}
+      {setsLogged.length > 0 && (
+        <div className="space-y-1 mb-3">
+          {setsLogged.map((s, i) => {
+            const prStatus = checkSetPR(exercise.id, s.reps, s.weight, prMap);
+            let showPR = false;
+            if (prStatus === 'pr' && !sessionPRWeights.has(s.weight)) {
+              showPR = true;
+              sessionPRWeights.add(s.weight);
+            }
+
+            const isEditing = editingIdx === i;
+
+            if (isEditing) {
+              return (
+                <div key={i} className="bg-gray-700 rounded-lg px-3 py-2 space-y-2">
+                  <div className="flex gap-2">
+                    {[
+                      { key: 'weight', label: 'Weight', mode: 'decimal' },
+                      { key: 'reps', label: 'Reps', mode: 'numeric' },
+                    ].map(({ key, label, mode }) => (
+                      <div key={key} className="flex-1 flex flex-col gap-1">
+                        <label className="text-xs text-gray-400 text-center">{label}</label>
+                        <input
+                          inputMode={mode}
+                          type="number"
+                          value={editInput[key]}
+                          onChange={e => setEditInput(p => ({ ...p, [key]: e.target.value }))}
+                          className="w-full bg-gray-800 text-white font-bold text-base rounded-lg px-1 py-2 text-center"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setEditingIdx(null)}
+                      className="flex-1 bg-gray-800 text-gray-400 text-xs font-semibold py-2 rounded-lg flex items-center justify-center gap-1"
+                    >
+                      <X size={13} /> Cancel
+                    </button>
+                    <button
+                      onClick={() => {
+                        const reps = parseInt(editInput.reps);
+                        const weight = editInput.weight !== '' ? parseFloat(editInput.weight) : s.weight;
+                        if (!reps || reps < 1) return;
+                        updateSet(exercise.id, i, { ...s, reps, weight });
+                        setEditingIdx(null);
+                      }}
+                      className="flex-[2] bg-blue-600 text-white text-xs font-bold py-2 rounded-lg flex items-center justify-center gap-1"
+                    >
+                      <Check size={13} /> Save
+                    </button>
+                  </div>
+                </div>
+              );
+            }
+
+            return (
+              <div key={i} className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm ${showPR ? 'bg-yellow-900/25 border border-yellow-700/40' : 'bg-gray-800'}`}>
+                {showPR ? (
+                  <span className="flex-shrink-0 w-7 h-7 rounded-full bg-yellow-500 flex items-center justify-center">
+                    <span className="text-gray-950 font-black text-xs leading-none">PR</span>
+                  </span>
+                ) : (
+                  <span className="text-gray-500 text-xs w-7 text-center">S{s.setNumber}</span>
+                )}
+                <span className="font-semibold text-white">{s.reps} reps</span>
+                {s.weight && <span className={`ml-auto ${showPR ? 'text-yellow-300 font-bold' : 'text-blue-300'}`}>@ {s.weight} lbs</span>}
+                <button
+                  onClick={() => {
+                    setEditingIdx(i);
+                    setEditInput({ reps: String(s.reps ?? ''), weight: String(s.weight ?? '') });
+                  }}
+                  className="text-gray-600 active:text-gray-300 p-1"
+                >
+                  <Pencil size={13} />
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Progression flag */}
+      {progressionStatus === 'advance' && (
+        <div className="mb-3 p-3 rounded-xl flex items-start gap-2 bg-green-900/30 border border-green-700/50">
+          <TrendingUp size={16} className="text-green-400 mt-0.5" />
+          <p className="text-xs font-bold text-green-400">
+            Ready to advance — +5 lbs will pre-fill next session
+          </p>
+        </div>
+      )}
+
+      {/* Inline log form */}
+      {!allSetsLogged && (
+        <div className="space-y-2">
+          <div className="flex gap-2">
+            {/* Weight */}
+            <div className="flex-1 flex flex-col gap-1">
+              <label className="text-xs text-gray-500 text-center">Weight</label>
+              <input
+                inputMode="decimal"
+                type="number"
+                placeholder={weightPlaceholder}
+                value={input.weight}
+                onChange={e => setInput(p => ({ ...p, weight: e.target.value }))}
+                className="w-full bg-gray-800 text-white font-bold text-lg rounded-xl px-2 py-3 text-center placeholder-gray-600"
+              />
+            </div>
+            {/* Reps */}
+            <div className="flex-1 flex flex-col gap-1">
+              <label className="text-xs text-gray-500 text-center">Reps</label>
+              <input
+                inputMode="numeric"
+                type="number"
+                placeholder={exercise.repsTarget ? String(exercise.repsTarget) : '—'}
+                value={input.reps}
+                onChange={e => setInput(p => ({ ...p, reps: e.target.value }))}
+                className="w-full bg-gray-800 text-white font-bold text-lg rounded-xl px-2 py-3 text-center placeholder-gray-600"
+              />
+            </div>
+          </div>
+
+          {error && <p className="text-xs text-red-400 text-center">{error}</p>}
+
+          <button
+            onClick={handleLog}
+            className="w-full bg-blue-600 active:bg-blue-700 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 text-sm"
+          >
+            <Plus size={16} />
+            Log Set {setsLogged.length + 1} of {exercise.sets}
+          </button>
+        </div>
+      )}
+
+      {allSetsLogged && (
         <div className="text-center py-1">
           <span className="text-green-400 text-sm font-bold">✓ All sets logged</span>
         </div>

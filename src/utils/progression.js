@@ -26,7 +26,8 @@ export function checkProgression(exercise, setsLogged) {
     : 0;
 
   // Must have had sufficient RIR — if it was a grind, don't advance yet
-  if (avgRIR < 2) return null;
+  // (skipped when the exercise doesn't track RIR at all)
+  if (setsWithRIR.length > 0 && avgRIR < 2) return null;
 
   const target = exercise.sets * exercise.repsTarget;
   return totalReps >= target ? 'advance' : null;

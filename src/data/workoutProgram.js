@@ -6,10 +6,11 @@ export const PROGRAM_SEQUENCE = ['U1', 'L1', 'U2', 'L2', 'U3', 'L3'];
 
 // Exercise types
 export const EXERCISE_TYPE = {
-  WEIGHTED: 'weighted',       // logs weight + reps + RIR
-  BODYWEIGHT: 'bodyweight',   // logs done/not done
-  TIMED: 'timed',             // logs duration
-  REPS_ONLY: 'reps_only',    // logs reps only (no weight)
+  WEIGHTED: 'weighted',               // logs weight + reps + RIR
+  WEIGHTED_NO_RIR: 'weighted_no_rir', // logs weight + reps, no RIR
+  BODYWEIGHT: 'bodyweight',           // logs done/not done
+  TIMED: 'timed',                     // logs duration
+  REPS_ONLY: 'reps_only',             // logs reps only (no weight)
 };
 
 export const WORKOUT_PROGRAM = {
@@ -73,7 +74,7 @@ export const WORKOUT_PROGRAM = {
         label: 'Superset A',
         exercises: [
           { id: 'rdl-heavy', name: 'Romanian Deadlift', sets: 3, repsTarget: 5, type: EXERCISE_TYPE.WEIGHTED },
-          { id: 'core-twist-heavy', name: 'Core Twist', sets: 3, repsTarget: 10, type: EXERCISE_TYPE.WEIGHTED },
+          { id: 'core-twist-heavy', name: 'Core Twist', sets: 3, repsTarget: 10, type: EXERCISE_TYPE.WEIGHTED_NO_RIR },
         ],
       },
       {
@@ -169,7 +170,7 @@ export const WORKOUT_PROGRAM = {
         label: 'Superset B',
         exercises: [
           { id: 'step-down-rev-lunge-medium', name: 'Step Down Reverse Lunge 8-inch', sets: 2, repsTarget: 10, repsMin: 10, note: 'each leg, weighted', type: EXERCISE_TYPE.WEIGHTED },
-          { id: 'core-twist-l2-medium', name: 'Core Twist', sets: 2, repsTarget: 10, type: EXERCISE_TYPE.WEIGHTED },
+          { id: 'core-twist-l2-medium', name: 'Core Twist', sets: 2, repsTarget: 10, type: EXERCISE_TYPE.WEIGHTED_NO_RIR },
         ],
       },
       {
@@ -249,7 +250,7 @@ export const WORKOUT_PROGRAM = {
         label: 'Superset A',
         exercises: [
           { id: 'sldl-medium', name: 'Stiff Leg Deadlift', sets: 3, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.WEIGHTED },
-          { id: 'core-twist-l3-medium', name: 'Core Twist', sets: 3, repsTarget: 10, type: EXERCISE_TYPE.WEIGHTED },
+          { id: 'core-twist-l3-medium', name: 'Core Twist', sets: 3, repsTarget: 10, type: EXERCISE_TYPE.WEIGHTED_NO_RIR },
         ],
       },
       {
