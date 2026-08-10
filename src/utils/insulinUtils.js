@@ -103,15 +103,21 @@ export function analyzeNutritionDay(entries) {
   if (analyzableEntries.length >= 2) {
     const first = new Date(analyzableEntries[0].loggedAt);
     const last = new Date(analyzableEntries[analyzableEntries.length - 1].loggedAt);
-    const hours = (last - first) / (1000 * 60 * 60);
-    eatingWindow = {
-      hours: +hours.toFixed(1),
-      start: first,
-      end: last,
-      isGood: hours <= MAX_WINDOW_HOURS,
-    };
-    if (hours > MAX_WINDOW_HOURS) {
-      eatWindowWarning = `${hours.toFixed(1)}-hour eating window — aim for ≤${MAX_WINDOW_HOURS} hrs to allow insulin to return to baseline`;
+    const spanMs = last - first;
+    // A span under the grazing threshold means the first and last entries so far
+    // are from the same sitting (e.g. a multi-item saved meal logged at once) —
+    // not a second real eating occasion yet, so there's no window to report.
+    if (spanMs >= GRAZE_WINDOW_MS) {
+      const hours = spanMs / (1000 * 60 * 60);
+      eatingWindow = {
+        hours: +hours.toFixed(1),
+        start: first,
+        end: last,
+        isGood: hours <= MAX_WINDOW_HOURS,
+      };
+      if (hours > MAX_WINDOW_HOURS) {
+        eatWindowWarning = `${hours.toFixed(1)}-hour eating window — aim for ≤${MAX_WINDOW_HOURS} hrs to allow insulin to return to baseline`;
+      }
     }
   }
 

@@ -946,13 +946,17 @@ function SavedMealsView({ date, onUpdate }) {
   const savedFoods = getSavedFoods();
 
   const logMeal = (meal) => {
+    // One shared timestamp for the whole meal — these foods were eaten together,
+    // and logging them a few ms apart in the loop below previously made them look
+    // like separate eating occasions to the grazing/eating-window analysis.
+    const loggedAt = new Date().toISOString();
     meal.foods.forEach(food => {
       saveNutritionEntry(date, {
         id: `entry_${Date.now()}_${Math.random()}`,
         ...food,
         waterOz: food.waterOz || 0,
         mealName: meal.name,
-        loggedAt: new Date().toISOString(),
+        loggedAt,
       });
     });
     onUpdate();
