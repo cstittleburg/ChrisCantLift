@@ -25,7 +25,7 @@ function percentsToGrams(calories, proteinPct, carbsPct, fatPct) {
   };
 }
 
-const DEFAULT_GOALS = { calories: 2809, protein: 200, carbs: 250, fat: 78, water: 100 };
+const DEFAULT_GOALS = { calories: 2809, protein: 200, carbs: 250, fat: 78, water: 100, eatingWindowHours: 10 };
 
 export default function GoalsModal({ onClose, onSave }) {
   const saved = getNutritionGoals();
@@ -35,6 +35,7 @@ export default function GoalsModal({ onClose, onSave }) {
   const [carbs, setCarbs] = useState(saved.carbs);
   const [fat, setFat] = useState(saved.fat);
   const [water, setWater] = useState(saved.water ?? 100);
+  const [eatingWindowHours, setEatingWindowHours] = useState(saved.eatingWindowHours ?? 10);
   const [mode, setMode] = useState('grams'); // 'grams' | 'percent'
 
   // Live % display (always derived from current grams)
@@ -118,7 +119,7 @@ export default function GoalsModal({ onClose, onSave }) {
   };
 
   const handleSave = () => {
-    const goals = { calories, protein, carbs, fat, water };
+    const goals = { calories, protein, carbs, fat, water, eatingWindowHours };
     saveNutritionGoals(goals);
     onSave(goals);
     onClose();
@@ -130,6 +131,7 @@ export default function GoalsModal({ onClose, onSave }) {
     setCarbs(DEFAULT_GOALS.carbs);
     setFat(DEFAULT_GOALS.fat);
     setWater(DEFAULT_GOALS.water);
+    setEatingWindowHours(DEFAULT_GOALS.eatingWindowHours);
   };
 
   const macros = [
@@ -305,6 +307,26 @@ export default function GoalsModal({ onClose, onSave }) {
               />
               <span className="text-gray-500 font-semibold">oz / day</span>
             </div>
+          </div>
+
+          {/* Eating window */}
+          <div>
+            <label className="text-xs font-semibold uppercase tracking-wider text-gray-400 block mb-2">
+              Eating Window
+            </label>
+            <div className="flex items-center gap-3">
+              <input
+                type="number"
+                step="0.5"
+                value={eatingWindowHours}
+                onChange={e => setEatingWindowHours(Math.max(1, Math.min(24, Number(e.target.value))))}
+                className="flex-1 bg-gray-800 text-white text-2xl font-black rounded-xl px-4 py-3 text-center"
+              />
+              <span className="text-gray-500 font-semibold">hours</span>
+            </div>
+            <p className="text-xs text-gray-600 mt-1.5">
+              Counts from your first meal of the day. Eating past it keeps insulin elevated.
+            </p>
           </div>
 
           {/* Save */}

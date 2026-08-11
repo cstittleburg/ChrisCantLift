@@ -44,15 +44,35 @@ function checkGlycemicLoad(entry) {
 }
 
 /**
+ * Format a duration in ms as "3h 20m" (or "45m" under an hour).
+ */
+export function formatDuration(ms) {
+  const totalMin = Math.max(0, Math.round(ms / 60000));
+  const h = Math.floor(totalMin / 60);
+  const m = totalMin % 60;
+  if (h === 0) return `${m}m`;
+  if (m === 0) return `${h}h`;
+  return `${h}h ${m}m`;
+}
+
+/**
  * Analyze a full day's food entries.
+ *
+ * @param entries          - the day's food entries
+ * @param options.windowHours - target eating window length (default MAX_WINDOW_HOURS)
+ * @param options.now      - current time, injectable so the UI can tick it live
+ *
  * Returns:
  *   warnings      — Map<entryId, string> — per-entry warnings
  *   grazingPairs  — Set of entryIds that are too close to the previous entry
  *   nextMealRec   — { time: Date, message: string } | null
- *   eatingWindow  — { hours, start, end, isGood } | null
+ *   eatingWindow  — see below | null
  *   eatWindowWarning — string | null
  */
-export function analyzeNutritionDay(entries) {
+export function analyzeNutritionDay(entries, options = {}) {
+  const windowHours = options.windowHours ?? MAX_WINDOW_HOURS;
+  const now = options.now ? new Date(options.now) : new Date();
+
   const sorted = [...entries]
     .filter(e => e.loggedAt)
     .sort((a, b) => new Date(a.loggedAt) - new Date(b.loggedAt));
@@ -96,28 +116,36 @@ export function analyzeNutritionDay(entries) {
     }
   }
 
-  // Eating window
+  // Eating window — a forward-looking target anchored to the first real meal,
+  // not a retrospective first-to-last-bite measurement. The actionable question
+  // during the day is "how long do I have left before I should stop eating",
+  // which is what actually keeps insulin from staying elevated.
   const analyzableEntries = sorted.filter(isAnalyzable);
   let eatingWindow = null;
   let eatWindowWarning = null;
-  if (analyzableEntries.length >= 2) {
-    const first = new Date(analyzableEntries[0].loggedAt);
-    const last = new Date(analyzableEntries[analyzableEntries.length - 1].loggedAt);
-    const spanMs = last - first;
-    // A span under the grazing threshold means the first and last entries so far
-    // are from the same sitting (e.g. a multi-item saved meal logged at once) —
-    // not a second real eating occasion yet, so there's no window to report.
-    if (spanMs >= GRAZE_WINDOW_MS) {
-      const hours = spanMs / (1000 * 60 * 60);
-      eatingWindow = {
-        hours: +hours.toFixed(1),
-        start: first,
-        end: last,
-        isGood: hours <= MAX_WINDOW_HOURS,
-      };
-      if (hours > MAX_WINDOW_HOURS) {
-        eatWindowWarning = `${hours.toFixed(1)}-hour eating window — aim for ≤${MAX_WINDOW_HOURS} hrs to allow insulin to return to baseline`;
-      }
+  if (analyzableEntries.length >= 1) {
+    const start = new Date(analyzableEntries[0].loggedAt);
+    const lastBite = new Date(analyzableEntries[analyzableEntries.length - 1].loggedAt);
+    const closesAt = new Date(start.getTime() + windowHours * 60 * 60 * 1000);
+
+    const msRemaining = closesAt - now;
+    const overrunMs = lastBite - closesAt;
+    const elapsedHours = (lastBite - start) / (1000 * 60 * 60);
+
+    eatingWindow = {
+      start,
+      lastBite,
+      closesAt,
+      windowHours,
+      elapsedHours: +elapsedHours.toFixed(1),
+      msRemaining,
+      isOpen: msRemaining > 0,
+      isGood: overrunMs <= 0,
+      overrunMs: overrunMs > 0 ? overrunMs : 0,
+    };
+
+    if (overrunMs > 0) {
+      eatWindowWarning = `Ate ${formatDuration(overrunMs)} past your ${windowHours}-hour window — a longer window keeps insulin elevated`;
     }
   }
 

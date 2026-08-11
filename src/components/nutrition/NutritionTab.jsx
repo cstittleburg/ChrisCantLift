@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import {
   getNutritionLog, saveNutritionEntry, updateNutritionEntry, deleteNutritionEntry,
   getSavedFoods, saveFood, deleteFood,
@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import GoalsModal from './GoalsModal';
 import WeeklySummaryView from './WeeklySummaryView';
-import { analyzeNutritionDay, FOOD_CATEGORIES } from '../../utils/insulinUtils';
+import { analyzeNutritionDay, formatDuration, FOOD_CATEGORIES } from '../../utils/insulinUtils';
 
 const ANTHROPIC_KEY_STORAGE = 'fitness_anthropic_key';
 const today = () => new Date().toISOString().split('T')[0];
@@ -162,7 +162,18 @@ function TodayView({ date, log, totals, goals, target, pctCalories, waterEntries
   const dailySummaries = getDailySummaries();
   const existingSummary = dailySummaries[date] || null;
 
-  const analysis = useMemo(() => analyzeNutritionDay(log), [log]);
+  // Tick every minute so the eating-window countdown stays live rather than
+  // freezing at whatever it read when the last entry was logged.
+  const [nowTick, setNowTick] = useState(() => Date.now());
+  useEffect(() => {
+    const id = setInterval(() => setNowTick(Date.now()), 60 * 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  const analysis = useMemo(
+    () => analyzeNutritionDay(log, { windowHours: goals.eatingWindowHours ?? 10, now: nowTick }),
+    [log, goals.eatingWindowHours, nowTick]
+  );
 
   const handleDelete = (entryId) => {
     deleteNutritionEntry(date, entryId);
@@ -220,11 +231,10 @@ function TodayView({ date, log, totals, goals, target, pctCalories, waterEntries
       return `${time} [${e.category || 'Meal'}] ${e.name}: ${Math.round(e.calories || 0)} cal, P${Math.round(e.protein || 0)}g, C${Math.round(e.carbs || 0)}g, F${Math.round(e.fat || 0)}g${e.waterOz ? `, ${e.waterOz}oz water` : ''}`;
     }).join('\n');
 
-    const firstEntry = log[0] ? new Date(log[0].loggedAt) : null;
-    const lastEntry = log[log.length - 1] ? new Date(log[log.length - 1].loggedAt) : null;
-    const windowHours = firstEntry && lastEntry
-      ? +((lastEntry - firstEntry) / 3600000).toFixed(1)
-      : null;
+    // Use the analyzed window (skips vitamins/supplements) rather than raw
+    // first/last log entries, so the summary matches what the banner shows.
+    const windowHours = analysis.eatingWindow ? analysis.eatingWindow.elapsedHours : null;
+    const windowTarget = analysis.eatingWindow?.windowHours ?? (goals.eatingWindowHours ?? 10);
 
     try {
       const res = await fetch('https://api.anthropic.com/v1/messages', {
@@ -242,7 +252,7 @@ ${entryLines || 'No entries logged.'}
 
 Totals: ${Math.round(totals.calories)} cal / P${Math.round(totals.protein)}g / C${Math.round(totals.carbs)}g / F${Math.round(totals.fat)}g / ${Math.round(totalWaterOz)}oz water
 Goals: ${goals.calories} cal / P${goals.protein}g / C${goals.carbs}g / F${goals.fat}g / ${goals.water ?? 100}oz water
-Eating window: ${windowHours !== null ? `${windowHours} hours` : 'unknown'}
+Eating window: ${windowHours !== null ? `${windowHours} hours (target: ${windowTarget} hours)` : 'unknown'}
 
 Return ONLY valid JSON — no other text:
 {"grade":"A","headline":"One sentence overall take","wins":["win1","win2"],"improvements":["area1","area2"],"timingNote":"Specific observation about meal timing or insulin","nextDayTip":"One concrete thing to do differently tomorrow"}
@@ -300,20 +310,7 @@ Grade scale: A=excellent, B=good, C=average, D=needs work, F=poor.`,
       </div>
 
       {/* Eating window banner */}
-      {analysis.eatingWindow && (
-        <div className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold ${
-          analysis.eatingWindow.isGood
-            ? 'bg-green-900/30 border border-green-800/40 text-green-400'
-            : 'bg-yellow-900/30 border border-yellow-800/40 text-yellow-400'
-        }`}>
-          <Clock size={13} className="flex-shrink-0" />
-          <span>
-            {analysis.eatingWindow.isGood ? '✓' : '⚠'} Eating window: {analysis.eatingWindow.hours} hrs
-            {' '}({analysis.eatingWindow.start.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })} – {analysis.eatingWindow.end.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })})
-            {!analysis.eatingWindow.isGood && ' — aim for ≤10 hrs'}
-          </span>
-        </div>
-      )}
+      {analysis.eatingWindow && <EatingWindowBanner window={analysis.eatingWindow} />}
 
       {/* Next meal recommendation */}
       {analysis.nextMealRec && (
@@ -404,6 +401,41 @@ Grade scale: A=excellent, B=good, C=average, D=needs work, F=poor.`,
           onClose={() => setShowAdd(false)}
         />
       )}
+    </div>
+  );
+}
+
+// ─── Eating Window Banner ────────────────────────────────────────────────────
+
+const fmtTime = (d) => d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+
+function EatingWindowBanner({ window: w }) {
+  // Three states: still open, closed cleanly, or overrun (ate past the window).
+  let style, icon, headline;
+
+  if (!w.isGood) {
+    style = 'bg-red-900/30 border-red-800/40 text-red-400';
+    icon = '⚠';
+    headline = `Ate ${formatDuration(w.overrunMs)} past your ${w.windowHours}h window`;
+  } else if (w.isOpen) {
+    style = 'bg-blue-900/20 border-blue-800/30 text-blue-300';
+    icon = '🍽';
+    headline = `${formatDuration(w.msRemaining)} left — stop eating by ${fmtTime(w.closesAt)}`;
+  } else {
+    style = 'bg-green-900/30 border-green-800/40 text-green-400';
+    icon = '✓';
+    headline = `Window closed — ${w.elapsedHours} hrs, within your ${w.windowHours}h target`;
+  }
+
+  return (
+    <div className={`px-4 py-2.5 rounded-xl border text-xs font-semibold ${style}`}>
+      <div className="flex items-center gap-2">
+        <Clock size={13} className="flex-shrink-0" />
+        <span>{icon} {headline}</span>
+      </div>
+      <p className="text-gray-500 font-normal mt-1 ml-[21px]">
+        First meal {fmtTime(w.start)} · closes {fmtTime(w.closesAt)}
+      </p>
     </div>
   );
 }
