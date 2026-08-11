@@ -1,16 +1,21 @@
 /**
  * Nutrition timing and glycemic load analysis.
  *
+ * Timing model — per eating occasion, not per day:
+ *   1. A window OPENS when a real food item is logged.
+ *   2. That window should CLOSE within MEAL_WINDOW_MS (1 hr) — finish eating.
+ *   3. A new window shouldn't open until MIN_GAP_MS (2.5 hrs) after the last
+ *      bite, ideally RECOMMENDED_GAP_MS (3 hrs), so insulin returns to baseline.
+ *
  * Important framing: these are behavioral signals based on meal composition
  * and timing, not actual insulin measurements. Results are directional guidance
  * for someone focused on body recomposition and avoiding chronic elevated insulin
  * from grazing. Individual insulin response varies.
  */
 
-const GRAZE_WINDOW_MS = 90 * 60 * 1000;      // < 90 min between entries = grazing risk
-const MIN_GAP_MS = 2.5 * 60 * 60 * 1000;     // ideal minimum gap between meals
-const RECOMMENDED_GAP_MS = 3 * 60 * 60 * 1000; // recommended gap = 3 hrs
-const MAX_WINDOW_HOURS = 10;                  // target eating window
+const MEAL_WINDOW_MS = 60 * 60 * 1000;         // an eating occasion should close within 1 hr
+const MIN_GAP_MS = 2.5 * 60 * 60 * 1000;       // earliest the next window may open
+const RECOMMENDED_GAP_MS = 3 * 60 * 60 * 1000; // ideal gap between occasions
 
 const FOOD_CATEGORIES = ['Meal', 'Snack', 'Vitamins', 'Supplement', 'Other'];
 export { FOOD_CATEGORIES };
@@ -56,100 +61,121 @@ export function formatDuration(ms) {
 }
 
 /**
+ * Group analyzable entries into eating occasions.
+ * Anything logged within mealWindowMs of an occasion's open belongs to that
+ * occasion — items eaten together are one window, not separate ones.
+ */
+function buildOccasions(entries, mealWindowMs, minGapMs) {
+  const occasions = [];
+
+  entries.forEach(entry => {
+    const t = new Date(entry.loggedAt).getTime();
+    const current = occasions[occasions.length - 1];
+
+    if (current && t - current.openedAt <= mealWindowMs) {
+      current.entries.push(entry);
+      current.lastBiteAt = t;
+      return;
+    }
+
+    const previous = current || null;
+    const gapBeforeMs = previous ? t - previous.lastBiteAt : null;
+    occasions.push({
+      openedAt: t,
+      lastBiteAt: t,
+      closesAt: t + mealWindowMs,
+      entries: [entry],
+      gapBeforeMs,
+      // Opened before insulin had time to settle. Also catches "kept eating
+      // past the 1 hr window" — those bites start a new occasion immediately.
+      openedTooSoon: gapBeforeMs !== null && gapBeforeMs < minGapMs,
+    });
+  });
+
+  return occasions;
+}
+
+/**
  * Analyze a full day's food entries.
  *
- * @param entries          - the day's food entries
- * @param options.windowHours - target eating window length (default MAX_WINDOW_HOURS)
- * @param options.now      - current time, injectable so the UI can tick it live
+ * @param entries                 - the day's food entries
+ * @param options.mealWindowMs    - how long a window may stay open (default 1 hr)
+ * @param options.minGapMs        - required rest before reopening (default 2.5 hrs)
+ * @param options.now             - current time, injectable so the UI can tick it live
  *
  * Returns:
- *   warnings      — Map<entryId, string> — per-entry warnings
- *   grazingPairs  — Set of entryIds that are too close to the previous entry
- *   nextMealRec   — { time: Date, message: string } | null
- *   eatingWindow  — see below | null
- *   eatWindowWarning — string | null
+ *   warnings        — { entryId: string } — glycemic composition warnings
+ *   timingWarnings  — { entryId: string } — "opened too soon" warnings
+ *   occasions       — grouped eating occasions
+ *   mealWindow      — live state of the current/most recent window | null
+ *   dayStats        — day-level rollup for the AI summary
  */
 export function analyzeNutritionDay(entries, options = {}) {
-  const windowHours = options.windowHours ?? MAX_WINDOW_HOURS;
-  const now = options.now ? new Date(options.now) : new Date();
+  const mealWindowMs = options.mealWindowMs ?? MEAL_WINDOW_MS;
+  const minGapMs = options.minGapMs ?? MIN_GAP_MS;
+  const idealGapMs = Math.max(minGapMs, RECOMMENDED_GAP_MS);
+  const now = options.now ? new Date(options.now).getTime() : Date.now();
 
   const sorted = [...entries]
     .filter(e => e.loggedAt)
     .sort((a, b) => new Date(a.loggedAt) - new Date(b.loggedAt));
 
-  const warnings = {};       // entryId → string
-  const grazingPairs = new Set(); // entryIds that are too close to previous
+  const warnings = {};
+  const timingWarnings = {};
 
-  for (let i = 0; i < sorted.length; i++) {
-    const entry = sorted[i];
-
-    // Glycemic load
+  sorted.forEach(entry => {
     const glycWarn = checkGlycemicLoad(entry);
     if (glycWarn) warnings[entry.id] = glycWarn;
+  });
 
-    // Grazing check (skip vitamins/supplements — they don't spike insulin)
-    if (i > 0 && isAnalyzable(entry)) {
-      // Find the previous analyzable entry
-      let prevIdx = i - 1;
-      while (prevIdx >= 0 && !isAnalyzable(sorted[prevIdx])) prevIdx--;
-      if (prevIdx >= 0) {
-        const gap = new Date(entry.loggedAt) - new Date(sorted[prevIdx].loggedAt);
-        if (gap > 0 && gap < GRAZE_WINDOW_MS) {
-          grazingPairs.add(entry.id);
-        }
-      }
-    }
-  }
-
-  // Next meal recommendation — based on last analyzable entry
-  const lastAnalyzable = [...sorted].reverse().find(isAnalyzable);
-  let nextMealRec = null;
-  if (lastAnalyzable) {
-    const lastTime = new Date(lastAnalyzable.loggedAt);
-    const nextMealTime = new Date(lastTime.getTime() + RECOMMENDED_GAP_MS);
-    const now = new Date();
-    if (nextMealTime > now) {
-      nextMealRec = {
-        time: nextMealTime,
-        message: `Next meal around ${nextMealTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}`,
-      };
-    }
-  }
-
-  // Eating window — a forward-looking target anchored to the first real meal,
-  // not a retrospective first-to-last-bite measurement. The actionable question
-  // during the day is "how long do I have left before I should stop eating",
-  // which is what actually keeps insulin from staying elevated.
   const analyzableEntries = sorted.filter(isAnalyzable);
-  let eatingWindow = null;
-  let eatWindowWarning = null;
-  if (analyzableEntries.length >= 1) {
-    const start = new Date(analyzableEntries[0].loggedAt);
-    const lastBite = new Date(analyzableEntries[analyzableEntries.length - 1].loggedAt);
-    const closesAt = new Date(start.getTime() + windowHours * 60 * 60 * 1000);
+  const occasions = buildOccasions(analyzableEntries, mealWindowMs, minGapMs);
 
-    const msRemaining = closesAt - now;
-    const overrunMs = lastBite - closesAt;
-    const elapsedHours = (lastBite - start) / (1000 * 60 * 60);
+  occasions.forEach(occ => {
+    if (!occ.openedTooSoon) return;
+    const opener = occ.entries[0];
+    timingWarnings[opener.id] =
+      `Only ${formatDuration(occ.gapBeforeMs)} since your last bite — aim for ${formatDuration(minGapMs)}–${formatDuration(idealGapMs)} between windows`;
+  });
 
-    eatingWindow = {
-      start,
-      lastBite,
-      closesAt,
-      windowHours,
-      elapsedHours: +elapsedHours.toFixed(1),
-      msRemaining,
-      isOpen: msRemaining > 0,
-      isGood: overrunMs <= 0,
-      overrunMs: overrunMs > 0 ? overrunMs : 0,
+  // Live state of the current (or most recent) window
+  let mealWindow = null;
+  if (occasions.length > 0) {
+    const last = occasions[occasions.length - 1];
+    const isOpen = now < last.closesAt;
+    const nextOpenAt = last.lastBiteAt + minGapMs;
+    const nextIdealOpenAt = last.lastBiteAt + idealGapMs;
+
+    mealWindow = {
+      openedAt: new Date(last.openedAt),
+      lastBiteAt: new Date(last.lastBiteAt),
+      closesAt: new Date(last.closesAt),
+      nextOpenAt: new Date(nextOpenAt),
+      nextIdealOpenAt: new Date(nextIdealOpenAt),
+      isOpen,
+      msUntilClose: last.closesAt - now,
+      msUntilNextOpen: nextOpenAt - now,
+      canOpenNow: !isOpen && now >= nextOpenAt,
+      openedTooSoon: last.openedTooSoon,
+      itemCount: last.entries.length,
+      occasionCount: occasions.length,
+      mealWindowMs,
+      minGapMs,
+      idealGapMs,
     };
-
-    if (overrunMs > 0) {
-      eatWindowWarning = `Ate ${formatDuration(overrunMs)} past your ${windowHours}-hour window — a longer window keeps insulin elevated`;
-    }
   }
 
-  return { warnings, grazingPairs, nextMealRec, eatingWindow, eatWindowWarning };
+  const dayStats = {
+    occasionCount: occasions.length,
+    tooSoonCount: occasions.filter(o => o.openedTooSoon).length,
+    firstBiteAt: occasions.length ? new Date(occasions[0].openedAt) : null,
+    lastBiteAt: occasions.length ? new Date(occasions[occasions.length - 1].lastBiteAt) : null,
+    longestOccasionMs: occasions.reduce(
+      (max, o) => Math.max(max, o.lastBiteAt - o.openedAt), 0
+    ),
+  };
+
+  return { warnings, timingWarnings, occasions, mealWindow, dayStats };
 }
 
 /**

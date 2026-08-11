@@ -25,7 +25,7 @@ function percentsToGrams(calories, proteinPct, carbsPct, fatPct) {
   };
 }
 
-const DEFAULT_GOALS = { calories: 2809, protein: 200, carbs: 250, fat: 78, water: 100, eatingWindowHours: 10 };
+const DEFAULT_GOALS = { calories: 2809, protein: 200, carbs: 250, fat: 78, water: 100, mealWindowMinutes: 60, mealGapHours: 2.5 };
 
 export default function GoalsModal({ onClose, onSave }) {
   const saved = getNutritionGoals();
@@ -35,7 +35,8 @@ export default function GoalsModal({ onClose, onSave }) {
   const [carbs, setCarbs] = useState(saved.carbs);
   const [fat, setFat] = useState(saved.fat);
   const [water, setWater] = useState(saved.water ?? 100);
-  const [eatingWindowHours, setEatingWindowHours] = useState(saved.eatingWindowHours ?? 10);
+  const [mealWindowMinutes, setMealWindowMinutes] = useState(saved.mealWindowMinutes ?? 60);
+  const [mealGapHours, setMealGapHours] = useState(saved.mealGapHours ?? 2.5);
   const [mode, setMode] = useState('grams'); // 'grams' | 'percent'
 
   // Live % display (always derived from current grams)
@@ -119,7 +120,7 @@ export default function GoalsModal({ onClose, onSave }) {
   };
 
   const handleSave = () => {
-    const goals = { calories, protein, carbs, fat, water, eatingWindowHours };
+    const goals = { calories, protein, carbs, fat, water, mealWindowMinutes, mealGapHours };
     saveNutritionGoals(goals);
     onSave(goals);
     onClose();
@@ -131,7 +132,8 @@ export default function GoalsModal({ onClose, onSave }) {
     setCarbs(DEFAULT_GOALS.carbs);
     setFat(DEFAULT_GOALS.fat);
     setWater(DEFAULT_GOALS.water);
-    setEatingWindowHours(DEFAULT_GOALS.eatingWindowHours);
+    setMealWindowMinutes(DEFAULT_GOALS.mealWindowMinutes);
+    setMealGapHours(DEFAULT_GOALS.mealGapHours);
   };
 
   const macros = [
@@ -309,23 +311,42 @@ export default function GoalsModal({ onClose, onSave }) {
             </div>
           </div>
 
-          {/* Eating window */}
+          {/* Meal timing */}
           <div>
             <label className="text-xs font-semibold uppercase tracking-wider text-gray-400 block mb-2">
-              Eating Window
+              Meal Timing
             </label>
-            <div className="flex items-center gap-3">
-              <input
-                type="number"
-                step="0.5"
-                value={eatingWindowHours}
-                onChange={e => setEatingWindowHours(Math.max(1, Math.min(24, Number(e.target.value))))}
-                className="flex-1 bg-gray-800 text-white text-2xl font-black rounded-xl px-4 py-3 text-center"
-              />
-              <span className="text-gray-500 font-semibold">hours</span>
+            <div className="flex gap-3">
+              <div className="flex-1">
+                <label className="text-xs text-gray-500 block mb-1">Window length</label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    step="5"
+                    value={mealWindowMinutes}
+                    onChange={e => setMealWindowMinutes(Math.max(5, Math.min(240, Number(e.target.value))))}
+                    className="w-full bg-gray-800 text-white text-xl font-black rounded-xl px-3 py-3 text-center"
+                  />
+                  <span className="text-gray-500 text-sm font-semibold">min</span>
+                </div>
+              </div>
+              <div className="flex-1">
+                <label className="text-xs text-gray-500 block mb-1">Rest between</label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    step="0.5"
+                    value={mealGapHours}
+                    onChange={e => setMealGapHours(Math.max(0.5, Math.min(12, Number(e.target.value))))}
+                    className="w-full bg-gray-800 text-white text-xl font-black rounded-xl px-3 py-3 text-center"
+                  />
+                  <span className="text-gray-500 text-sm font-semibold">hrs</span>
+                </div>
+              </div>
             </div>
             <p className="text-xs text-gray-600 mt-1.5">
-              Counts from your first meal of the day. Eating past it keeps insulin elevated.
+              A window opens when you log food and should close within {mealWindowMinutes} min.
+              Wait {mealGapHours} hrs after your last bite before opening another.
             </p>
           </div>
 

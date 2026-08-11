@@ -164,7 +164,8 @@ const DEFAULT_GOALS = {
   carbs: 250,     // g
   fat: 78,        // g
   water: 100,     // oz/day
-  eatingWindowHours: 10, // target hours from first meal to last
+  mealWindowMinutes: 60, // an eating occasion should close within this
+  mealGapHours: 2.5,     // rest before a new window may open
 };
 
 export function getNutritionGoals() {

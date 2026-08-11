@@ -171,8 +171,12 @@ function TodayView({ date, log, totals, goals, target, pctCalories, waterEntries
   }, []);
 
   const analysis = useMemo(
-    () => analyzeNutritionDay(log, { windowHours: goals.eatingWindowHours ?? 10, now: nowTick }),
-    [log, goals.eatingWindowHours, nowTick]
+    () => analyzeNutritionDay(log, {
+      mealWindowMs: (goals.mealWindowMinutes ?? 60) * 60 * 1000,
+      minGapMs: (goals.mealGapHours ?? 2.5) * 60 * 60 * 1000,
+      now: nowTick,
+    }),
+    [log, goals.mealWindowMinutes, goals.mealGapHours, nowTick]
   );
 
   const handleDelete = (entryId) => {
@@ -231,10 +235,19 @@ function TodayView({ date, log, totals, goals, target, pctCalories, waterEntries
       return `${time} [${e.category || 'Meal'}] ${e.name}: ${Math.round(e.calories || 0)} cal, P${Math.round(e.protein || 0)}g, C${Math.round(e.carbs || 0)}g, F${Math.round(e.fat || 0)}g${e.waterOz ? `, ${e.waterOz}oz water` : ''}`;
     }).join('\n');
 
-    // Use the analyzed window (skips vitamins/supplements) rather than raw
-    // first/last log entries, so the summary matches what the banner shows.
-    const windowHours = analysis.eatingWindow ? analysis.eatingWindow.elapsedHours : null;
-    const windowTarget = analysis.eatingWindow?.windowHours ?? (goals.eatingWindowHours ?? 10);
+    // Describe timing with the same occasion model the banner uses, so the
+    // summary and the UI can't disagree.
+    const { dayStats } = analysis;
+    const windowMin = goals.mealWindowMinutes ?? 60;
+    const gapHrs = goals.mealGapHours ?? 2.5;
+    const timingLine = dayStats.occasionCount === 0
+      ? 'No eating occasions logged.'
+      : [
+          `Eating occasions: ${dayStats.occasionCount}`,
+          `Opened too soon (under ${gapHrs} hrs rest): ${dayStats.tooSoonCount}`,
+          `Longest occasion: ${Math.round(dayStats.longestOccasionMs / 60000)} min (target: close within ${windowMin} min)`,
+          `First bite ${fmtTime(dayStats.firstBiteAt)}, last bite ${fmtTime(dayStats.lastBiteAt)}`,
+        ].join('\n');
 
     try {
       const res = await fetch('https://api.anthropic.com/v1/messages', {
@@ -252,7 +265,8 @@ ${entryLines || 'No entries logged.'}
 
 Totals: ${Math.round(totals.calories)} cal / P${Math.round(totals.protein)}g / C${Math.round(totals.carbs)}g / F${Math.round(totals.fat)}g / ${Math.round(totalWaterOz)}oz water
 Goals: ${goals.calories} cal / P${goals.protein}g / C${goals.carbs}g / F${goals.fat}g / ${goals.water ?? 100}oz water
-Eating window: ${windowHours !== null ? `${windowHours} hours (target: ${windowTarget} hours)` : 'unknown'}
+Meal timing (target: each eating window closes within ${windowMin} min, with ${gapHrs}+ hrs between windows so insulin returns to baseline):
+${timingLine}
 
 Return ONLY valid JSON — no other text:
 {"grade":"A","headline":"One sentence overall take","wins":["win1","win2"],"improvements":["area1","area2"],"timingNote":"Specific observation about meal timing or insulin","nextDayTip":"One concrete thing to do differently tomorrow"}
@@ -309,16 +323,8 @@ Grade scale: A=excellent, B=good, C=average, D=needs work, F=poor.`,
         </div>
       </div>
 
-      {/* Eating window banner */}
-      {analysis.eatingWindow && <EatingWindowBanner window={analysis.eatingWindow} />}
-
-      {/* Next meal recommendation */}
-      {analysis.nextMealRec && (
-        <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold bg-blue-900/20 border border-blue-800/30 text-blue-300">
-          <Clock size={13} className="flex-shrink-0" />
-          {analysis.nextMealRec.message}
-        </div>
-      )}
+      {/* Meal window status */}
+      {analysis.mealWindow && <MealWindowBanner window={analysis.mealWindow} />}
 
       {/* Add food button */}
       <button
@@ -333,17 +339,15 @@ Grade scale: A=excellent, B=good, C=average, D=needs work, F=poor.`,
       {log.length > 0 && (
         <div className="space-y-1.5">
           <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-500">Today's Log</h3>
-          {log.map((entry, i) => {
-            const hasGrazeWarning = analysis.grazingPairs.has(entry.id);
-            const hasGlycemicWarning = analysis.warnings[entry.id];
+          {log.map((entry) => {
             return (
               <FoodLogItem
                 key={entry.id}
                 entry={entry}
                 onDelete={() => handleDelete(entry.id)}
                 onUpdateQuantity={(qty) => handleUpdateQuantity(entry, qty)}
-                grazingWarning={hasGrazeWarning}
-                glycemicWarning={hasGlycemicWarning}
+                timingWarning={analysis.timingWarnings[entry.id]}
+                glycemicWarning={analysis.warnings[entry.id]}
               />
             );
           })}
@@ -405,26 +409,30 @@ Grade scale: A=excellent, B=good, C=average, D=needs work, F=poor.`,
   );
 }
 
-// ─── Eating Window Banner ────────────────────────────────────────────────────
+// ─── Meal Window Banner ──────────────────────────────────────────────────────
 
 const fmtTime = (d) => d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
 
-function EatingWindowBanner({ window: w }) {
-  // Three states: still open, closed cleanly, or overrun (ate past the window).
-  let style, icon, headline;
+function MealWindowBanner({ window: w }) {
+  // Three live states: window open (finish eating), resting (insulin settling),
+  // or rested (free to open a new window).
+  let style, icon, headline, detail;
 
-  if (!w.isGood) {
-    style = 'bg-red-900/30 border-red-800/40 text-red-400';
-    icon = '⚠';
-    headline = `Ate ${formatDuration(w.overrunMs)} past your ${w.windowHours}h window`;
-  } else if (w.isOpen) {
+  if (w.isOpen) {
     style = 'bg-blue-900/20 border-blue-800/30 text-blue-300';
     icon = '🍽';
-    headline = `${formatDuration(w.msRemaining)} left — stop eating by ${fmtTime(w.closesAt)}`;
-  } else {
+    headline = `Window open — ${formatDuration(w.msUntilClose)} left`;
+    detail = `Opened ${fmtTime(w.openedAt)} · close by ${fmtTime(w.closesAt)}`;
+  } else if (w.canOpenNow) {
     style = 'bg-green-900/30 border-green-800/40 text-green-400';
     icon = '✓';
-    headline = `Window closed — ${w.elapsedHours} hrs, within your ${w.windowHours}h target`;
+    headline = 'Rested — ready for your next meal';
+    detail = `Last bite ${fmtTime(w.lastBiteAt)}`;
+  } else {
+    style = 'bg-gray-800/60 border-gray-700/50 text-gray-300';
+    icon = '⏳';
+    headline = `Resting — ${formatDuration(w.msUntilNextOpen)} until you can eat`;
+    detail = `Last bite ${fmtTime(w.lastBiteAt)} · next window ${fmtTime(w.nextOpenAt)}`;
   }
 
   return (
@@ -433,9 +441,7 @@ function EatingWindowBanner({ window: w }) {
         <Clock size={13} className="flex-shrink-0" />
         <span>{icon} {headline}</span>
       </div>
-      <p className="text-gray-500 font-normal mt-1 ml-[21px]">
-        First meal {fmtTime(w.start)} · closes {fmtTime(w.closesAt)}
-      </p>
+      <p className="text-gray-500 font-normal mt-1 ml-[21px]">{detail}</p>
     </div>
   );
 }
@@ -623,7 +629,7 @@ const CATEGORY_COLORS = {
   Other: 'bg-gray-800 text-gray-400 border-gray-700',
 };
 
-function FoodLogItem({ entry, onDelete, onUpdateQuantity, grazingWarning, glycemicWarning }) {
+function FoodLogItem({ entry, onDelete, onUpdateQuantity, timingWarning, glycemicWarning }) {
   const [editingQty, setEditingQty] = useState(false);
   const [qtyInput, setQtyInput] = useState(entry.quantity || 1);
 
@@ -631,7 +637,7 @@ function FoodLogItem({ entry, onDelete, onUpdateQuantity, grazingWarning, glycem
     ? new Date(entry.loggedAt).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
     : '';
   const catStyle = CATEGORY_COLORS[entry.category] || CATEGORY_COLORS.Other;
-  const hasWarning = grazingWarning || glycemicWarning;
+  const hasWarning = timingWarning || glycemicWarning;
 
   const openQtyEditor = () => {
     setQtyInput(entry.quantity || 1);
@@ -703,10 +709,10 @@ function FoodLogItem({ entry, onDelete, onUpdateQuantity, grazingWarning, glycem
       )}
 
       {/* Inline warnings */}
-      {grazingWarning && (
+      {timingWarning && (
         <div className="mt-2 flex items-start gap-1.5 text-xs text-yellow-400">
           <AlertTriangle size={12} className="flex-shrink-0 mt-0.5" />
-          <span>Short gap since last meal — frequent eating keeps insulin elevated</span>
+          <span>{timingWarning}</span>
         </div>
       )}
       {glycemicWarning && (
