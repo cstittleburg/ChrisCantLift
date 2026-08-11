@@ -33,6 +33,11 @@ export async function pullFromCloud() {
 
     if (data && data.length > 0) {
       data.forEach(row => {
+        // Never clobber data already on this device — the cloud copy can be
+        // stale if an earlier push never finished (tab closed mid-debounce,
+        // backend briefly unreachable). Pull only fills in keys this device
+        // doesn't have yet: fresh install, cleared storage, a new device.
+        if (localStorage.getItem(row.key) !== null) return;
         try {
           localStorage.setItem(row.key, JSON.stringify(row.value));
         } catch (e) {

@@ -1,6 +1,6 @@
 import { useState, useMemo, useRef } from 'react';
 import {
-  getNutritionLog, saveNutritionEntry, deleteNutritionEntry,
+  getNutritionLog, saveNutritionEntry, updateNutritionEntry, deleteNutritionEntry,
   getSavedFoods, saveFood, deleteFood,
   getSavedMeals, saveMeal,
   getNutritionGoals, saveNutritionGoals,
@@ -8,7 +8,7 @@ import {
   getDailySummaries, saveDailySummary,
 } from '../../utils/storage';
 import {
-  Plus, Trash2, X, Check, Loader, SlidersHorizontal,
+  Plus, Minus, Trash2, X, Check, Loader, SlidersHorizontal, Pencil,
   Droplets, AlertTriangle, Clock, Camera, ChevronDown, ChevronUp,
 } from 'lucide-react';
 import GoalsModal from './GoalsModal';
@@ -166,6 +166,23 @@ function TodayView({ date, log, totals, goals, target, pctCalories, waterEntries
 
   const handleDelete = (entryId) => {
     deleteNutritionEntry(date, entryId);
+    onUpdate();
+  };
+
+  // Rescales an entry's macros relative to its current quantity (defaulting old
+  // entries with no quantity field to 1x), so repeated edits stay accurate
+  // instead of compounding off whatever the last edit left behind.
+  const handleUpdateQuantity = (entry, newQuantity) => {
+    const prevQuantity = entry.quantity || 1;
+    const scale = newQuantity / prevQuantity;
+    updateNutritionEntry(date, entry.id, {
+      quantity: newQuantity,
+      calories: (entry.calories || 0) * scale,
+      protein: (entry.protein || 0) * scale,
+      carbs: (entry.carbs || 0) * scale,
+      fat: (entry.fat || 0) * scale,
+      waterOz: (entry.waterOz || 0) * scale,
+    });
     onUpdate();
   };
 
@@ -327,6 +344,7 @@ Grade scale: A=excellent, B=good, C=average, D=needs work, F=poor.`,
                 key={entry.id}
                 entry={entry}
                 onDelete={() => handleDelete(entry.id)}
+                onUpdateQuantity={(qty) => handleUpdateQuantity(entry, qty)}
                 grazingWarning={hasGrazeWarning}
                 glycemicWarning={hasGlycemicWarning}
               />
@@ -573,12 +591,25 @@ const CATEGORY_COLORS = {
   Other: 'bg-gray-800 text-gray-400 border-gray-700',
 };
 
-function FoodLogItem({ entry, onDelete, grazingWarning, glycemicWarning }) {
+function FoodLogItem({ entry, onDelete, onUpdateQuantity, grazingWarning, glycemicWarning }) {
+  const [editingQty, setEditingQty] = useState(false);
+  const [qtyInput, setQtyInput] = useState(entry.quantity || 1);
+
   const timeStr = entry.loggedAt
     ? new Date(entry.loggedAt).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
     : '';
   const catStyle = CATEGORY_COLORS[entry.category] || CATEGORY_COLORS.Other;
   const hasWarning = grazingWarning || glycemicWarning;
+
+  const openQtyEditor = () => {
+    setQtyInput(entry.quantity || 1);
+    setEditingQty(true);
+  };
+
+  const handleSaveQty = () => {
+    onUpdateQuantity(Math.max(0.25, qtyInput));
+    setEditingQty(false);
+  };
 
   return (
     <div className={`bg-gray-900 rounded-xl border px-4 py-3 ${hasWarning ? 'border-yellow-800/50' : 'border-gray-800'}`}>
@@ -596,6 +627,9 @@ function FoodLogItem({ entry, onDelete, grazingWarning, glycemicWarning }) {
                 {timeStr}
               </span>
             )}
+            {entry.quantity && entry.quantity !== 1 && (
+              <span className="text-xs text-gray-500 font-semibold">{entry.quantity}×</span>
+            )}
           </div>
           <p className="font-semibold text-white text-sm truncate">{entry.name}</p>
           <p className="text-xs text-gray-500 mt-0.5">
@@ -606,8 +640,35 @@ function FoodLogItem({ entry, onDelete, grazingWarning, glycemicWarning }) {
             {entry.waterOz ? ` · 💧${entry.waterOz}oz` : ''}
           </p>
         </div>
-        <button onClick={onDelete} className="text-gray-600 p-1 ml-2 flex-shrink-0"><Trash2 size={16} /></button>
+        <div className="flex items-center gap-1 ml-2 flex-shrink-0">
+          <button onClick={openQtyEditor} className="text-gray-600 p-1"><Pencil size={16} /></button>
+          <button onClick={onDelete} className="text-gray-600 p-1"><Trash2 size={16} /></button>
+        </div>
       </div>
+
+      {/* Inline quantity editor */}
+      {editingQty && (
+        <div className="mt-2 flex items-center justify-between bg-gray-800 rounded-lg px-3 py-2">
+          <span className="text-xs text-gray-400 font-semibold">Quantity</span>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setQtyInput(q => Math.max(0.25, +(q - 0.5).toFixed(2)))}
+              className="w-7 h-7 rounded-full bg-gray-700 text-white flex items-center justify-center active:bg-gray-600"
+            >
+              <Minus size={14} />
+            </button>
+            <span className="text-white font-bold text-sm w-10 text-center">{qtyInput}×</span>
+            <button
+              onClick={() => setQtyInput(q => +(q + 0.5).toFixed(2))}
+              className="w-7 h-7 rounded-full bg-gray-700 text-white flex items-center justify-center active:bg-gray-600"
+            >
+              <Plus size={14} />
+            </button>
+            <button onClick={handleSaveQty} className="ml-1 text-green-400 p-1"><Check size={16} /></button>
+            <button onClick={() => setEditingQty(false)} className="text-gray-500 p-1"><X size={16} /></button>
+          </div>
+        </div>
+      )}
 
       {/* Inline warnings */}
       {grazingWarning && (
@@ -634,6 +695,7 @@ function AddFoodModal({ date, onSave, onClose }) {
   const [text, setText] = useState('');
   const [loading, setLoading] = useState(false);
   const [parsed, setParsed] = useState(null);
+  const [quantity, setQuantity] = useState(1);
   const [error, setError] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState('Meal');
   const fileRef = useRef(null);
@@ -712,7 +774,12 @@ waterOz = fluid ounces of water (e.g. 22 for a 22oz drink, 0 for solid food). Us
     onSave({
       id: `entry_${Date.now()}`,
       ...parsed,
-      waterOz: parsed.waterOz || 0,
+      calories: (parsed.calories || 0) * quantity,
+      protein: (parsed.protein || 0) * quantity,
+      carbs: (parsed.carbs || 0) * quantity,
+      fat: (parsed.fat || 0) * quantity,
+      waterOz: (parsed.waterOz || 0) * quantity,
+      quantity,
       category: selectedCategory,
       loggedAt: new Date().toISOString(),
     });
@@ -723,6 +790,7 @@ waterOz = fluid ounces of water (e.g. 22 for a 22oz drink, 0 for solid food). Us
       id: `entry_${Date.now()}`,
       ...food,
       waterOz: food.waterOz || 0,
+      quantity: food.quantity || 1,
       category: food.category || 'Meal',
       loggedAt: new Date().toISOString(),
     });
@@ -736,17 +804,17 @@ waterOz = fluid ounces of water (e.g. 22 for a 22oz drink, 0 for solid food). Us
           <button onClick={onClose}><X size={22} className="text-gray-500" /></button>
         </div>
 
-        <div className="mb-4">
-          <label className="text-xs text-gray-500 block mb-1">
-            Anthropic API Key {apiKey && <span className="text-green-500">✓ saved</span>}
-          </label>
-          <input type="password" value={apiKey} onChange={e => setApiKey(e.target.value)}
-            placeholder="sk-ant-..." className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm" />
-        </div>
+        {!apiKey && (
+          <div className="mb-4">
+            <label className="text-xs text-gray-500 block mb-1">Anthropic API Key</label>
+            <input type="password" value={apiKey} onChange={e => setApiKey(e.target.value)}
+              placeholder="sk-ant-..." className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm" />
+          </div>
+        )}
 
         <div className="flex gap-2 mb-4">
           {[['text', 'Describe'], ['photo', 'Upload Label'], ['library', 'Saved Foods']].map(([m, label]) => (
-            <button key={m} onClick={() => { setMode(m); setParsed(null); setError(null); }}
+            <button key={m} onClick={() => { setMode(m); setParsed(null); setQuantity(1); setError(null); }}
               className={`flex-1 py-2 rounded-full text-xs font-semibold ${mode === m ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-400'}`}>
               {label}
             </button>
@@ -840,6 +908,29 @@ waterOz = fluid ounces of water (e.g. 22 for a 22oz drink, 0 for solid food). Us
                 className="w-full bg-gray-700 text-white font-bold text-sm rounded-lg px-3 py-2 mb-2"
               />
               {parsed.servingDescription && <p className="text-xs text-gray-500 mb-3">{parsed.servingDescription}</p>}
+
+              {/* Quantity */}
+              <div className="flex items-center justify-between bg-gray-700 rounded-lg px-3 py-2 mb-2">
+                <span className="text-xs text-gray-400 font-semibold">Quantity</span>
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setQuantity(q => Math.max(0.25, +(q - 0.5).toFixed(2)))}
+                    className="w-7 h-7 rounded-full bg-gray-600 text-white flex items-center justify-center active:bg-gray-500"
+                  >
+                    <Minus size={14} />
+                  </button>
+                  <span className="text-white font-bold text-sm w-10 text-center">{quantity}×</span>
+                  <button
+                    type="button"
+                    onClick={() => setQuantity(q => +(q + 0.5).toFixed(2))}
+                    className="w-7 h-7 rounded-full bg-gray-600 text-white flex items-center justify-center active:bg-gray-500"
+                  >
+                    <Plus size={14} />
+                  </button>
+                </div>
+              </div>
+
               <div className="grid grid-cols-4 gap-2 mb-2">
                 {[
                   { label: 'Cal', value: parsed.calories, unit: '' },
@@ -849,7 +940,7 @@ waterOz = fluid ounces of water (e.g. 22 for a 22oz drink, 0 for solid food). Us
                 ].map(({ label, value, unit }) => (
                   <div key={label} className="text-center bg-gray-700 rounded-lg p-2">
                     <p className="text-xs text-gray-400">{label}</p>
-                    <p className="font-bold text-white text-sm">{Math.round(value || 0)}{unit}</p>
+                    <p className="font-bold text-white text-sm">{Math.round((value || 0) * quantity)}{unit}</p>
                   </div>
                 ))}
               </div>
@@ -884,7 +975,7 @@ waterOz = fluid ounces of water (e.g. 22 for a 22oz drink, 0 for solid food). Us
             </div>
 
             <div className="flex gap-2">
-              <button onClick={() => { setParsed(null); setText(''); }} className="flex-1 py-3 bg-gray-800 text-gray-300 rounded-xl font-semibold text-sm">
+              <button onClick={() => { setParsed(null); setQuantity(1); setText(''); }} className="flex-1 py-3 bg-gray-800 text-gray-300 rounded-xl font-semibold text-sm">
                 Try Again
               </button>
               <button onClick={handleSave} className="flex-1 py-3 bg-green-600 text-white rounded-xl font-bold text-sm flex items-center justify-center gap-1">
@@ -955,6 +1046,7 @@ function SavedMealsView({ date, onUpdate }) {
         id: `entry_${Date.now()}_${Math.random()}`,
         ...food,
         waterOz: food.waterOz || 0,
+        quantity: food.quantity || 1,
         mealName: meal.name,
         loggedAt,
       });
