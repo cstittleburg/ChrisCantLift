@@ -7,6 +7,11 @@ import {
 import { getAllExercisesMap } from '../../utils/exerciseRegistry';
 import { X, Plus, Check, RotateCcw, Pencil, ChevronDown, ChevronUp } from 'lucide-react';
 
+// Slots that log a weight are swappable — both the standard weighted type and
+// the weight+reps-without-RIR variant.
+const isSwappable = (ex) =>
+  ex.type === EXERCISE_TYPE.WEIGHTED || ex.type === EXERCISE_TYPE.WEIGHTED_NO_RIR;
+
 export default function ProgramEditor({ onClose }) {
   const [expandedWorkout, setExpandedWorkout] = useState(null);
   const [editingSlot, setEditingSlot] = useState(null); // slot exercise object
@@ -49,9 +54,9 @@ export default function ProgramEditor({ onClose }) {
 
           // Collect all swappable slots for this workout
           const slots = workout.supersets.flatMap(ss => ss.exercises)
-            .filter(ex => ex.type === EXERCISE_TYPE.WEIGHTED);
+            .filter(ex => isSwappable(ex));
           const accessorySlots = (workout.accessory || [])
-            .filter(ex => ex.type === EXERCISE_TYPE.WEIGHTED);
+            .filter(ex => isSwappable(ex));
           const allSlots = [...slots, ...accessorySlots];
 
           const overriddenCount = allSlots.filter(ex => overrides[ex.id]).length;
@@ -78,7 +83,7 @@ export default function ProgramEditor({ onClose }) {
                 <div className="border-t border-gray-800 divide-y divide-gray-800">
                   {workout.supersets.map(ss => (
                     ss.exercises
-                      .filter(ex => ex.type === EXERCISE_TYPE.WEIGHTED)
+                      .filter(ex => isSwappable(ex))
                       .map(ex => (
                         <SlotRow
                           key={ex.id}
@@ -91,7 +96,7 @@ export default function ProgramEditor({ onClose }) {
                       ))
                   ))}
                   {(workout.accessory || [])
-                    .filter(ex => ex.type === EXERCISE_TYPE.WEIGHTED)
+                    .filter(ex => isSwappable(ex))
                     .map(ex => (
                       <SlotRow
                         key={ex.id}
@@ -179,7 +184,7 @@ function ExercisePicker({ slot, currentOverride, onSelect, onClose }) {
   const seen = new Set();
   Object.values(WORKOUT_PROGRAM).forEach(workout => {
     workout.supersets.flatMap(ss => ss.exercises)
-      .filter(ex => ex.type === EXERCISE_TYPE.WEIGHTED)
+      .filter(ex => isSwappable(ex))
       .forEach(ex => {
         if (!seen.has(ex.id)) {
           seen.add(ex.id);

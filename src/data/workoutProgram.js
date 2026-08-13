@@ -73,7 +73,7 @@ export const WORKOUT_PROGRAM = {
         id: 'ss-a',
         label: 'Superset A',
         exercises: [
-          { id: 'rdl-heavy', name: 'Romanian Deadlift', sets: 3, repsTarget: 5, type: EXERCISE_TYPE.WEIGHTED },
+          { id: 'pin-squat-heavy', name: 'Pin Squat 0–60°', sets: 3, repsTarget: 5, type: EXERCISE_TYPE.WEIGHTED },
           { id: 'core-twist-heavy', name: 'Core Twist', sets: 3, repsTarget: 10, type: EXERCISE_TYPE.WEIGHTED_NO_RIR },
         ],
       },
@@ -81,7 +81,7 @@ export const WORKOUT_PROGRAM = {
         id: 'ss-b',
         label: 'Superset B',
         exercises: [
-          { id: 'bss-heavy', name: 'Bulgarian Split Squat', sets: 2, repsTarget: 10, repsMin: 8, note: '10–20lb, opposite hand to working leg', type: EXERCISE_TYPE.WEIGHTED },
+          { id: 'single-leg-squat-heavy', name: 'Single Leg Squat', sets: 2, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.WEIGHTED },
           { id: 'weighted-situp-heavy', name: 'Weighted Sit-Up', sets: 2, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.WEIGHTED },
         ],
       },
@@ -89,7 +89,7 @@ export const WORKOUT_PROGRAM = {
         id: 'ss-c',
         label: 'Superset C',
         exercises: [
-          { id: 'nordic-heavy', name: 'Nordic Hamstring', sets: 2, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.REPS_ONLY },
+          { id: 'lying-kb-abduction-heavy', name: 'Lying KB Abduction', sets: 2, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.WEIGHTED_NO_RIR },
           { id: 'leg-raise-heavy', name: 'Lying Leg Raise', sets: 2, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.REPS_ONLY },
         ],
       },
@@ -147,7 +147,7 @@ export const WORKOUT_PROGRAM = {
 
   L2: {
     id: 'L2',
-    name: 'Lower 2 — Unilateral / Knee Health',
+    name: 'Lower 2 — Light',
     type: 'lower',
     focus: 'light',
     warmUp: [
@@ -161,7 +161,7 @@ export const WORKOUT_PROGRAM = {
         id: 'ss-a',
         label: 'Superset A',
         exercises: [
-          { id: 'hip-thrust-medium', name: 'Hip Thrust', sets: 3, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.WEIGHTED },
+          { id: 'hip-thrust-medium', name: 'Hip Thrust', sets: 3, repsTarget: 12, type: EXERCISE_TYPE.WEIGHTED },
           { id: 'good-morning-medium', name: 'Good Morning', sets: 3, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.WEIGHTED },
         ],
       },
@@ -169,7 +169,7 @@ export const WORKOUT_PROGRAM = {
         id: 'ss-b',
         label: 'Superset B',
         exercises: [
-          { id: 'step-down-rev-lunge-medium', name: 'Step Down Reverse Lunge 8-inch', sets: 2, repsTarget: 10, repsMin: 10, note: 'each leg, weighted', type: EXERCISE_TYPE.WEIGHTED },
+          { id: 'step-up-light', name: 'Step Up', sets: 2, repsTarget: 10, note: 'each leg', type: EXERCISE_TYPE.WEIGHTED_NO_RIR },
           { id: 'core-twist-l2-medium', name: 'Core Twist', sets: 2, repsTarget: 10, type: EXERCISE_TYPE.WEIGHTED_NO_RIR },
         ],
       },
@@ -177,8 +177,8 @@ export const WORKOUT_PROGRAM = {
         id: 'ss-c',
         label: 'Superset C',
         exercises: [
-          { id: 'sl-rdl-medium', name: 'Single Leg Romanian Deadlift', sets: 2, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.WEIGHTED },
-          { id: 'kb-hip-abduction-medium', name: 'Kettlebell Hip Abduction', sets: 2, repsTarget: 15, repsMin: 12, note: 'each side', type: EXERCISE_TYPE.WEIGHTED },
+          { id: 'db-seated-knee-ext-light', name: 'DB Seated Knee Ext', sets: 2, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.WEIGHTED },
+          { id: 'banded-side-walk-light', name: 'Banded Side Walk', sets: 2, repsTarget: 15, repsMin: 12, note: 'each side', type: EXERCISE_TYPE.BODYWEIGHT },
         ],
       },
     ],
@@ -249,7 +249,7 @@ export const WORKOUT_PROGRAM = {
         id: 'ss-a',
         label: 'Superset A',
         exercises: [
-          { id: 'sldl-medium', name: 'Stiff Leg Deadlift', sets: 3, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.WEIGHTED },
+          { id: 'rdl-medium', name: 'Romanian Deadlift', sets: 3, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.WEIGHTED },
           { id: 'core-twist-l3-medium', name: 'Core Twist', sets: 3, repsTarget: 10, type: EXERCISE_TYPE.WEIGHTED_NO_RIR },
         ],
       },
@@ -257,15 +257,15 @@ export const WORKOUT_PROGRAM = {
         id: 'ss-b',
         label: 'Superset B',
         exercises: [
-          { id: 'goblet-squat-medium', name: 'Heels-Elevated Goblet Squat', sets: 2, repsTarget: 15, repsMin: 12, type: EXERCISE_TYPE.WEIGHTED },
-          { id: 'rev-lunge-medium', name: 'Reverse Dumbbell Lunge from 8-inch Step', sets: 2, repsTarget: 15, repsMin: 12, type: EXERCISE_TYPE.WEIGHTED },
+          { id: 'split-squat-medium', name: 'Split Squat', sets: 2, repsTarget: 15, repsMin: 12, type: EXERCISE_TYPE.WEIGHTED },
+          { id: 'cable-crunch-medium', name: 'Cable Crunch', sets: 2, repsTarget: 15, repsMin: 12, type: EXERCISE_TYPE.WEIGHTED },
         ],
       },
       {
         id: 'ss-c',
         label: 'Superset C',
         exercises: [
-          { id: 'spanish-squat-l3-medium', name: 'Spanish Squat', sets: 2, repsTarget: 15, repsMin: 12, note: 'bodyweight only', type: EXERCISE_TYPE.BODYWEIGHT },
+          { id: 'copenhagen-plank-medium', name: 'Copenhagen Plank', sets: 2, repsTarget: 15, repsMin: 12, note: 'each side', type: EXERCISE_TYPE.REPS_ONLY },
           { id: 'jefferson-curl-medium', name: 'Jefferson Curl', sets: 2, repsTarget: 15, repsMin: 12, type: EXERCISE_TYPE.WEIGHTED },
         ],
       },
