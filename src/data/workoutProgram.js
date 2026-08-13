@@ -81,7 +81,7 @@ export const WORKOUT_PROGRAM = {
         id: 'ss-b',
         label: 'Superset B',
         exercises: [
-          { id: 'single-leg-squat-heavy', name: 'Single Leg Squat', sets: 2, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.WEIGHTED },
+          { id: 'sl-rdl-heavy', name: 'Single Leg RDL', sets: 2, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.WEIGHTED },
           { id: 'weighted-situp-heavy', name: 'Weighted Sit-Up', sets: 2, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.WEIGHTED },
         ],
       },
@@ -89,13 +89,10 @@ export const WORKOUT_PROGRAM = {
         id: 'ss-c',
         label: 'Superset C',
         exercises: [
+          { id: 'pistol-squat-heavy', name: 'Pistol Squat', sets: 2, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.BODYWEIGHT },
           { id: 'lying-kb-abduction-heavy', name: 'Lying KB Abduction', sets: 2, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.WEIGHTED_NO_RIR },
-          { id: 'leg-raise-heavy', name: 'Lying Leg Raise', sets: 2, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.REPS_ONLY },
         ],
       },
-    ],
-    accessory: [
-      { id: 'l1-spanish-squat', name: 'Spanish Squat', sets: 2, repsTarget: 10, repsMin: 8, note: 'bodyweight only', type: EXERCISE_TYPE.BODYWEIGHT },
     ],
     finisher: [
       { id: 'l1-heavy-bag', name: 'Heavy Bag Steady State', type: EXERCISE_TYPE.TIMED, note: 'log duration only' },
@@ -161,7 +158,7 @@ export const WORKOUT_PROGRAM = {
         id: 'ss-a',
         label: 'Superset A',
         exercises: [
-          { id: 'hip-thrust-medium', name: 'Hip Thrust', sets: 3, repsTarget: 12, type: EXERCISE_TYPE.WEIGHTED },
+          { id: 'hip-thrust-medium', name: 'Hip Thrust', sets: 3, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.WEIGHTED },
           { id: 'good-morning-medium', name: 'Good Morning', sets: 3, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.WEIGHTED },
         ],
       },
@@ -169,7 +166,7 @@ export const WORKOUT_PROGRAM = {
         id: 'ss-b',
         label: 'Superset B',
         exercises: [
-          { id: 'step-up-light', name: 'Step Up', sets: 2, repsTarget: 10, note: 'each leg', type: EXERCISE_TYPE.WEIGHTED_NO_RIR },
+          { id: 'step-up-light', name: 'Step Up', sets: 2, repsTarget: 10, note: 'each leg', type: EXERCISE_TYPE.WEIGHTED },
           { id: 'core-twist-l2-medium', name: 'Core Twist', sets: 2, repsTarget: 10, type: EXERCISE_TYPE.WEIGHTED_NO_RIR },
         ],
       },
@@ -181,9 +178,6 @@ export const WORKOUT_PROGRAM = {
           { id: 'banded-side-walk-light', name: 'Banded Side Walk', sets: 2, repsTarget: 15, repsMin: 12, note: 'each side', type: EXERCISE_TYPE.BODYWEIGHT },
         ],
       },
-    ],
-    accessory: [
-      { id: 'l2-spanish-squat', name: 'Spanish Squat', sets: 2, repsTarget: 15, repsMin: 12, note: 'bodyweight only', type: EXERCISE_TYPE.BODYWEIGHT },
     ],
     finisher: [
       { id: 'l2-heavy-bag', name: 'Heavy Bag HIIT', type: EXERCISE_TYPE.TIMED, note: 'log duration only' },
@@ -269,9 +263,6 @@ export const WORKOUT_PROGRAM = {
           { id: 'jefferson-curl-medium', name: 'Jefferson Curl', sets: 2, repsTarget: 15, repsMin: 12, type: EXERCISE_TYPE.WEIGHTED },
         ],
       },
-    ],
-    accessory: [
-      { id: 'l3-spanish-squat', name: 'Spanish Squat', sets: 2, repsTarget: 15, repsMin: 12, note: 'light load as tolerated', type: EXERCISE_TYPE.WEIGHTED },
     ],
     finisher: [
       { id: 'l3-heavy-bag', name: 'Heavy Bag HIIT', type: EXERCISE_TYPE.TIMED, note: 'log duration only' },
