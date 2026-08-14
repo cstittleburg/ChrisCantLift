@@ -89,7 +89,7 @@ export const WORKOUT_PROGRAM = {
         id: 'ss-c',
         label: 'Superset C',
         exercises: [
-          { id: 'pistol-squat-heavy', name: 'Pistol Squat', sets: 2, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.BODYWEIGHT },
+          { id: 'pistol-squat-heavy', name: 'Pistol Squat', sets: 2, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.REPS_ONLY },
           { id: 'lying-kb-abduction-heavy', name: 'Lying KB Abduction', sets: 2, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.WEIGHTED_NO_RIR },
         ],
       },
@@ -175,7 +175,7 @@ export const WORKOUT_PROGRAM = {
         label: 'Superset C',
         exercises: [
           { id: 'db-seated-knee-ext-light', name: 'DB Seated Knee Ext', sets: 2, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.WEIGHTED },
-          { id: 'banded-side-walk-light', name: 'Banded Side Walk', sets: 2, repsTarget: 15, repsMin: 12, note: 'each side', type: EXERCISE_TYPE.BODYWEIGHT },
+          { id: 'banded-side-walk-light', name: 'Banded Side Walk', sets: 2, repsTarget: 15, repsMin: 12, note: 'each side', type: EXERCISE_TYPE.REPS_ONLY },
         ],
       },
     ],

@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useWorkout } from '../../context/WorkoutContext';
 import { checkProgression } from '../../utils/progression';
 import { buildPRMap, checkSetPR } from '../../utils/prDetection';
@@ -16,8 +16,23 @@ export default function ExerciseCard({ exercise }) {
   const setsLogged = activeSession?.sets?.[exercise.id] || [];
   const lastWeight = getLastWeight(exercise.id);
 
-  // Pre-fill weight from last session on first render
-  const weightPlaceholder = lastWeight ? String(lastWeight) : 'lbs';
+  // Weight used most recently in THIS session wins over the stored value, so it
+  // carries between sets even for exercises with no history yet (renamed/new IDs).
+  const sessionWeight = useMemo(
+    () => [...setsLogged].reverse().find(s => s.weight)?.weight ?? null,
+    [setsLogged]
+  );
+  const prefillWeight = sessionWeight ?? lastWeight;
+
+  // Seed the box with a real value rather than a grey placeholder, so the weight
+  // survives re-renders, tab switches, and reloads. Never overwrites live typing.
+  useEffect(() => {
+    if (prefillWeight != null) {
+      setInput(p => (p.weight === '' ? { ...p, weight: String(prefillWeight) } : p));
+    }
+  }, [prefillWeight]);
+
+  const weightPlaceholder = prefillWeight ? String(prefillWeight) : 'lbs';
 
   // Build historical PR map once (excludes current session so live sets compare against history)
   const prMap = useMemo(() => buildPRMap(activeSession?.id), [activeSession?.id]);
@@ -39,7 +54,7 @@ export default function ExerciseCard({ exercise }) {
 
   const handleLog = () => {
     const reps = parseInt(input.reps);
-    const weight = input.weight !== '' ? parseFloat(input.weight) : (lastWeight || null);
+    const weight = input.weight !== '' ? parseFloat(input.weight) : (prefillWeight ?? null);
     const rir = input.rir !== '' ? parseInt(input.rir) : null;
 
     if (!reps || reps < 1) { setError('Enter reps'); return; }
@@ -311,7 +326,9 @@ function RepsOnlyExerciseCard({ exercise }) {
         <div className="flex-1">
           <h3 className={`font-bold ${allDone ? 'text-gray-500' : 'text-white'}`}>{exercise.name}</h3>
           <p className="text-xs text-gray-500">
-            {exercise.sets}×{exercise.repsTarget || exercise.reps || 'AMRAP'}
+            {exercise.sets}×{exercise.repsMin
+              ? `${exercise.repsMin}–${exercise.repsTarget}`
+              : (exercise.repsTarget || exercise.reps || 'AMRAP')}
             {exercise.note && ` · ${exercise.note}`}
           </p>
         </div>
@@ -380,7 +397,7 @@ function RepsOnlyExerciseCard({ exercise }) {
               <input
                 inputMode="numeric"
                 type="number"
-                placeholder={exercise.repsTarget ? String(exercise.repsTarget) : '—'}
+                placeholder={String(exercise.repsTarget || exercise.reps || '—')}
                 value={repsInput}
                 onChange={e => setRepsInput(e.target.value)}
                 className="w-full bg-gray-800 text-white font-bold text-lg rounded-xl px-2 py-3 text-center placeholder-gray-600"
@@ -418,7 +435,21 @@ function WeightedNoRirExerciseCard({ exercise }) {
 
   const setsLogged = activeSession?.sets?.[exercise.id] || [];
   const lastWeight = getLastWeight(exercise.id);
-  const weightPlaceholder = lastWeight ? String(lastWeight) : 'lbs';
+
+  // Same carry-over rule as the weighted card above — this session's weight wins.
+  const sessionWeight = useMemo(
+    () => [...setsLogged].reverse().find(s => s.weight)?.weight ?? null,
+    [setsLogged]
+  );
+  const prefillWeight = sessionWeight ?? lastWeight;
+
+  useEffect(() => {
+    if (prefillWeight != null) {
+      setInput(p => (p.weight === '' ? { ...p, weight: String(prefillWeight) } : p));
+    }
+  }, [prefillWeight]);
+
+  const weightPlaceholder = prefillWeight ? String(prefillWeight) : 'lbs';
   const allSetsLogged = setsLogged.length >= exercise.sets;
 
   const prMap = useMemo(() => buildPRMap(activeSession?.id), [activeSession?.id]);
@@ -428,7 +459,7 @@ function WeightedNoRirExerciseCard({ exercise }) {
 
   const handleLog = () => {
     const reps = parseInt(input.reps);
-    const weight = input.weight !== '' ? parseFloat(input.weight) : (lastWeight || null);
+    const weight = input.weight !== '' ? parseFloat(input.weight) : (prefillWeight ?? null);
 
     if (!reps || reps < 1) { setError('Enter reps'); return; }
 
