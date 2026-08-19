@@ -4,6 +4,9 @@
 
 export const PROGRAM_SEQUENCE = ['U1', 'L1', 'U2', 'L2', 'U3', 'L3'];
 
+// Exercises count reps unless they set `unit: 'steps'` (carries and walks),
+// which only changes the label — the value is still logged in the reps field.
+
 // Exercise types
 export const EXERCISE_TYPE = {
   WEIGHTED: 'weighted',               // logs weight + reps + RIR
@@ -22,7 +25,6 @@ export const WORKOUT_PROGRAM = {
     warmUp: [
       { id: 'wu-tke', name: 'Banded TKEs', sets: 2, reps: 15, note: 'each leg', type: EXERCISE_TYPE.REPS_ONLY },
       { id: 'wu-wrist-curl', name: 'Wrist Curls', sets: 2, reps: 15, note: 'each wrist, 5lb', type: EXERCISE_TYPE.REPS_ONLY },
-      { id: 'wu-wall-sit', name: 'Wall Sit', sets: 2, duration: 30, note: '30 sec', type: EXERCISE_TYPE.TIMED },
       { id: 'wu-wrist-roller-1', name: 'Wrist Roller', sets: 2, note: '2x up/down', type: EXERCISE_TYPE.BODYWEIGHT },
     ],
     supersets: [
@@ -52,7 +54,6 @@ export const WORKOUT_PROGRAM = {
       },
     ],
     finisher: [
-      { id: 'u1-wrist-roller-2', name: 'Wrist Roller', sets: 2, note: '2x up/down', type: EXERCISE_TYPE.BODYWEIGHT },
       { id: 'u1-heavy-bag', name: 'Heavy Bag Steady State', type: EXERCISE_TYPE.TIMED, note: 'log duration only' },
     ],
   },
@@ -65,8 +66,6 @@ export const WORKOUT_PROGRAM = {
     warmUp: [
       { id: 'wu-tke', name: 'Banded TKEs', sets: 2, reps: 15, note: 'each leg', type: EXERCISE_TYPE.REPS_ONLY },
       { id: 'wu-wrist-curl', name: 'Wrist Curls', sets: 2, reps: 15, note: 'each wrist, 5lb', type: EXERCISE_TYPE.REPS_ONLY },
-      { id: 'wu-wall-sit', name: 'Wall Sit', sets: 2, duration: 30, note: '30 sec', type: EXERCISE_TYPE.TIMED },
-      { id: 'wu-spanish-squat', name: 'Heels-Elevated Spanish Squat', sets: 2, reps: 15, note: 'bodyweight', type: EXERCISE_TYPE.BODYWEIGHT },
     ],
     supersets: [
       {
@@ -89,7 +88,7 @@ export const WORKOUT_PROGRAM = {
         id: 'ss-c',
         label: 'Superset C',
         exercises: [
-          { id: 'pistol-squat-heavy', name: 'Pistol Squat', sets: 2, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.REPS_ONLY },
+          { id: 'spanish-squat-heavy', name: 'Spanish Squat', sets: 2, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.WEIGHTED_NO_RIR },
           { id: 'lying-kb-abduction-heavy', name: 'Lying KB Abduction', sets: 2, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.WEIGHTED_NO_RIR },
         ],
       },
@@ -107,7 +106,6 @@ export const WORKOUT_PROGRAM = {
     warmUp: [
       { id: 'wu-tke', name: 'Banded TKEs', sets: 2, reps: 15, note: 'each leg', type: EXERCISE_TYPE.REPS_ONLY },
       { id: 'wu-wrist-curl', name: 'Wrist Curls', sets: 2, reps: 15, note: 'each wrist, 5lb', type: EXERCISE_TYPE.REPS_ONLY },
-      { id: 'wu-wall-sit', name: 'Wall Sit', sets: 2, duration: 30, note: '30 sec', type: EXERCISE_TYPE.TIMED },
       { id: 'wu-wrist-roller-1', name: 'Wrist Roller', sets: 2, note: '2x up/down', type: EXERCISE_TYPE.BODYWEIGHT },
     ],
     supersets: [
@@ -137,7 +135,6 @@ export const WORKOUT_PROGRAM = {
       },
     ],
     finisher: [
-      { id: 'u2-wrist-roller-2', name: 'Wrist Roller', sets: 2, note: '2x up/down', type: EXERCISE_TYPE.BODYWEIGHT },
       { id: 'u2-heavy-bag', name: 'Heavy Bag HIIT', type: EXERCISE_TYPE.TIMED, note: 'log duration only' },
     ],
   },
@@ -150,8 +147,6 @@ export const WORKOUT_PROGRAM = {
     warmUp: [
       { id: 'wu-tke', name: 'Banded TKEs', sets: 2, reps: 15, note: 'each leg', type: EXERCISE_TYPE.REPS_ONLY },
       { id: 'wu-wrist-curl', name: 'Wrist Curls', sets: 2, reps: 15, note: 'each wrist, 5lb', type: EXERCISE_TYPE.REPS_ONLY },
-      { id: 'wu-wall-sit', name: 'Wall Sit', sets: 2, duration: 30, note: '30 sec', type: EXERCISE_TYPE.TIMED },
-      { id: 'wu-spanish-squat', name: 'Heels-Elevated Spanish Squat', sets: 2, reps: 15, note: 'bodyweight', type: EXERCISE_TYPE.BODYWEIGHT },
     ],
     supersets: [
       {
@@ -167,7 +162,7 @@ export const WORKOUT_PROGRAM = {
         label: 'Superset B',
         exercises: [
           { id: 'step-up-light', name: 'Step Up', sets: 2, repsTarget: 10, note: 'each leg', type: EXERCISE_TYPE.WEIGHTED },
-          { id: 'core-twist-l2-medium', name: 'Core Twist', sets: 2, repsTarget: 10, type: EXERCISE_TYPE.WEIGHTED_NO_RIR },
+          { id: 'cable-crunch-light', name: 'Cable Crunch', sets: 2, repsTarget: 10, type: EXERCISE_TYPE.WEIGHTED },
         ],
       },
       {
@@ -192,7 +187,6 @@ export const WORKOUT_PROGRAM = {
     warmUp: [
       { id: 'wu-tke', name: 'Banded TKEs', sets: 2, reps: 15, note: 'each leg', type: EXERCISE_TYPE.REPS_ONLY },
       { id: 'wu-wrist-curl', name: 'Wrist Curls', sets: 2, reps: 15, note: 'each wrist, 5lb', type: EXERCISE_TYPE.REPS_ONLY },
-      { id: 'wu-wall-sit', name: 'Wall Sit', sets: 2, duration: 30, note: '30 sec', type: EXERCISE_TYPE.TIMED },
       { id: 'wu-wrist-roller-1', name: 'Wrist Roller', sets: 2, note: '2x up/down', type: EXERCISE_TYPE.BODYWEIGHT },
     ],
     supersets: [
@@ -222,7 +216,6 @@ export const WORKOUT_PROGRAM = {
       },
     ],
     finisher: [
-      { id: 'u3-wrist-roller-2', name: 'Wrist Roller', sets: 2, note: '2x up/down', type: EXERCISE_TYPE.BODYWEIGHT },
       { id: 'u3-heavy-bag', name: 'Heavy Bag Steady State', type: EXERCISE_TYPE.TIMED, note: 'log duration only' },
     ],
   },
@@ -235,8 +228,6 @@ export const WORKOUT_PROGRAM = {
     warmUp: [
       { id: 'wu-tke', name: 'Banded TKEs', sets: 2, reps: 15, note: 'each leg', type: EXERCISE_TYPE.REPS_ONLY },
       { id: 'wu-wrist-curl', name: 'Wrist Curls', sets: 2, reps: 15, note: 'each wrist, 5lb', type: EXERCISE_TYPE.REPS_ONLY },
-      { id: 'wu-wall-sit', name: 'Wall Sit', sets: 2, duration: 30, note: '30 sec', type: EXERCISE_TYPE.TIMED },
-      { id: 'wu-spanish-squat', name: 'Heels-Elevated Spanish Squat', sets: 2, reps: 15, note: 'bodyweight', type: EXERCISE_TYPE.BODYWEIGHT },
     ],
     supersets: [
       {
@@ -244,7 +235,7 @@ export const WORKOUT_PROGRAM = {
         label: 'Superset A',
         exercises: [
           { id: 'rdl-medium', name: 'Romanian Deadlift', sets: 3, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.WEIGHTED },
-          { id: 'core-twist-l3-medium', name: 'Core Twist', sets: 3, repsTarget: 10, type: EXERCISE_TYPE.WEIGHTED_NO_RIR },
+          { id: 'db-farmers-carry-medium', name: 'DB Farmers Carry', sets: 3, repsTarget: 40, unit: 'steps', type: EXERCISE_TYPE.WEIGHTED_NO_RIR },
         ],
       },
       {
@@ -252,7 +243,7 @@ export const WORKOUT_PROGRAM = {
         label: 'Superset B',
         exercises: [
           { id: 'split-squat-medium', name: 'Split Squat', sets: 2, repsTarget: 15, repsMin: 12, type: EXERCISE_TYPE.WEIGHTED },
-          { id: 'cable-crunch-medium', name: 'Cable Crunch', sets: 2, repsTarget: 15, repsMin: 12, type: EXERCISE_TYPE.WEIGHTED },
+          { id: 'pendulum-walk-medium', name: 'Pendulum Walk', sets: 2, repsTarget: 40, unit: 'steps', type: EXERCISE_TYPE.WEIGHTED_NO_RIR },
         ],
       },
       {

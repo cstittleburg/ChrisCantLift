@@ -5,6 +5,11 @@ import { buildPRMap, checkSetPR } from '../../utils/prDetection';
 import { TrendingUp, Plus, Pencil, Check, X } from 'lucide-react';
 import { EXERCISE_TYPE } from '../../data/workoutProgram';
 
+// Carries and walks count steps; everything else counts reps. Only the label
+// changes — the value is stored in the same `reps` field either way.
+const countNoun = (ex) => (ex.unit === 'steps' ? 'steps' : 'reps');
+const countTitle = (ex) => (ex.unit === 'steps' ? 'Steps' : 'Reps');
+
 export default function ExerciseCard({ exercise }) {
   const { activeSession, logSet, updateSet, getLastWeight } = useWorkout();
 
@@ -57,7 +62,7 @@ export default function ExerciseCard({ exercise }) {
     const weight = input.weight !== '' ? parseFloat(input.weight) : (prefillWeight ?? null);
     const rir = input.rir !== '' ? parseInt(input.rir) : null;
 
-    if (!reps || reps < 1) { setError('Enter reps'); return; }
+    if (!reps || reps < 1) { setError(`Enter ${countNoun(exercise)}`); return; }
     if (rir === null || isNaN(rir)) { setError('Enter RIR (0 = failure)'); return; }
 
     setError('');
@@ -83,6 +88,7 @@ export default function ExerciseCard({ exercise }) {
           <h3 className="font-bold text-white">{exercise.name}</h3>
           <p className="text-xs text-gray-400 mt-0.5">
             {exercise.sets}×{exercise.repsMin ? `${exercise.repsMin}–${exercise.repsTarget}` : exercise.repsTarget}
+            {exercise.unit === 'steps' && ' steps'}
             {lastWeight && <span className="text-blue-400 ml-2">Last: {lastWeight} lbs</span>}
           </p>
           {exercise.note && (
@@ -113,7 +119,7 @@ export default function ExerciseCard({ exercise }) {
                   <div className="flex gap-2">
                     {[
                       { key: 'weight', label: 'Weight', mode: 'decimal' },
-                      { key: 'reps', label: 'Reps', mode: 'numeric' },
+                      { key: 'reps', label: countTitle(exercise), mode: 'numeric' },
                       { key: 'rir', label: 'RIR', mode: 'numeric' },
                     ].map(({ key, label, mode }) => (
                       <div key={key} className="flex-1 flex flex-col gap-1">
@@ -162,7 +168,7 @@ export default function ExerciseCard({ exercise }) {
                 ) : (
                   <span className="text-gray-500 text-xs w-7 text-center">S{s.setNumber}</span>
                 )}
-                <span className="font-semibold text-white">{s.reps} reps</span>
+                <span className="font-semibold text-white">{s.reps} {countNoun(exercise)}</span>
                 {s.weight && <span className={showPR ? 'text-yellow-300 font-bold' : 'text-blue-300'}>@ {s.weight} lbs</span>}
                 {s.rir !== undefined && s.rir !== null && (
                   <span className="text-gray-500 text-xs ml-auto">RIR {s.rir}</span>
@@ -210,7 +216,7 @@ export default function ExerciseCard({ exercise }) {
             </div>
             {/* Reps */}
             <div className="flex-1 flex flex-col gap-1">
-              <label className="text-xs text-gray-500 text-center">Reps</label>
+              <label className="text-xs text-gray-500 text-center">{countTitle(exercise)}</label>
               <input
                 inputMode="numeric"
                 type="number"
@@ -310,7 +316,7 @@ function RepsOnlyExerciseCard({ exercise }) {
 
   const handleLog = () => {
     const reps = parseInt(repsInput);
-    if (!reps || reps < 1) { setError('Enter reps'); return; }
+    if (!reps || reps < 1) { setError(`Enter ${countNoun(exercise)}`); return; }
     setError('');
     logSet(exercise.id, {
       setNumber: setsLogged.length + 1,
@@ -329,6 +335,7 @@ function RepsOnlyExerciseCard({ exercise }) {
             {exercise.sets}×{exercise.repsMin
               ? `${exercise.repsMin}–${exercise.repsTarget}`
               : (exercise.repsTarget || exercise.reps || 'AMRAP')}
+            {exercise.unit === 'steps' && ' steps'}
             {exercise.note && ` · ${exercise.note}`}
           </p>
         </div>
@@ -346,7 +353,7 @@ function RepsOnlyExerciseCard({ exercise }) {
                 <div key={i} className="bg-gray-700 rounded-lg px-3 py-2 space-y-2">
                   <div className="flex gap-2 items-end">
                     <div className="flex-1 flex flex-col gap-1">
-                      <label className="text-xs text-gray-400 text-center">Reps</label>
+                      <label className="text-xs text-gray-400 text-center">{countTitle(exercise)}</label>
                       <input
                         inputMode="numeric" type="number"
                         value={editReps}
@@ -377,7 +384,7 @@ function RepsOnlyExerciseCard({ exercise }) {
             return (
               <div key={i} className="flex items-center gap-2 bg-gray-800 rounded-lg px-3 py-2 text-sm">
                 <span className="text-gray-500 text-xs w-7 text-center">S{s.setNumber}</span>
-                <span className="font-semibold text-white">{s.reps} reps</span>
+                <span className="font-semibold text-white">{s.reps} {countNoun(exercise)}</span>
                 <button
                   onClick={() => { setEditingIdx(i); setEditReps(String(s.reps ?? '')); }}
                   className="ml-auto text-gray-600 active:text-gray-300 p-1">
@@ -393,7 +400,7 @@ function RepsOnlyExerciseCard({ exercise }) {
         <div className="space-y-2">
           <div className="flex gap-2 items-end">
             <div className="flex-1 flex flex-col gap-1">
-              <label className="text-xs text-gray-500 text-center">Reps</label>
+              <label className="text-xs text-gray-500 text-center">{countTitle(exercise)}</label>
               <input
                 inputMode="numeric"
                 type="number"
@@ -461,7 +468,7 @@ function WeightedNoRirExerciseCard({ exercise }) {
     const reps = parseInt(input.reps);
     const weight = input.weight !== '' ? parseFloat(input.weight) : (prefillWeight ?? null);
 
-    if (!reps || reps < 1) { setError('Enter reps'); return; }
+    if (!reps || reps < 1) { setError(`Enter ${countNoun(exercise)}`); return; }
 
     setError('');
     logSet(exercise.id, {
@@ -481,6 +488,7 @@ function WeightedNoRirExerciseCard({ exercise }) {
           <h3 className="font-bold text-white">{exercise.name}</h3>
           <p className="text-xs text-gray-400 mt-0.5">
             {exercise.sets}×{exercise.repsMin ? `${exercise.repsMin}–${exercise.repsTarget}` : exercise.repsTarget}
+            {exercise.unit === 'steps' && ' steps'}
             {lastWeight && <span className="text-blue-400 ml-2">Last: {lastWeight} lbs</span>}
           </p>
           {exercise.note && (
@@ -511,7 +519,7 @@ function WeightedNoRirExerciseCard({ exercise }) {
                   <div className="flex gap-2">
                     {[
                       { key: 'weight', label: 'Weight', mode: 'decimal' },
-                      { key: 'reps', label: 'Reps', mode: 'numeric' },
+                      { key: 'reps', label: countTitle(exercise), mode: 'numeric' },
                     ].map(({ key, label, mode }) => (
                       <div key={key} className="flex-1 flex flex-col gap-1">
                         <label className="text-xs text-gray-400 text-center">{label}</label>
@@ -558,7 +566,7 @@ function WeightedNoRirExerciseCard({ exercise }) {
                 ) : (
                   <span className="text-gray-500 text-xs w-7 text-center">S{s.setNumber}</span>
                 )}
-                <span className="font-semibold text-white">{s.reps} reps</span>
+                <span className="font-semibold text-white">{s.reps} {countNoun(exercise)}</span>
                 {s.weight && <span className={`ml-auto ${showPR ? 'text-yellow-300 font-bold' : 'text-blue-300'}`}>@ {s.weight} lbs</span>}
                 <button
                   onClick={() => {
@@ -603,7 +611,7 @@ function WeightedNoRirExerciseCard({ exercise }) {
             </div>
             {/* Reps */}
             <div className="flex-1 flex flex-col gap-1">
-              <label className="text-xs text-gray-500 text-center">Reps</label>
+              <label className="text-xs text-gray-500 text-center">{countTitle(exercise)}</label>
               <input
                 inputMode="numeric"
                 type="number"
