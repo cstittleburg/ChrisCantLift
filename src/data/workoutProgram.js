@@ -4,9 +4,6 @@
 
 export const PROGRAM_SEQUENCE = ['U1', 'L1', 'U2', 'L2', 'U3', 'L3'];
 
-// Exercises count reps unless they set `unit: 'steps'` (carries and walks),
-// which only changes the label — the value is still logged in the reps field.
-
 // Exercise types
 export const EXERCISE_TYPE = {
   WEIGHTED: 'weighted',               // logs weight + reps + RIR
@@ -235,7 +232,7 @@ export const WORKOUT_PROGRAM = {
         label: 'Superset A',
         exercises: [
           { id: 'rdl-medium', name: 'Romanian Deadlift', sets: 3, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.WEIGHTED },
-          { id: 'db-farmers-carry-medium', name: 'DB Farmers Carry', sets: 3, repsTarget: 40, unit: 'steps', type: EXERCISE_TYPE.WEIGHTED_NO_RIR },
+          { id: 'db-farmers-carry-medium', name: 'DB Farmers Carry', sets: 3, repsTarget: 40, note: 'count steps as reps', type: EXERCISE_TYPE.WEIGHTED_NO_RIR },
         ],
       },
       {
@@ -243,7 +240,7 @@ export const WORKOUT_PROGRAM = {
         label: 'Superset B',
         exercises: [
           { id: 'split-squat-medium', name: 'Split Squat', sets: 2, repsTarget: 15, repsMin: 12, type: EXERCISE_TYPE.WEIGHTED },
-          { id: 'pendulum-walk-medium', name: 'Pendulum Walk', sets: 2, repsTarget: 40, unit: 'steps', type: EXERCISE_TYPE.WEIGHTED_NO_RIR },
+          { id: 'pendulum-walk-medium', name: 'Pendulum Walk', sets: 2, repsTarget: 40, note: 'count steps as reps', type: EXERCISE_TYPE.WEIGHTED_NO_RIR },
         ],
       },
       {
