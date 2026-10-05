@@ -1,6 +1,7 @@
 // 6-day Upper/Lower Undulating Program
 // Sequence: U1 -> L1 -> U2 -> L2 -> U3 -> L3 -> repeat
 // Exercise IDs include focus (heavy/light/medium) so weight memory is tracked per rep range
+// Swapped-out exercises move to RETIRED_EXERCISES (bottom of file) so past workouts keep their names
 
 export const PROGRAM_SEQUENCE = ['U1', 'L1', 'U2', 'L2', 'U3', 'L3'];
 
@@ -256,4 +257,41 @@ export const WORKOUT_PROGRAM = {
       { id: 'l3-heavy-bag', name: 'Heavy Bag HIIT', type: EXERCISE_TYPE.TIMED, note: 'log duration only' },
     ],
   },
+};
+
+// Exercises that have been swapped out of the program. Their IDs stay in saved
+// workouts, so this maps each one to its old name; History, Progress and 1RM use
+// it to label past sets. Display only: saved workouts are never changed.
+// When you swap an exercise out, move its { id, name } here.
+export const RETIRED_EXERCISES = {
+  // U1
+  'db-inc-fly-heavy': 'DB Incline Chest Fly',
+  'inc-curl-heavy': 'Incline Dumbbell Curl',
+  // L1
+  'rdl-heavy': 'Romanian Deadlift',
+  'bss-heavy': 'Bulgarian Split Squat',
+  'nordic-heavy': 'Nordic Hamstring',
+  'leg-raise-heavy': 'Lying Leg Raise',
+  'single-leg-squat-heavy': 'Single Leg Squat',
+  'pistol-squat-heavy': 'Pistol Squat',
+  'spanish-squat-heavy': 'Spanish Squat',
+  // U2
+  'lat-pulldown-light': 'Lat Pulldown',
+  'inc-db-press-light': 'Incline Dumbbell Press',
+  'cs-db-row-light': 'Chest Supported Dumbbell Row',
+  // L2
+  'step-down-rev-lunge-medium': 'Step Down Reverse Lunge 8-inch',
+  'sl-rdl-medium': 'Single Leg Romanian Deadlift',
+  'kb-hip-abduction-medium': 'Kettlebell Hip Abduction',
+  'core-twist-l2-medium': 'Core Twist',
+  'db-seated-knee-ext-light': 'DB Seated Knee Ext',
+  // U3
+  'ohp-medium': 'Overhead Press',
+  // L3
+  'sldl-medium': 'Stiff Leg Deadlift',
+  'goblet-squat-medium': 'Heels-Elevated Goblet Squat',
+  'rev-lunge-medium': 'Reverse Dumbbell Lunge from 8-inch Step',
+  'spanish-squat-l3-medium': 'Spanish Squat',
+  'core-twist-l3-medium': 'Core Twist',
+  'cable-crunch-medium': 'Cable Crunch',
 };

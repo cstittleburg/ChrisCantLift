@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { getWeightLog, logWeight, getBodyFatLog, getItem, setItem, getWorkoutSessions } from '../../utils/storage';
 import { USER_PROFILE } from '../../data/userProfile';
 import { WORKOUT_PROGRAM } from '../../data/workoutProgram';
+import { getAllExercisesMap } from '../../utils/exerciseRegistry';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, BarChart, Bar
 } from 'recharts';
@@ -297,16 +298,11 @@ function StrengthProgress() {
   // Build exercise list with PR data
   const exerciseMap = useMemo(() => {
     const map = {};
+    const names = getAllExercisesMap(); // includes swapped-out exercises
     [...sessions].sort((a, b) => new Date(a.startTime) - new Date(b.startTime)).forEach(session => {
-      const workout = WORKOUT_PROGRAM[session.workoutId];
       Object.entries(session.sets || {}).forEach(([exerciseId, sets]) => {
         if (!sets || sets.length === 0) return;
-        let name = exerciseId;
-        if (workout) {
-          const all = workout.supersets.flatMap(ss => ss.exercises);
-          const found = all.find(e => e.id === exerciseId);
-          if (found) name = found.name;
-        }
+        const name = names[exerciseId] || exerciseId;
         if (!map[exerciseId]) map[exerciseId] = { name, data: [] };
         const maxWeight = Math.max(...sets.map(s => s.weight || 0));
         if (maxWeight > 0) {

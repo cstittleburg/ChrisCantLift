@@ -1,13 +1,15 @@
-import { WORKOUT_PROGRAM } from '../data/workoutProgram';
+import { WORKOUT_PROGRAM, RETIRED_EXERCISES } from '../data/workoutProgram';
 import { getCustomExercises, getProgramOverrides } from './storage';
 
 /**
  * Returns a flat map of { [exerciseId]: name } for ALL exercises —
- * built-in program exercises + custom exercises.
- * Used by History to resolve names from IDs.
+ * built-in program exercises + custom exercises + retired (swapped-out) ones,
+ * so past workouts keep their original names.
+ * Used by History, Progress and 1RM to resolve names from IDs.
  */
 export function getAllExercisesMap() {
-  const map = {};
+  // Retired first, so a current or custom exercise wins if an ID ever clashes.
+  const map = { ...RETIRED_EXERCISES };
 
   Object.values(WORKOUT_PROGRAM).forEach(workout => {
     const all = [
