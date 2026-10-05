@@ -85,7 +85,7 @@ export const WORKOUT_PROGRAM = {
         id: 'ss-c',
         label: 'Superset C',
         exercises: [
-          { id: 'spanish-squat-heavy', name: 'Spanish Squat', sets: 2, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.WEIGHTED_NO_RIR },
+          { id: 'elevated-foot-lunge-heavy', name: 'Elevated Foot Lunge', sets: 2, repsTarget: 10, repsMin: 8, note: 'each leg', type: EXERCISE_TYPE.WEIGHTED_NO_RIR },
           { id: 'lying-kb-abduction-heavy', name: 'Lying KB Abduction', sets: 2, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.WEIGHTED_NO_RIR },
         ],
       },
