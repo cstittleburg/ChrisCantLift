@@ -166,7 +166,7 @@ export const WORKOUT_PROGRAM = {
         id: 'ss-c',
         label: 'Superset C',
         exercises: [
-          { id: 'db-seated-knee-ext-light', name: 'DB Seated Knee Ext', sets: 2, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.WEIGHTED },
+          { id: 'elevated-foot-lunge-light', name: 'Elevated Foot Lunge', sets: 2, repsTarget: 10, repsMin: 8, note: 'each leg', type: EXERCISE_TYPE.WEIGHTED_NO_RIR },
           { id: 'banded-side-walk-light', name: 'Banded Side Walk', sets: 2, repsTarget: 15, repsMin: 12, note: 'each side', type: EXERCISE_TYPE.REPS_ONLY },
         ],
       },
@@ -207,7 +207,7 @@ export const WORKOUT_PROGRAM = {
         id: 'ss-c',
         label: 'Superset C',
         exercises: [
-          { id: 'ohp-medium', name: 'Overhead Press', sets: 2, repsTarget: 15, repsMin: 12, type: EXERCISE_TYPE.WEIGHTED },
+          { id: 'dips-medium', name: 'Dips', sets: 2, repsTarget: 15, repsMin: 12, type: EXERCISE_TYPE.REPS_ONLY },
           { id: 'inc-curl-medium', name: 'Incline Dumbbell Curl', sets: 2, repsTarget: 15, repsMin: 12, note: 'slow eccentric', type: EXERCISE_TYPE.WEIGHTED },
         ],
       },
