@@ -35,7 +35,7 @@ export const WORKOUT_PROGRAM = {
         label: 'Superset B',
         exercises: [
           { id: 'split-squat-fri', name: 'Split Squat', sets: 2, repsTarget: 8, repsMin: 6, note: 'each leg', type: EXERCISE_TYPE.WEIGHTED },
-          { id: 'weighted-cable-crunch-fri', name: 'Weighted Cable Crunch', sets: 2, repsTarget: 8, repsMin: 6, type: EXERCISE_TYPE.WEIGHTED },
+          { id: 'lying-leg-raise-fri', name: 'Lying Leg Raises', sets: 2, repsTarget: 8, repsMin: 6, type: EXERCISE_TYPE.REPS_ONLY },
         ],
       },
       {
@@ -313,4 +313,6 @@ export const RETIRED_EXERCISES = {
   'pendulum-walk-medium': 'Pendulum Walk',
   'copenhagen-plank-medium': 'Copenhagen Plank',
   'jefferson-curl-medium': 'Jefferson Curl',
+  // Weekly plan (swapped out Oct 2026)
+  'weighted-cable-crunch-fri': 'Weighted Cable Crunch',
 };
