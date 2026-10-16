@@ -11,7 +11,7 @@ export default function FinisherSection({ finisher }) {
   return (
     <div className="bg-gray-900 rounded-2xl border border-gray-800 overflow-hidden">
       <div className="px-4 py-3 border-b border-gray-800">
-        <span className="text-xs font-semibold uppercase tracking-wider text-red-400">Finisher</span>
+        <span className="text-xs font-semibold uppercase tracking-wider text-red-400">Cardio</span>
       </div>
       <div className="divide-y divide-gray-800">
         {finisher.map(exercise => {

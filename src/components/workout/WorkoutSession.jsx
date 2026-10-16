@@ -76,7 +76,9 @@ export default function WorkoutSession() {
       )}
 
       <div className="px-4 pt-4 space-y-6 max-w-lg mx-auto">
-        <WarmUpSection warmUp={workout.warmUp} />
+        {workout.warmUp && workout.warmUp.length > 0 && (
+          <WarmUpSection warmUp={workout.warmUp} />
+        )}
 
         {workout.supersets.map(ss => (
           <SupersetGroup key={ss.id} superset={ss} />
@@ -102,7 +104,7 @@ export default function WorkoutSession() {
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
           <div className="bg-gray-900 rounded-2xl p-6 w-full max-w-sm border border-gray-700">
             <h2 className="text-xl font-bold mb-2">Complete Workout?</h2>
-            <p className="text-gray-400 text-sm mb-5">This will save your session and advance to the next workout.</p>
+            <p className="text-gray-400 text-sm mb-5">This will save your session. Up next becomes tomorrow's workout.</p>
             <div className="flex gap-3">
               <button
                 onClick={() => setShowCompleteConfirm(false)}

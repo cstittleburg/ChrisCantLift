@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { getWeightLog, logWeight, getBodyFatLog, getItem, setItem, getWorkoutSessions } from '../../utils/storage';
 import { USER_PROFILE } from '../../data/userProfile';
-import { WORKOUT_PROGRAM } from '../../data/workoutProgram';
+import { PROGRAM_SEQUENCE, WORKOUT_PROGRAM } from '../../data/workoutProgram';
 import { getAllExercisesMap } from '../../utils/exerciseRegistry';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, BarChart, Bar
@@ -558,14 +558,18 @@ function ConsistencyProgress() {
         <div className="bg-gray-900 rounded-2xl border border-gray-800 p-4">
           <h3 className="text-sm font-bold text-white mb-3">Workout Breakdown</h3>
           <div className="space-y-2">
-            {['U1','L1','U2','L2','U3','L3'].map(id => {
+            {/* Current workouts first, then any older ones found in past sessions */}
+            {[...new Set([...PROGRAM_SEQUENCE, ...sessions.map(s => s.workoutId)])].map(id => {
               const count = sessions.filter(s => s.workoutId === id).length;
+              if (count === 0 && !WORKOUT_PROGRAM[id]) return null;
               const pct = totalSessions > 0 ? (count / totalSessions) * 100 : 0;
-              const workout = WORKOUT_PROGRAM[id];
+              const name = WORKOUT_PROGRAM[id]?.name
+                || sessions.filter(s => s.workoutId === id).at(-1)?.workoutName
+                || id;
               return (
                 <div key={id}>
                   <div className="flex justify-between mb-1">
-                    <span className="text-xs text-gray-400">{workout?.name || id}</span>
+                    <span className="text-xs text-gray-400">{name}</span>
                     <span className="text-xs text-gray-500">{count}×</span>
                   </div>
                   <div className="h-1.5 bg-gray-800 rounded-full overflow-hidden">

@@ -26,7 +26,7 @@ export default function EndWorkoutModal({ workout, session, onClose }) {
   });
 
   const hasMajorLiftInIncomplete = incompleteExercises.some(ex =>
-    ['Romanian Deadlift', 'Stiff Leg Deadlift', 'Hip Thrust', 'Bench Press', 'Incline Bench Press'].includes(ex.name)
+    ['RDL', 'Half Squat to Pins', 'Hip Thrust', 'Flat Bench', 'Incline Barbell Bench'].includes(ex.name)
   );
 
   const toggleReason = (reason) => {

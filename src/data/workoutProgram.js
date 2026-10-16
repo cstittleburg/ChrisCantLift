@@ -1,9 +1,9 @@
-// 6-day Upper/Lower Undulating Program
-// Sequence: U1 -> L1 -> U2 -> L2 -> U3 -> L3 -> repeat
-// Exercise IDs include focus (heavy/light/medium) so weight memory is tracked per rep range
+// Weekly plan: each workout belongs to a weekday (`weekday`, 0 = Sunday)
+// The week starts on Friday: FRI -> SAT -> SUN -> MON -> TUE -> WED -> THU
+// Exercise IDs end in their day (e.g. rdl-fri) so each day remembers its own weights
 // Swapped-out exercises move to RETIRED_EXERCISES (bottom of file) so past workouts keep their names
 
-export const PROGRAM_SEQUENCE = ['U1', 'L1', 'U2', 'L2', 'U3', 'L3'];
+export const PROGRAM_SEQUENCE = ['FRI', 'SAT', 'SUN', 'MON', 'TUE', 'WED', 'THU'];
 
 // Exercise types
 export const EXERCISE_TYPE = {
@@ -15,249 +15,226 @@ export const EXERCISE_TYPE = {
 };
 
 export const WORKOUT_PROGRAM = {
-  U1: {
-    id: 'U1',
-    name: 'Upper 1 — Heavy',
-    type: 'upper',
-    focus: 'heavy',
-    warmUp: [
-      { id: 'wu-tke', name: 'Banded TKEs', sets: 2, reps: 15, note: 'each leg', type: EXERCISE_TYPE.REPS_ONLY },
-      { id: 'wu-wrist-curl', name: 'Wrist Curls', sets: 2, reps: 15, note: 'each wrist, 5lb', type: EXERCISE_TYPE.REPS_ONLY },
-      { id: 'wu-wrist-roller-1', name: 'Wrist Roller', sets: 2, note: '2x up/down', type: EXERCISE_TYPE.BODYWEIGHT },
-    ],
-    supersets: [
-      {
-        id: 'ss-a',
-        label: 'Superset A',
-        exercises: [
-          { id: 'inc-bench-heavy', name: 'Incline Bench Press', sets: 3, repsTarget: 5, type: EXERCISE_TYPE.WEIGHTED },
-          { id: 'pullup-heavy', name: 'Pull-Up', sets: 3, repsTarget: 5, type: EXERCISE_TYPE.REPS_ONLY },
-        ],
-      },
-      {
-        id: 'ss-b',
-        label: 'Superset B',
-        exercises: [
-          { id: 'inc-db-press-heavy', name: 'Incline DB Press', sets: 2, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.WEIGHTED },
-          { id: 'cs-db-row-heavy', name: 'Chest-Supported DB Row', sets: 2, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.WEIGHTED },
-        ],
-      },
-      {
-        id: 'ss-c',
-        label: 'Superset C',
-        exercises: [
-          { id: 'bb-row-heavy', name: 'Barbell Row', sets: 2, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.WEIGHTED },
-          { id: 'landmine-press-heavy', name: 'One-Arm Landmine Press', sets: 2, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.WEIGHTED },
-        ],
-      },
-    ],
-    finisher: [
-      { id: 'u1-heavy-bag', name: 'Heavy Bag Steady State', type: EXERCISE_TYPE.TIMED, note: 'log duration only' },
-    ],
-  },
-
-  L1: {
-    id: 'L1',
-    name: 'Lower 1 — Heavy',
+  FRI: {
+    id: 'FRI',
+    name: 'Fri — Lower (Heavy)',
+    weekday: 5,
     type: 'lower',
     focus: 'heavy',
-    warmUp: [
-      { id: 'wu-tke', name: 'Banded TKEs', sets: 2, reps: 15, note: 'each leg', type: EXERCISE_TYPE.REPS_ONLY },
-      { id: 'wu-wrist-curl', name: 'Wrist Curls', sets: 2, reps: 15, note: 'each wrist, 5lb', type: EXERCISE_TYPE.REPS_ONLY },
-    ],
     supersets: [
       {
         id: 'ss-a',
         label: 'Superset A',
         exercises: [
-          { id: 'pin-squat-heavy', name: 'Pin Squat 0–60°', sets: 3, repsTarget: 5, type: EXERCISE_TYPE.WEIGHTED },
-          { id: 'core-twist-heavy', name: 'Core Twist', sets: 3, repsTarget: 10, type: EXERCISE_TYPE.WEIGHTED_NO_RIR },
+          { id: 'rdl-fri', name: 'RDL', sets: 3, repsTarget: 6, repsMin: 4, type: EXERCISE_TYPE.WEIGHTED },
+          { id: 'standing-plate-twist-fri', name: 'Standing Plate Twist', sets: 3, repsTarget: 8, note: 'each side', type: EXERCISE_TYPE.WEIGHTED },
         ],
       },
       {
         id: 'ss-b',
         label: 'Superset B',
         exercises: [
-          { id: 'sl-rdl-heavy', name: 'Single Leg RDL', sets: 2, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.WEIGHTED },
-          { id: 'weighted-situp-heavy', name: 'Weighted Sit-Up', sets: 2, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.WEIGHTED },
+          { id: 'split-squat-fri', name: 'Split Squat', sets: 2, repsTarget: 8, repsMin: 6, note: 'each leg', type: EXERCISE_TYPE.WEIGHTED },
+          { id: 'weighted-cable-crunch-fri', name: 'Weighted Cable Crunch', sets: 2, repsTarget: 8, repsMin: 6, type: EXERCISE_TYPE.WEIGHTED },
         ],
       },
       {
         id: 'ss-c',
         label: 'Superset C',
         exercises: [
-          { id: 'elevated-foot-lunge-heavy', name: 'Elevated Foot Lunge', sets: 2, repsTarget: 10, repsMin: 8, note: 'each leg', type: EXERCISE_TYPE.WEIGHTED_NO_RIR },
-          { id: 'lying-kb-abduction-heavy', name: 'Lying KB Abduction', sets: 2, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.WEIGHTED_NO_RIR },
+          { id: 'hip-thrust-fri', name: 'Hip Thrust', sets: 2, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.WEIGHTED },
+          { id: 'side-lying-abduction-fri', name: 'Side-Lying Abduction', sets: 2, repsTarget: 15, repsMin: 12, note: 'each side', type: EXERCISE_TYPE.WEIGHTED },
         ],
       },
     ],
     finisher: [
-      { id: 'l1-heavy-bag', name: 'Heavy Bag Steady State', type: EXERCISE_TYPE.TIMED, note: 'log duration only' },
+      { id: 'fri-bag', name: 'Heavy Bag', type: EXERCISE_TYPE.TIMED, note: '10 min' },
+      { id: 'fri-work-ride', name: 'Work Ride (Bike)', type: EXERCISE_TYPE.TIMED, note: '30 min easy, while working' },
     ],
   },
 
-  U2: {
-    id: 'U2',
-    name: 'Upper 2 — Light',
+  SAT: {
+    id: 'SAT',
+    name: 'Sat — Upper (Heavy)',
+    weekday: 6,
     type: 'upper',
-    focus: 'light',
-    warmUp: [
-      { id: 'wu-tke', name: 'Banded TKEs', sets: 2, reps: 15, note: 'each leg', type: EXERCISE_TYPE.REPS_ONLY },
-      { id: 'wu-wrist-curl', name: 'Wrist Curls', sets: 2, reps: 15, note: 'each wrist, 5lb', type: EXERCISE_TYPE.REPS_ONLY },
-      { id: 'wu-wrist-roller-1', name: 'Wrist Roller', sets: 2, note: '2x up/down', type: EXERCISE_TYPE.BODYWEIGHT },
-    ],
+    focus: 'heavy',
     supersets: [
       {
         id: 'ss-a',
         label: 'Superset A',
         exercises: [
-          { id: 'inc-bench-light', name: 'Incline Bench Press', sets: 3, repsTarget: 15, repsMin: 12, type: EXERCISE_TYPE.WEIGHTED },
-          { id: 'pullup-light', name: 'Pull-Up', sets: 3, repsTarget: 15, repsMin: 12, type: EXERCISE_TYPE.REPS_ONLY },
+          { id: 'incline-bb-bench-sat', name: 'Incline Barbell Bench', sets: 3, repsTarget: 6, repsMin: 4, type: EXERCISE_TYPE.WEIGHTED },
+          { id: 'pullup-sat', name: 'Pull-Ups', sets: 3, repsTarget: 6, repsMin: 4, type: EXERCISE_TYPE.REPS_ONLY },
         ],
       },
       {
         id: 'ss-b',
         label: 'Superset B',
         exercises: [
-          { id: 'db-inc-fly-light', name: 'DB Incline Chest Fly', sets: 2, repsTarget: 15, repsMin: 12, type: EXERCISE_TYPE.WEIGHTED },
-          { id: 'lat-prayer-light', name: 'Lat Prayer', sets: 2, repsTarget: 15, repsMin: 12, type: EXERCISE_TYPE.WEIGHTED },
+          { id: 'meadows-row-sat', name: 'Meadows Row', sets: 2, repsTarget: 8, repsMin: 6, note: 'each arm', type: EXERCISE_TYPE.WEIGHTED },
+          { id: 'assisted-dips-sat', name: 'Assisted Dips', sets: 2, repsTarget: 8, repsMin: 6, type: EXERCISE_TYPE.REPS_ONLY },
         ],
       },
       {
         id: 'ss-c',
         label: 'Superset C',
         exercises: [
-          { id: 'bb-tric-ext-light', name: 'Barbell Standing Triceps Extension', sets: 2, repsTarget: 15, repsMin: 12, type: EXERCISE_TYPE.WEIGHTED },
-          { id: 'inc-curl-light', name: 'Incline Dumbbell Curl', sets: 2, repsTarget: 15, repsMin: 12, note: 'slow eccentric', type: EXERCISE_TYPE.WEIGHTED },
+          { id: 'incline-db-curl-sat', name: 'Incline DB Curl', sets: 2, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.WEIGHTED },
+          { id: 'incline-db-flye-sat', name: 'Incline DB Flye', sets: 2, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.WEIGHTED },
         ],
       },
     ],
     finisher: [
-      { id: 'u2-heavy-bag', name: 'Heavy Bag HIIT', type: EXERCISE_TYPE.TIMED, note: 'log duration only' },
+      { id: 'sat-bike', name: 'Bike', type: EXERCISE_TYPE.TIMED, note: '10 min' },
     ],
   },
 
-  L2: {
-    id: 'L2',
-    name: 'Lower 2 — Light',
+  SUN: {
+    id: 'SUN',
+    name: 'Sun — Lower (More Reps)',
+    weekday: 0,
     type: 'lower',
-    focus: 'light',
-    warmUp: [
-      { id: 'wu-tke', name: 'Banded TKEs', sets: 2, reps: 15, note: 'each leg', type: EXERCISE_TYPE.REPS_ONLY },
-      { id: 'wu-wrist-curl', name: 'Wrist Curls', sets: 2, reps: 15, note: 'each wrist, 5lb', type: EXERCISE_TYPE.REPS_ONLY },
-    ],
+    focus: 'reps',
     supersets: [
       {
         id: 'ss-a',
         label: 'Superset A',
         exercises: [
-          { id: 'hip-thrust-medium', name: 'Hip Thrust', sets: 3, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.WEIGHTED },
-          { id: 'good-morning-medium', name: 'Good Morning', sets: 3, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.WEIGHTED },
+          { id: 'half-squat-pins-sun', name: 'Half Squat to Pins', sets: 3, repsTarget: 6, repsMin: 4, type: EXERCISE_TYPE.WEIGHTED },
+          { id: 'plate-twist-sun', name: 'Plate Twist', sets: 3, repsTarget: 8, note: 'each side', type: EXERCISE_TYPE.WEIGHTED },
         ],
       },
       {
         id: 'ss-b',
         label: 'Superset B',
         exercises: [
-          { id: 'step-up-light', name: 'Step Up', sets: 2, repsTarget: 10, note: 'each leg', type: EXERCISE_TYPE.WEIGHTED },
-          { id: 'cable-crunch-light', name: 'Cable Crunch', sets: 2, repsTarget: 10, type: EXERCISE_TYPE.WEIGHTED },
+          { id: 'sl-rdl-sun', name: 'Single-Leg RDL', sets: 2, repsTarget: 8, repsMin: 6, note: 'each leg', type: EXERCISE_TYPE.WEIGHTED },
+          { id: 'sl-glute-bridge-sun', name: 'Single-Leg Glute Bridge', sets: 2, repsTarget: 8, repsMin: 6, note: 'each leg, hold a dumbbell', type: EXERCISE_TYPE.WEIGHTED },
         ],
       },
       {
         id: 'ss-c',
         label: 'Superset C',
         exercises: [
-          { id: 'elevated-foot-lunge-light', name: 'Elevated Foot Lunge', sets: 2, repsTarget: 10, repsMin: 8, note: 'each leg', type: EXERCISE_TYPE.WEIGHTED_NO_RIR },
-          { id: 'banded-side-walk-light', name: 'Banded Side Walk', sets: 2, repsTarget: 15, repsMin: 12, note: 'each side', type: EXERCISE_TYPE.REPS_ONLY },
+          { id: 'step-up-sun', name: 'Step-Ups', sets: 2, repsTarget: 10, repsMin: 8, note: 'each leg', type: EXERCISE_TYPE.WEIGHTED },
+          { id: 'side-lying-abduction-sun', name: 'Side-Lying Abduction', sets: 2, repsTarget: 15, repsMin: 12, note: 'each side', type: EXERCISE_TYPE.WEIGHTED },
         ],
       },
     ],
     finisher: [
-      { id: 'l2-heavy-bag', name: 'Heavy Bag HIIT', type: EXERCISE_TYPE.TIMED, note: 'log duration only' },
+      { id: 'sun-bike', name: 'Bike', type: EXERCISE_TYPE.TIMED, note: '10 min' },
     ],
   },
 
-  U3: {
-    id: 'U3',
-    name: 'Upper 3 — Medium',
+  MON: {
+    id: 'MON',
+    name: 'Mon — Upper (More Reps)',
+    weekday: 1,
     type: 'upper',
-    focus: 'medium',
-    warmUp: [
-      { id: 'wu-tke', name: 'Banded TKEs', sets: 2, reps: 15, note: 'each leg', type: EXERCISE_TYPE.REPS_ONLY },
-      { id: 'wu-wrist-curl', name: 'Wrist Curls', sets: 2, reps: 15, note: 'each wrist, 5lb', type: EXERCISE_TYPE.REPS_ONLY },
-      { id: 'wu-wrist-roller-1', name: 'Wrist Roller', sets: 2, note: '2x up/down', type: EXERCISE_TYPE.BODYWEIGHT },
-    ],
+    focus: 'reps',
     supersets: [
       {
         id: 'ss-a',
         label: 'Superset A',
         exercises: [
-          { id: 'bench-medium', name: 'Bench Press', sets: 3, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.WEIGHTED },
-          { id: 'pullup-medium', name: 'Pull-Up', sets: 3, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.REPS_ONLY },
+          { id: 'incline-db-bench-mon', name: 'Incline DB Bench', sets: 3, repsTarget: 6, repsMin: 4, type: EXERCISE_TYPE.WEIGHTED },
+          { id: 'bb-row-mon', name: 'Barbell Row', sets: 3, repsTarget: 6, repsMin: 4, type: EXERCISE_TYPE.WEIGHTED },
         ],
       },
       {
         id: 'ss-b',
         label: 'Superset B',
         exercises: [
-          { id: 'inc-db-press-medium', name: 'Incline Dumbbell Press', sets: 2, repsTarget: 15, repsMin: 12, type: EXERCISE_TYPE.WEIGHTED },
-          { id: 'meadows-row-medium', name: 'Meadows Row', sets: 2, repsTarget: 15, repsMin: 12, type: EXERCISE_TYPE.WEIGHTED },
+          { id: 'cs-db-row-mon', name: 'Chest-Supported DB Row', sets: 2, repsTarget: 8, repsMin: 6, type: EXERCISE_TYPE.WEIGHTED },
+          { id: 'lat-prayer-pulldown-mon', name: 'Lat Prayer Pulldown', sets: 2, repsTarget: 8, repsMin: 6, type: EXERCISE_TYPE.WEIGHTED },
         ],
       },
       {
         id: 'ss-c',
         label: 'Superset C',
         exercises: [
-          { id: 'dips-medium', name: 'Dips', sets: 2, repsTarget: 15, repsMin: 12, type: EXERCISE_TYPE.REPS_ONLY },
-          { id: 'inc-curl-medium', name: 'Incline Dumbbell Curl', sets: 2, repsTarget: 15, repsMin: 12, note: 'slow eccentric', type: EXERCISE_TYPE.WEIGHTED },
+          { id: 'bb-curl-mon', name: 'Barbell Curl', sets: 2, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.WEIGHTED },
+          { id: 'bb-oh-tricep-ext-mon', name: 'Barbell Overhead Triceps Extension', sets: 2, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.WEIGHTED },
         ],
       },
     ],
     finisher: [
-      { id: 'u3-heavy-bag', name: 'Heavy Bag Steady State', type: EXERCISE_TYPE.TIMED, note: 'log duration only' },
+      { id: 'mon-bag', name: 'Heavy Bag', type: EXERCISE_TYPE.TIMED, note: '10 min' },
+      { id: 'mon-work-ride', name: 'Work Ride (Bike)', type: EXERCISE_TYPE.TIMED, note: '30 min easy, while working' },
     ],
   },
 
-  L3: {
-    id: 'L3',
-    name: 'Lower 3 — Medium',
-    type: 'lower',
-    focus: 'medium',
-    warmUp: [
-      { id: 'wu-tke', name: 'Banded TKEs', sets: 2, reps: 15, note: 'each leg', type: EXERCISE_TYPE.REPS_ONLY },
-      { id: 'wu-wrist-curl', name: 'Wrist Curls', sets: 2, reps: 15, note: 'each wrist, 5lb', type: EXERCISE_TYPE.REPS_ONLY },
-    ],
+  TUE: {
+    id: 'TUE',
+    name: 'Tue — Short Day',
+    weekday: 2,
+    type: 'short',
+    focus: 'short',
     supersets: [
       {
-        id: 'ss-a',
-        label: 'Superset A',
+        id: 'tri',
+        label: 'Tri-set',
         exercises: [
-          { id: 'rdl-medium', name: 'Romanian Deadlift', sets: 3, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.WEIGHTED },
-          { id: 'db-farmers-carry-medium', name: 'DB Farmers Carry', sets: 3, repsTarget: 40, note: 'count steps as reps', type: EXERCISE_TYPE.WEIGHTED_NO_RIR },
-        ],
-      },
-      {
-        id: 'ss-b',
-        label: 'Superset B',
-        exercises: [
-          { id: 'split-squat-medium', name: 'Split Squat', sets: 2, repsTarget: 15, repsMin: 12, type: EXERCISE_TYPE.WEIGHTED },
-          { id: 'pendulum-walk-medium', name: 'Pendulum Walk', sets: 2, repsTarget: 40, note: 'count steps as reps', type: EXERCISE_TYPE.WEIGHTED_NO_RIR },
-        ],
-      },
-      {
-        id: 'ss-c',
-        label: 'Superset C',
-        exercises: [
-          { id: 'copenhagen-plank-medium', name: 'Copenhagen Plank', sets: 2, repsTarget: 15, repsMin: 12, note: 'each side', type: EXERCISE_TYPE.REPS_ONLY },
-          { id: 'jefferson-curl-medium', name: 'Jefferson Curl', sets: 2, repsTarget: 15, repsMin: 12, type: EXERCISE_TYPE.WEIGHTED },
+          { id: 'hammer-curl-tue', name: 'Hammer Curl', sets: 3, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.WEIGHTED },
+          { id: 'cable-pushdown-tue', name: 'Cable Pushdown', sets: 3, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.WEIGHTED },
+          { id: 'sl-glute-bridge-tue', name: 'Single-Leg Glute Bridge', sets: 3, repsTarget: 15, repsMin: 12, note: 'each leg', type: EXERCISE_TYPE.WEIGHTED },
         ],
       },
     ],
     finisher: [
-      { id: 'l3-heavy-bag', name: 'Heavy Bag HIIT', type: EXERCISE_TYPE.TIMED, note: 'log duration only' },
+      { id: 'tue-cardio', name: 'Bag or Bike', type: EXERCISE_TYPE.TIMED, note: '20 min' },
+    ],
+  },
+
+  WED: {
+    id: 'WED',
+    name: 'Wed — Short Day',
+    weekday: 3,
+    type: 'short',
+    focus: 'short',
+    supersets: [
+      {
+        id: 'ss-a',
+        label: 'Superset',
+        exercises: [
+          { id: 'flat-bench-wed', name: 'Flat Bench', sets: 3, repsTarget: 10, repsMin: 8, note: '2–3 reps in reserve', type: EXERCISE_TYPE.WEIGHTED },
+          { id: 't-bar-row-wed', name: 'T-Bar Row', sets: 3, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.WEIGHTED },
+        ],
+      },
+    ],
+    finisher: [
+      { id: 'wed-cardio', name: 'Bag or Bike', type: EXERCISE_TYPE.TIMED, note: '20 min' },
+    ],
+  },
+
+  THU: {
+    id: 'THU',
+    name: 'Thu — Short Day',
+    weekday: 4,
+    type: 'short',
+    focus: 'short',
+    supersets: [
+      {
+        id: 'tri',
+        label: 'Tri-set',
+        exercises: [
+          { id: 'incline-db-curl-thu', name: 'Incline DB Curl', sets: 3, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.WEIGHTED },
+          { id: 'oh-cable-tricep-ext-thu', name: 'Overhead Cable Triceps Extension', sets: 3, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.WEIGHTED },
+          { id: 'side-lying-abduction-thu', name: 'Side-Lying Abduction', sets: 3, repsTarget: 15, repsMin: 12, note: 'each side', type: EXERCISE_TYPE.WEIGHTED },
+        ],
+      },
+    ],
+    finisher: [
+      { id: 'thu-cardio', name: 'Bag or Bike', type: EXERCISE_TYPE.TIMED, note: '20 min' },
     ],
   },
 };
+
+// Workout for a given date: the one whose `weekday` matches.
+export function workoutIdForDate(date) {
+  return PROGRAM_SEQUENCE.find(id => WORKOUT_PROGRAM[id].weekday === date.getDay());
+}
 
 // Exercises that have been swapped out of the program. Their IDs stay in saved
 // workouts, so this maps each one to its old name; History, Progress and 1RM use
@@ -294,4 +271,46 @@ export const RETIRED_EXERCISES = {
   'spanish-squat-l3-medium': 'Spanish Squat',
   'core-twist-l3-medium': 'Core Twist',
   'cable-crunch-medium': 'Cable Crunch',
+  // Upper 1 — Heavy (6-day program, retired Oct 2026)
+  'inc-bench-heavy': 'Incline Bench Press',
+  'pullup-heavy': 'Pull-Up',
+  'inc-db-press-heavy': 'Incline DB Press',
+  'cs-db-row-heavy': 'Chest-Supported DB Row',
+  'bb-row-heavy': 'Barbell Row',
+  'landmine-press-heavy': 'One-Arm Landmine Press',
+  // Lower 1 — Heavy (6-day program, retired Oct 2026)
+  'pin-squat-heavy': 'Pin Squat 0–60°',
+  'core-twist-heavy': 'Core Twist',
+  'sl-rdl-heavy': 'Single Leg RDL',
+  'weighted-situp-heavy': 'Weighted Sit-Up',
+  'elevated-foot-lunge-heavy': 'Elevated Foot Lunge',
+  'lying-kb-abduction-heavy': 'Lying KB Abduction',
+  // Upper 2 — Light (6-day program, retired Oct 2026)
+  'inc-bench-light': 'Incline Bench Press',
+  'pullup-light': 'Pull-Up',
+  'db-inc-fly-light': 'DB Incline Chest Fly',
+  'lat-prayer-light': 'Lat Prayer',
+  'bb-tric-ext-light': 'Barbell Standing Triceps Extension',
+  'inc-curl-light': 'Incline Dumbbell Curl',
+  // Lower 2 — Light (6-day program, retired Oct 2026)
+  'hip-thrust-medium': 'Hip Thrust',
+  'good-morning-medium': 'Good Morning',
+  'step-up-light': 'Step Up',
+  'cable-crunch-light': 'Cable Crunch',
+  'elevated-foot-lunge-light': 'Elevated Foot Lunge',
+  'banded-side-walk-light': 'Banded Side Walk',
+  // Upper 3 — Medium (6-day program, retired Oct 2026)
+  'bench-medium': 'Bench Press',
+  'pullup-medium': 'Pull-Up',
+  'inc-db-press-medium': 'Incline Dumbbell Press',
+  'meadows-row-medium': 'Meadows Row',
+  'dips-medium': 'Dips',
+  'inc-curl-medium': 'Incline Dumbbell Curl',
+  // Lower 3 — Medium (6-day program, retired Oct 2026)
+  'rdl-medium': 'Romanian Deadlift',
+  'db-farmers-carry-medium': 'DB Farmers Carry',
+  'split-squat-medium': 'Split Squat',
+  'pendulum-walk-medium': 'Pendulum Walk',
+  'copenhagen-plank-medium': 'Copenhagen Plank',
+  'jefferson-curl-medium': 'Jefferson Curl',
 };

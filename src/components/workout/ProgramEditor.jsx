@@ -68,7 +68,7 @@ export default function ProgramEditor({ onClose }) {
                 className="w-full flex items-center justify-between px-4 py-3"
               >
                 <div className="flex items-center gap-3">
-                  <span className="text-2xl font-black text-gray-600 w-8">{workoutId}</span>
+                  <span className="text-lg font-black text-gray-600 w-12">{workoutId}</span>
                   <div className="text-left">
                     <p className="font-bold text-white text-sm">{workout.name}</p>
                     {overriddenCount > 0 && (

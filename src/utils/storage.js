@@ -2,7 +2,7 @@ import { pushToCloud } from './cloudSync';
 
 const KEYS = {
   WORKOUT_SESSIONS: 'fitness_workout_sessions',
-  NEXT_WORKOUT_INDEX: 'fitness_next_workout_index',
+  WORKOUT_CHOICE: 'fitness_workout_choice',
   EXERCISE_WEIGHTS: 'fitness_exercise_weights',
   PROGRESSION_FLAGS: 'fitness_progression_flags',
   NUTRITION_LOG: 'fitness_nutrition_log',
@@ -52,12 +52,14 @@ export function saveWorkoutSession(session) {
   setItem(KEYS.WORKOUT_SESSIONS, sessions);
 }
 
-export function getNextWorkoutIndex() {
-  return getItem(KEYS.NEXT_WORKOUT_INDEX) ?? 0;
+// A workout picked by hand for one date, overriding that weekday's default.
+// Shape: { date: 'YYYY-MM-DD', workoutId }
+export function getWorkoutChoice() {
+  return getItem(KEYS.WORKOUT_CHOICE);
 }
 
-export function setNextWorkoutIndex(index) {
-  setItem(KEYS.NEXT_WORKOUT_INDEX, index);
+export function setWorkoutChoice(choice) {
+  setItem(KEYS.WORKOUT_CHOICE, choice);
 }
 
 export function getExerciseWeights() {

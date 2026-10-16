@@ -7,34 +7,35 @@ import OneRepMaxScreen from './OneRepMaxScreen';
 
 const focusColor = {
   heavy: 'text-red-400',
-  light: 'text-green-400',
-  medium: 'text-yellow-400',
+  reps: 'text-yellow-400',
+  short: 'text-green-400',
 };
 
 const focusBadge = {
   heavy: 'bg-red-900/40 text-red-400 border-red-800/50',
-  light: 'bg-green-900/40 text-green-400 border-green-800/50',
-  medium: 'bg-yellow-900/40 text-yellow-400 border-yellow-800/50',
+  reps: 'bg-yellow-900/40 text-yellow-400 border-yellow-800/50',
+  short: 'bg-green-900/40 text-green-400 border-green-800/50',
+};
+
+const focusLabel = {
+  heavy: 'Heavy',
+  reps: 'More reps',
+  short: 'Short · stop 2–3 reps short of failure',
 };
 
 export default function WorkoutHome() {
-  const { nextWorkout, nextWorkoutIndex, sessions, startWorkout, selectNextWorkout } = useWorkout();
+  const { nextWorkout, nextWorkoutDay, upcomingWorkouts, sessions, startWorkout, selectNextWorkout } = useWorkout();
   const [showPicker, setShowPicker] = useState(false);
   const [showEditor, setShowEditor] = useState(false);
   const [show1RM, setShow1RM] = useState(false);
 
   const lastSession = sessions.length > 0 ? sessions[sessions.length - 1] : null;
 
-  const upcomingWorkouts = Array.from({ length: 3 }, (_, i) => {
-    const idx = (nextWorkoutIndex + i) % PROGRAM_SEQUENCE.length;
-    return WORKOUT_PROGRAM[PROGRAM_SEQUENCE[idx]];
-  });
-
   return (
     <div className="p-4 max-w-lg mx-auto">
       <div className="pt-4 pb-2 flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Today's Workout</h1>
+          <h1 className="text-2xl font-bold text-white">{nextWorkoutDay}'s Workout</h1>
           {lastSession && (
             <p className="text-sm text-gray-400 mt-1">
               Last: {lastSession.workoutName} · {new Date(lastSession.startTime).toLocaleDateString()}
@@ -76,10 +77,10 @@ export default function WorkoutHome() {
           <div>
             <h2 className="text-xl font-bold text-white">{nextWorkout.name}</h2>
             <span className={`text-sm font-semibold ${focusColor[nextWorkout.focus] || 'text-gray-400'}`}>
-              {nextWorkout.focus.charAt(0).toUpperCase() + nextWorkout.focus.slice(1)} Day
+              {focusLabel[nextWorkout.focus]}
             </span>
           </div>
-          <span className="text-4xl font-black text-gray-700">{nextWorkout.id}</span>
+          <span className="text-3xl font-black text-gray-700">{nextWorkout.id}</span>
         </div>
 
         <div className="mt-4 space-y-1">
@@ -104,10 +105,10 @@ export default function WorkoutHome() {
       <div className="mt-6">
         <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-3">Coming Up</h3>
         <div className="space-y-2">
-          {upcomingWorkouts.slice(1).map((w, i) => (
+          {upcomingWorkouts.map((w, i) => (
             <div key={w.id} className="bg-gray-900 rounded-xl px-4 py-3 flex items-center justify-between border border-gray-800">
               <div>
-                <span className="text-xs text-gray-500 font-semibold">{i === 0 ? 'Next' : `+${i + 1}`}</span>
+                <span className="text-xs text-gray-500 font-semibold">{i === 0 ? 'Next' : 'After that'}</span>
                 <p className="text-sm font-semibold text-white">{w.name}</p>
               </div>
               <ChevronRight size={16} className="text-gray-600" />
@@ -126,7 +127,7 @@ export default function WorkoutHome() {
           onSelect={(id) => { selectNextWorkout(id); setShowPicker(false); }}
           onClose={() => setShowPicker(false)}
           title="Select Workout"
-          description="Choose which workout to do next. The sequence will continue from here."
+          description={`Pick a different workout for ${nextWorkoutDay.toLowerCase()}. After that, each day goes back to its usual workout.`}
         />
       )}
     </div>
@@ -156,11 +157,11 @@ export function WorkoutPickerModal({ currentId, onSelect, onClose, title, descri
                 }`}
               >
                 <div className="flex items-center gap-3">
-                  <span className="text-2xl font-black text-gray-600 w-8">{id}</span>
+                  <span className="text-lg font-black text-gray-600 w-12">{id}</span>
                   <div>
                     <p className={`font-bold text-sm ${isSelected ? 'text-blue-300' : 'text-white'}`}>{w.name}</p>
                     <span className={`text-xs font-semibold px-2 py-0.5 rounded-full border ${focusBadge[w.focus]}`}>
-                      {w.focus.charAt(0).toUpperCase() + w.focus.slice(1)}
+                      {focusLabel[w.focus].split(' · ')[0]}
                     </span>
                   </div>
                 </div>

@@ -1,8 +1,8 @@
 import { createContext, useContext, useState, useCallback, useEffect } from 'react';
-import { PROGRAM_SEQUENCE, WORKOUT_PROGRAM } from '../data/workoutProgram';
+import { WORKOUT_PROGRAM, workoutIdForDate } from '../data/workoutProgram';
 import {
-  getNextWorkoutIndex,
-  setNextWorkoutIndex,
+  getWorkoutChoice,
+  setWorkoutChoice,
   saveWorkoutSession,
   getWorkoutSessions,
   getExerciseWeights,
@@ -19,11 +19,23 @@ const ACTIVE_SESSION_KEY = 'fitness_active_session';
 
 const WorkoutContext = createContext(null);
 
-export function WorkoutProvider({ children }) {
-  const [nextWorkoutIndex, setNextWorkoutIndexState] = useState(() => getNextWorkoutIndex());
+// Local calendar date as 'YYYY-MM-DD'
+const dateKey = (d) => d.toLocaleDateString('en-CA');
 
-  // Rehydrate active session from localStorage on load — survives page reloads & mobile unloads
-  const [activeSession, setActiveSessionState] = useState(() => getItem(ACTIVE_SESSION_KEY) || null);
+export function WorkoutProvider({ children }) {
+  const [choice, setChoiceState] = useState(() => getWorkoutChoice());
+
+  // Rehydrate active session from localStorage on load — survives page reloads & mobile unloads.
+  // A session started under a workout that's since left the program moves to today's
+  // workout; its logged sets are kept and save with it.
+  const [activeSession, setActiveSessionState] = useState(() => {
+    const saved = getItem(ACTIVE_SESSION_KEY) || null;
+    if (saved && !WORKOUT_PROGRAM[saved.workoutId]) {
+      const workoutId = workoutIdForDate(new Date());
+      return { ...saved, workoutId, workoutName: WORKOUT_PROGRAM[workoutId].name, switchedFrom: saved.workoutId };
+    }
+    return saved;
+  });
   const [sessions, setSessions] = useState(() => getWorkoutSessions());
 
   // Mirror every activeSession change to localStorage immediately
@@ -39,8 +51,19 @@ export function WorkoutProvider({ children }) {
     });
   }, []);
 
-  const nextWorkoutId = PROGRAM_SEQUENCE[nextWorkoutIndex % PROGRAM_SEQUENCE.length];
+  // "Up next" is the workout for today's weekday — or tomorrow's once a session has
+  // been saved today — unless a different one was picked by hand for that date.
+  const now = new Date();
+  const doneToday = sessions.some(s => dateKey(new Date(s.startTime)) === dateKey(now));
+  const dayOffset = doneToday ? 1 : 0;
+  const dayAt = (i) => new Date(now.getFullYear(), now.getMonth(), now.getDate() + dayOffset + i);
+  const nextDateKey = dateKey(dayAt(0));
+  const nextWorkoutId = choice?.date === nextDateKey && WORKOUT_PROGRAM[choice.workoutId]
+    ? choice.workoutId
+    : workoutIdForDate(dayAt(0));
   const nextWorkout = WORKOUT_PROGRAM[nextWorkoutId];
+  const nextWorkoutDay = doneToday ? 'Tomorrow' : 'Today';
+  const upcomingWorkouts = [1, 2].map(i => WORKOUT_PROGRAM[workoutIdForDate(dayAt(i))]);
 
   const startWorkout = useCallback(() => {
     const session = {
@@ -133,10 +156,7 @@ export function WorkoutProvider({ children }) {
 
       return null;
     });
-    const newIndex = (nextWorkoutIndex + 1) % PROGRAM_SEQUENCE.length;
-    setNextWorkoutIndex(newIndex);
-    setNextWorkoutIndexState(newIndex);
-  }, [nextWorkoutIndex]);
+  }, []);
 
   const endWorkoutEarly = useCallback((skipData) => {
     setActiveSession(prev => {
@@ -151,10 +171,7 @@ export function WorkoutProvider({ children }) {
       setSessions(getWorkoutSessions());
       return null;
     });
-    const newIndex = (nextWorkoutIndex + 1) % PROGRAM_SEQUENCE.length;
-    setNextWorkoutIndex(newIndex);
-    setNextWorkoutIndexState(newIndex);
-  }, [nextWorkoutIndex]);
+  }, []);
 
   /**
    * Returns the pre-fill weight for an exercise.
@@ -167,13 +184,14 @@ export function WorkoutProvider({ children }) {
     return weights[exerciseId] || null;
   }, []);
 
-  // Change which workout is "up next" before starting (does not affect active session)
+  // Change which workout is "up next" before starting (does not affect active session).
+  // Applies to that one date only; the next day goes back to its weekday's workout.
   const selectNextWorkout = useCallback((workoutId) => {
-    const idx = PROGRAM_SEQUENCE.indexOf(workoutId);
-    if (idx === -1) return;
-    setNextWorkoutIndex(idx);
-    setNextWorkoutIndexState(idx);
-  }, []);
+    if (!WORKOUT_PROGRAM[workoutId]) return;
+    const c = { date: nextDateKey, workoutId };
+    setWorkoutChoice(c);
+    setChoiceState(c);
+  }, [nextDateKey]);
 
   // Switch workout type mid-session — keeps ALL logged sets intact, just changes
   // which exercises are displayed. Both old and new sets save together at end.
@@ -190,7 +208,8 @@ export function WorkoutProvider({ children }) {
     <WorkoutContext.Provider value={{
       nextWorkout,
       nextWorkoutId,
-      nextWorkoutIndex,
+      nextWorkoutDay,
+      upcomingWorkouts,
       activeSession,
       sessions,
       startWorkout,

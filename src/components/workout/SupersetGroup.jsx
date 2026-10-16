@@ -18,7 +18,7 @@ export default function SupersetGroup({ superset }) {
         ))}
       </div>
       <p className="text-xs text-gray-600 px-1 text-center">
-        Complete A → B before resting
+        One set of each, back to back, then rest
       </p>
     </div>
   );
