@@ -1,41 +1,42 @@
 import { useWorkout } from '../../context/WorkoutContext';
 import { resolveExercise } from '../../utils/exerciseRegistry';
-import { CheckCircle, Circle } from 'lucide-react';
+import { Check, Circle } from 'lucide-react';
+import SectionLabel from '../ui/SectionLabel';
 
 export default function AccessorySection({ exercises }) {
   const { activeSession, logAccessory } = useWorkout();
   const done = activeSession?.accessoryDone || {};
 
   return (
-    <div className="bg-gray-900 rounded-2xl border border-gray-800 overflow-hidden">
-      <div className="px-4 py-3 border-b border-gray-800">
-        <span className="text-xs font-semibold uppercase tracking-wider text-orange-400">Accessory</span>
+    <section className="bg-bench border border-seam rounded-card overflow-hidden">
+      <div className="px-4 pt-4 pb-2">
+        <SectionLabel>Accessory</SectionLabel>
       </div>
-      <div className="divide-y divide-gray-800">
+      <div className="divide-y divide-seam">
         {exercises.map(exercise => {
           const resolved = resolveExercise(exercise);
           const isDone = !!done[resolved.id];
           return (
-            <div key={exercise.id} className="flex items-center gap-3 px-4 py-3">
-              <button onClick={() => logAccessory(resolved.id, { done: true })}>
-                {isDone
-                  ? <CheckCircle size={22} className="text-green-500" />
-                  : <Circle size={22} className="text-gray-600" />
-                }
-              </button>
+            <button
+              key={exercise.id}
+              onClick={() => logAccessory(resolved.id, { done: true })}
+              aria-pressed={isDone}
+              className="w-full flex items-center gap-3 px-4 py-3 min-h-[56px] text-left"
+            >
+              {isDone
+                ? <span className="w-7 h-7 rounded-full bg-teal text-floor flex items-center justify-center flex-shrink-0"><Check size={16} strokeWidth={3} /></span>
+                : <Circle size={26} className="text-seam flex-shrink-0" />}
               <div>
-                <p className={`font-semibold text-sm ${isDone ? 'text-gray-500' : 'text-white'}`}>
-                  {resolved.name}
-                </p>
-                <p className="text-xs text-gray-500">
-                  {resolved.sets}×{resolved.repsMin ? `${resolved.repsMin}-${resolved.repsTarget}` : resolved.repsTarget}
+                <p className={`font-semibold ${isDone ? 'text-dust' : 'text-chalk'}`}>{resolved.name}</p>
+                <p className="text-sm text-dust">
+                  {resolved.sets}×{resolved.repsMin ? `${resolved.repsMin}–${resolved.repsTarget}` : resolved.repsTarget}
                   {resolved.note && ` · ${resolved.note}`}
                 </p>
               </div>
-            </div>
+            </button>
           );
         })}
       </div>
-    </div>
+    </section>
   );
 }

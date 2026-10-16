@@ -1,71 +1,96 @@
 import { useState } from 'react';
 import { useWorkout } from '../../context/WorkoutContext';
-import { CheckCircle, Circle } from 'lucide-react';
+import { Check, Circle } from 'lucide-react';
 import { EXERCISE_TYPE } from '../../data/workoutProgram';
+import Button from '../ui/Button';
+import SectionLabel from '../ui/SectionLabel';
+
+// "10 min" / "30 min easy, while working" -> 10 / 30
+const minutesIn = (note) => {
+  const m = /(\d+)\s*min/.exec(note || '');
+  return m ? parseInt(m[1]) : null;
+};
 
 export default function FinisherSection({ finisher }) {
   const { activeSession, logFinisher } = useWorkout();
   const done = activeSession?.finisherDone || {};
   const [durations, setDurations] = useState({});
+  const [custom, setCustom] = useState({}); // exercise id -> custom input open
+
+  if (!finisher || finisher.length === 0) return null;
 
   return (
-    <div className="bg-gray-900 rounded-2xl border border-gray-800 overflow-hidden">
-      <div className="px-4 py-3 border-b border-gray-800">
-        <span className="text-xs font-semibold uppercase tracking-wider text-red-400">Cardio</span>
+    <section className="bg-bench border border-seam rounded-card overflow-hidden">
+      <div className="px-4 pt-4 pb-2">
+        <SectionLabel>Cardio</SectionLabel>
       </div>
-      <div className="divide-y divide-gray-800">
+      <div className="divide-y divide-seam">
         {finisher.map(exercise => {
           const isDone = !!done[exercise.id];
+          const isTimed = exercise.type === EXERCISE_TYPE.TIMED;
+          const preset = minutesIn(exercise.note);
+          const showCustom = isTimed && !isDone && (custom[exercise.id] || !preset);
           return (
-            <div key={exercise.id} className="flex items-center gap-3 px-4 py-3">
-              <button
-                onClick={() => {
-                  if (exercise.type !== EXERCISE_TYPE.TIMED) {
-                    logFinisher(exercise.id, { done: true });
-                  }
-                }}
-              >
+            <div key={exercise.id} className="px-4 py-3 space-y-2">
+              <div className="flex items-center gap-3">
                 {isDone
-                  ? <CheckCircle size={22} className="text-green-500" />
-                  : <Circle size={22} className="text-gray-600" />
-                }
-              </button>
-              <div className="flex-1">
-                <p className={`font-semibold text-sm ${isDone ? 'text-gray-500' : 'text-white'}`}>
-                  {exercise.name}
-                </p>
-                {exercise.note && (
-                  <p className="text-xs text-gray-500">{exercise.note}</p>
+                  ? <span className="w-7 h-7 rounded-full bg-teal text-floor flex items-center justify-center flex-shrink-0"><Check size={16} strokeWidth={3} /></span>
+                  : <Circle size={26} className="text-seam flex-shrink-0" />}
+                <div className="flex-1 min-w-0">
+                  <p className={`font-semibold ${isDone ? 'text-dust' : 'text-chalk'}`}>{exercise.name}</p>
+                  {exercise.note && <p className="text-sm text-dust">{exercise.note}</p>}
+                </div>
+                {isDone ? (
+                  isTimed && <span className="text-teal font-display font-bold text-lg tabular-nums">{done[exercise.id]?.duration} min</span>
+                ) : isTimed ? (
+                  preset && !custom[exercise.id] && (
+                    <Button variant="secondary" onClick={() => logFinisher(exercise.id, { done: true, duration: preset })} className="flex-shrink-0">
+                      Log {preset} min
+                    </Button>
+                  )
+                ) : (
+                  <Button variant="secondary" onClick={() => logFinisher(exercise.id, { done: true })} className="flex-shrink-0">
+                    Done
+                  </Button>
                 )}
               </div>
-              {exercise.type === EXERCISE_TYPE.TIMED && !isDone && (
-                <div className="flex items-center gap-2">
+
+              {/* Custom duration — still available for days that run longer or shorter */}
+              {showCustom && (
+                <div className="flex items-center gap-2 pl-10">
                   <input
                     type="number"
+                    inputMode="numeric"
+                    aria-label={`${exercise.name} minutes`}
                     placeholder="min"
                     value={durations[exercise.id] || ''}
                     onChange={e => setDurations(p => ({ ...p, [exercise.id]: e.target.value }))}
-                    className="w-16 bg-gray-800 text-white text-sm rounded-lg px-2 py-2 text-center"
+                    className="w-24 h-11 bg-floor border border-seam rounded-input text-chalk font-display font-bold text-xl text-center tabular-nums placeholder-ash"
                   />
-                  <button
+                  <Button
+                    variant="secondary"
                     onClick={() => {
                       if (durations[exercise.id]) {
                         logFinisher(exercise.id, { done: true, duration: parseInt(durations[exercise.id]) });
                       }
                     }}
-                    className="bg-gray-700 text-white text-xs font-bold px-3 py-2 rounded-lg"
                   >
                     Log
-                  </button>
+                  </Button>
                 </div>
               )}
-              {exercise.type === EXERCISE_TYPE.TIMED && isDone && (
-                <span className="text-xs text-green-400">{done[exercise.id]?.duration}min</span>
+              {isTimed && !isDone && preset && !custom[exercise.id] && (
+                <button
+                  onClick={() => setCustom(p => ({ ...p, [exercise.id]: true }))}
+                  className="ml-10 min-h-[44px] -my-2 text-sm text-dust underline underline-offset-2"
+                >
+                  Custom time
+                </button>
               )}
             </div>
           );
         })}
       </div>
-    </div>
+    </section>
   );
 }

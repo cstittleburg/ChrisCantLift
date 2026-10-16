@@ -1,50 +1,58 @@
 import { useState } from 'react';
 import { useWorkout } from '../../context/WorkoutContext';
-import { CheckCircle, Circle, ChevronDown, ChevronUp } from 'lucide-react';
+import { Check, Circle, ChevronDown, ChevronUp } from 'lucide-react';
 import { EXERCISE_TYPE } from '../../data/workoutProgram';
+import SectionLabel from '../ui/SectionLabel';
 
 export default function WarmUpSection({ warmUp }) {
   const { activeSession, logWarmUp } = useWorkout();
   const [collapsed, setCollapsed] = useState(false);
-  const [timers, setTimers] = useState({});
+  const [showDone, setShowDone] = useState(false);
 
   const done = activeSession?.warmUpDone || {};
+  const allDone = warmUp.every(ex => done[ex.id]);
+
+  // Everything checked: fold into one dashed row
+  if (allDone && !showDone) {
+    return (
+      <div className="flex items-center justify-between border border-dashed border-seam rounded-tile px-4 min-h-[56px]">
+        <span className="flex items-center gap-2 text-teal font-semibold"><Check size={18} /> Warm-up done</span>
+        <button onClick={() => setShowDone(true)} className="min-h-[44px] px-2 text-sm text-dust underline underline-offset-2">Show</button>
+      </div>
+    );
+  }
 
   return (
-    <div className="bg-gray-900 rounded-2xl border border-gray-800 overflow-hidden">
+    <section className="bg-bench border border-seam rounded-card overflow-hidden">
       <button
-        onClick={() => setCollapsed(!collapsed)}
-        className="w-full flex items-center justify-between px-4 py-3"
+        onClick={() => (allDone ? setShowDone(false) : setCollapsed(!collapsed))}
+        className="w-full flex items-center justify-between px-4 min-h-[52px]"
       >
-        <span className="text-xs font-semibold uppercase tracking-wider text-yellow-500">Warm-Up</span>
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-gray-500">
-            {Object.keys(done).length}/{warmUp.length} done
-          </span>
-          {collapsed ? <ChevronDown size={16} className="text-gray-500" /> : <ChevronUp size={16} className="text-gray-500" />}
-        </div>
+        <SectionLabel as="span">Warm-up</SectionLabel>
+        <span className="flex items-center gap-2 text-sm text-dust tabular-nums">
+          {Object.keys(done).length}/{warmUp.length} done
+          {collapsed ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
+        </span>
       </button>
 
       {!collapsed && (
-        <div className="px-4 pb-4 space-y-3">
+        <div className="px-4 pb-4 space-y-2">
           {warmUp.map(exercise => {
             const isDone = !!done[exercise.id];
             return (
-              <div key={exercise.id} className={`flex items-center gap-3 p-3 rounded-xl ${isDone ? 'bg-gray-800/50' : 'bg-gray-800'}`}>
+              <div key={exercise.id} className="flex items-center gap-3 p-3 rounded-xl bg-plate">
                 <button
                   onClick={() => logWarmUp(exercise.id, { done: true, timestamp: Date.now() })}
-                  className="flex-shrink-0"
+                  aria-label={`Mark ${exercise.name} done`}
+                  className="w-11 h-11 -m-2 flex items-center justify-center flex-shrink-0"
                 >
                   {isDone
-                    ? <CheckCircle size={24} className="text-green-500" />
-                    : <Circle size={24} className="text-gray-600" />
-                  }
+                    ? <span className="w-7 h-7 rounded-full bg-teal text-floor flex items-center justify-center"><Check size={16} strokeWidth={3} /></span>
+                    : <Circle size={26} className="text-ash" />}
                 </button>
                 <div className="flex-1">
-                  <p className={`font-semibold text-sm ${isDone ? 'text-gray-500' : 'text-white'}`}>
-                    {exercise.name}
-                  </p>
-                  <p className="text-xs text-gray-500">
+                  <p className={`font-semibold ${isDone ? 'text-dust' : 'text-chalk'}`}>{exercise.name}</p>
+                  <p className="text-sm text-dust">
                     {exercise.sets && `${exercise.sets}×`}
                     {exercise.reps && `${exercise.reps}`}
                     {exercise.duration && `${exercise.duration}s`}
@@ -55,7 +63,8 @@ export default function WarmUpSection({ warmUp }) {
                   <input
                     type="number"
                     placeholder="sec"
-                    className="w-16 bg-gray-700 text-white text-sm rounded-lg px-2 py-1 text-center"
+                    aria-label={`${exercise.name} seconds`}
+                    className="w-20 h-11 bg-floor border border-seam text-chalk rounded-input px-2 text-center tabular-nums"
                     onBlur={(e) => {
                       if (e.target.value) logWarmUp(exercise.id, { done: true, duration: parseInt(e.target.value) });
                     }}
@@ -66,6 +75,6 @@ export default function WarmUpSection({ warmUp }) {
           })}
         </div>
       )}
-    </div>
+    </section>
   );
 }
