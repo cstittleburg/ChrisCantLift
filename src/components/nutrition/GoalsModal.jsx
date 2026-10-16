@@ -137,23 +137,23 @@ export default function GoalsModal({ onClose, onSave }) {
   };
 
   const macros = [
-    { key: 'protein', label: 'Protein', color: 'text-blue-400', bar: 'bg-blue-500', value: protein, pct: pcts.proteinPct, setter: setProtein },
-    { key: 'carbs',   label: 'Carbs',   color: 'text-yellow-400', bar: 'bg-yellow-500', value: carbs, pct: pcts.carbsPct, setter: setCarbs },
-    { key: 'fat',     label: 'Fat',     color: 'text-orange-400', bar: 'bg-orange-500', value: fat, pct: pcts.fatPct, setter: setFat },
+    { key: 'protein', label: 'Protein', color: 'text-orange', bar: 'bg-orange', value: protein, pct: pcts.proteinPct, setter: setProtein },
+    { key: 'carbs',   label: 'Carbs',   color: 'text-brass', bar: 'bg-brass', value: carbs, pct: pcts.carbsPct, setter: setCarbs },
+    { key: 'fat',     label: 'Fat',     color: 'text-orange', bar: 'bg-orange', value: fat, pct: pcts.fatPct, setter: setFat },
   ];
 
   return (
     <div className="fixed inset-0 bg-black/90 flex items-end justify-center z-[60]">
-      <div className="bg-gray-900 rounded-t-2xl w-full max-w-lg border-t border-gray-700 max-h-[82vh] overflow-y-auto">
+      <div className="bg-bench rounded-t-2xl w-full max-w-lg border-t border-seam max-h-[82vh] overflow-y-auto">
 
         {/* Header */}
-        <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-gray-800">
-          <h2 className="text-xl font-bold text-white">Nutrition Goals</h2>
+        <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-seam">
+          <h2 className="text-xl font-bold text-chalk">Nutrition Goals</h2>
           <div className="flex gap-2">
-            <button onClick={handleReset} className="text-gray-500 p-2 hover:text-gray-300">
+            <button onClick={handleReset} className="text-dust p-2 hover:text-chalk">
               <RotateCcw size={18} />
             </button>
-            <button onClick={onClose} className="text-gray-500 p-2 hover:text-gray-300">
+            <button onClick={onClose} className="text-dust p-2 hover:text-chalk">
               <X size={20} />
             </button>
           </div>
@@ -163,7 +163,7 @@ export default function GoalsModal({ onClose, onSave }) {
 
           {/* Calorie target */}
           <div>
-            <label className="text-xs font-semibold uppercase tracking-wider text-gray-400 block mb-2">
+            <label className="text-xs font-semibold uppercase tracking-wider text-dust block mb-2">
               Daily Calorie Target
             </label>
             <div className="flex items-center gap-3">
@@ -171,25 +171,25 @@ export default function GoalsModal({ onClose, onSave }) {
                 type="number"
                 value={calories}
                 onChange={e => handleCaloriesChange(e.target.value)}
-                className="flex-1 bg-gray-800 text-white text-2xl font-black rounded-xl px-4 py-3 text-center"
+                className="flex-1 bg-plate text-chalk text-2xl font-black rounded-xl px-4 py-3 text-center"
               />
-              <span className="text-gray-500 font-semibold">kcal</span>
+              <span className="text-dust font-semibold">kcal</span>
             </div>
-            <p className="text-xs text-gray-600 mt-1.5">
+            <p className="text-xs text-ash mt-1.5">
               Changing this keeps your macro % split and recalculates grams.
             </p>
           </div>
 
           {/* Mode toggle */}
           <div>
-            <label className="text-xs font-semibold uppercase tracking-wider text-gray-400 block mb-2">
+            <label className="text-xs font-semibold uppercase tracking-wider text-dust block mb-2">
               Edit Mode
             </label>
-            <div className="flex bg-gray-800 rounded-xl p-1 gap-1">
+            <div className="flex bg-plate rounded-xl p-1 gap-1">
               <button
                 onClick={() => setMode('grams')}
                 className={`flex-1 py-2.5 rounded-lg text-sm font-semibold transition-colors ${
-                  mode === 'grams' ? 'bg-gray-700 text-white' : 'text-gray-500'
+                  mode === 'grams' ? 'bg-seam text-chalk' : 'text-dust'
                 }`}
               >
                 Grams → % follows
@@ -197,7 +197,7 @@ export default function GoalsModal({ onClose, onSave }) {
               <button
                 onClick={() => setMode('percent')}
                 className={`flex-1 py-2.5 rounded-lg text-sm font-semibold transition-colors ${
-                  mode === 'percent' ? 'bg-gray-700 text-white' : 'text-gray-500'
+                  mode === 'percent' ? 'bg-seam text-chalk' : 'text-dust'
                 }`}
               >
                 % → Grams follow
@@ -208,10 +208,10 @@ export default function GoalsModal({ onClose, onSave }) {
           {/* Macro rows */}
           <div className="space-y-4">
             {macros.map(({ key, label, color, bar, value, pct }) => (
-              <div key={key} className="bg-gray-800 rounded-2xl p-4 space-y-3">
+              <div key={key} className="bg-plate rounded-card p-4 space-y-3">
                 <div className="flex items-center justify-between">
                   <span className={`font-bold text-sm ${color}`}>{label}</span>
-                  <span className="text-xs text-gray-500">
+                  <span className="text-xs text-dust">
                     {value * CAL_PER_G[key]} cal
                   </span>
                 </div>
@@ -219,7 +219,7 @@ export default function GoalsModal({ onClose, onSave }) {
                 <div className="flex gap-3 items-center">
                   {/* Gram input */}
                   <div className="flex-1">
-                    <label className="text-xs text-gray-500 block mb-1">Grams</label>
+                    <label className="text-xs text-dust block mb-1">Grams</label>
                     <input
                       type="number"
                       value={value}
@@ -233,17 +233,17 @@ export default function GoalsModal({ onClose, onSave }) {
                           else setFat(Math.max(0, Number(e.target.value)));
                         }
                       }}
-                      className={`w-full bg-gray-700 text-white font-bold text-lg rounded-xl px-3 py-2.5 text-center ${
-                        mode === 'grams' ? 'ring-2 ring-blue-600/50' : ''
+                      className={`w-full bg-seam text-chalk font-bold text-lg rounded-xl px-3 py-2.5 text-center ${
+                        mode === 'grams' ? 'ring-2 ring-orange' : ''
                       }`}
                     />
                   </div>
 
-                  <div className="text-gray-600 text-lg font-bold mt-5">/</div>
+                  <div className="text-ash text-lg font-bold mt-5">/</div>
 
                   {/* % input */}
                   <div className="flex-1">
-                    <label className="text-xs text-gray-500 block mb-1">% of calories</label>
+                    <label className="text-xs text-dust block mb-1">% of calories</label>
                     <input
                       type="number"
                       value={pct}
@@ -255,15 +255,15 @@ export default function GoalsModal({ onClose, onSave }) {
                           handlePctChange(key, e.target.value);
                         }
                       }}
-                      className={`w-full bg-gray-700 text-white font-bold text-lg rounded-xl px-3 py-2.5 text-center ${
-                        mode === 'percent' ? 'ring-2 ring-blue-600/50' : ''
+                      className={`w-full bg-seam text-chalk font-bold text-lg rounded-xl px-3 py-2.5 text-center ${
+                        mode === 'percent' ? 'ring-2 ring-orange' : ''
                       }`}
                     />
                   </div>
                 </div>
 
                 {/* Bar */}
-                <div className="h-1.5 bg-gray-700 rounded-full overflow-hidden">
+                <div className="h-1.5 bg-seam rounded-full overflow-hidden">
                   <div className={`h-full ${bar} rounded-full`} style={{ width: `${pct}%` }} />
                 </div>
               </div>
@@ -271,25 +271,25 @@ export default function GoalsModal({ onClose, onSave }) {
           </div>
 
           {/* Summary */}
-          <div className="bg-gray-800/60 rounded-xl p-4 space-y-2">
+          <div className="bg-plate rounded-xl p-4 space-y-2">
             <div className="flex justify-between text-sm">
-              <span className="text-gray-400">Total macro calories</span>
-              <span className={`font-bold ${Math.abs(calFromMacros - calories) > 50 ? 'text-yellow-400' : 'text-green-400'}`}>
+              <span className="text-dust">Total macro calories</span>
+              <span className={`font-bold ${Math.abs(calFromMacros - calories) > 50 ? 'text-brass' : 'text-teal'}`}>
                 {calFromMacros} kcal
               </span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-gray-400">Calorie target</span>
-              <span className="font-bold text-white">{calories} kcal</span>
+              <span className="text-dust">Calorie target</span>
+              <span className="font-bold text-chalk">{calories} kcal</span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-gray-400">% split</span>
-              <span className={`font-semibold text-xs ${totalPct === 100 ? 'text-green-400' : 'text-yellow-400'}`}>
+              <span className="text-dust">% split</span>
+              <span className={`font-semibold text-xs ${totalPct === 100 ? 'text-teal' : 'text-brass'}`}>
                 P{pcts.proteinPct} / C{pcts.carbsPct} / F{pcts.fatPct} = {totalPct}%
               </span>
             </div>
             {Math.abs(calFromMacros - calories) > 50 && (
-              <p className="text-xs text-yellow-400">
+              <p className="text-xs text-brass">
                 ⚠ Macro total is {calFromMacros > calories ? 'over' : 'under'} your calorie target by {Math.abs(calFromMacros - calories)} cal
               </p>
             )}
@@ -297,7 +297,7 @@ export default function GoalsModal({ onClose, onSave }) {
 
           {/* Water goal */}
           <div>
-            <label className="text-xs font-semibold uppercase tracking-wider text-gray-400 block mb-2">
+            <label className="text-xs font-semibold uppercase tracking-wider text-dust block mb-2">
               Daily Water Goal
             </label>
             <div className="flex items-center gap-3">
@@ -305,46 +305,46 @@ export default function GoalsModal({ onClose, onSave }) {
                 type="number"
                 value={water}
                 onChange={e => setWater(Math.max(0, Number(e.target.value)))}
-                className="flex-1 bg-gray-800 text-white text-2xl font-black rounded-xl px-4 py-3 text-center"
+                className="flex-1 bg-plate text-chalk text-2xl font-black rounded-xl px-4 py-3 text-center"
               />
-              <span className="text-gray-500 font-semibold">oz / day</span>
+              <span className="text-dust font-semibold">oz / day</span>
             </div>
           </div>
 
           {/* Meal timing */}
           <div>
-            <label className="text-xs font-semibold uppercase tracking-wider text-gray-400 block mb-2">
+            <label className="text-xs font-semibold uppercase tracking-wider text-dust block mb-2">
               Meal Timing
             </label>
             <div className="flex gap-3">
               <div className="flex-1">
-                <label className="text-xs text-gray-500 block mb-1">Window length</label>
+                <label className="text-xs text-dust block mb-1">Window length</label>
                 <div className="flex items-center gap-2">
                   <input
                     type="number"
                     step="5"
                     value={mealWindowMinutes}
                     onChange={e => setMealWindowMinutes(Math.max(5, Math.min(240, Number(e.target.value))))}
-                    className="w-full bg-gray-800 text-white text-xl font-black rounded-xl px-3 py-3 text-center"
+                    className="w-full bg-plate text-chalk text-xl font-black rounded-xl px-3 py-3 text-center"
                   />
-                  <span className="text-gray-500 text-sm font-semibold">min</span>
+                  <span className="text-dust text-sm font-semibold">min</span>
                 </div>
               </div>
               <div className="flex-1">
-                <label className="text-xs text-gray-500 block mb-1">Rest between</label>
+                <label className="text-xs text-dust block mb-1">Rest between</label>
                 <div className="flex items-center gap-2">
                   <input
                     type="number"
                     step="0.5"
                     value={mealGapHours}
                     onChange={e => setMealGapHours(Math.max(0.5, Math.min(12, Number(e.target.value))))}
-                    className="w-full bg-gray-800 text-white text-xl font-black rounded-xl px-3 py-3 text-center"
+                    className="w-full bg-plate text-chalk text-xl font-black rounded-xl px-3 py-3 text-center"
                   />
-                  <span className="text-gray-500 text-sm font-semibold">hrs</span>
+                  <span className="text-dust text-sm font-semibold">hrs</span>
                 </div>
               </div>
             </div>
-            <p className="text-xs text-gray-600 mt-1.5">
+            <p className="text-xs text-ash mt-1.5">
               A window opens when you log food and should close within {mealWindowMinutes} min.
               Wait {mealGapHours} hrs after your last bite before opening another.
             </p>
@@ -353,7 +353,7 @@ export default function GoalsModal({ onClose, onSave }) {
           {/* Save */}
           <button
             onClick={handleSave}
-            className="w-full bg-blue-600 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 text-base"
+            className="w-full bg-orange text-floor font-bold py-4 rounded-xl flex items-center justify-center gap-2 text-base"
           >
             <Check size={20} /> Save Goals
           </button>

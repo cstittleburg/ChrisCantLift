@@ -119,21 +119,21 @@ export default function WeeklySummaryView({ onApplyTargets }) {
     <div className="space-y-4 pt-2">
       {/* Week navigator */}
       <div className="flex items-center justify-between">
-        <button onClick={prevWeek} className="p-2 text-gray-400">
+        <button onClick={prevWeek} className="p-2 text-dust">
           <ChevronLeft size={20} />
         </button>
         <div className="text-center">
-          <p className="text-sm font-bold text-white">{weekLabel}</p>
-          {isCurrentWeek && <p className="text-xs text-blue-400">Current week</p>}
+          <p className="text-sm font-bold text-chalk">{weekLabel}</p>
+          {isCurrentWeek && <p className="text-xs text-orange">Current week</p>}
         </div>
-        <button onClick={nextWeek} className={`p-2 ${isCurrentWeek ? 'text-gray-700' : 'text-gray-400'}`} disabled={isCurrentWeek}>
+        <button onClick={nextWeek} className={`p-2 ${isCurrentWeek ? 'text-ash' : 'text-dust'}`} disabled={isCurrentWeek}>
           <ChevronRight size={20} />
         </button>
       </div>
 
       {/* Daily calorie bars */}
-      <div className="bg-gray-900 rounded-2xl border border-gray-800 p-4">
-        <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-3">Daily Calories</p>
+      <div className="bg-bench rounded-card border border-seam p-4">
+        <p className="text-xs font-semibold uppercase tracking-wider text-dust mb-3">Daily Calories</p>
         <div className="flex items-end gap-1.5 h-24">
           {days.map((d, i) => {
             const cal = dailyCalories[i];
@@ -142,10 +142,10 @@ export default function WeeklySummaryView({ onApplyTargets }) {
             const isOver = cal > goals.calories * 1.05;
             const isUnder = cal > 0 && cal < goals.calories * 0.85;
             const hasSummary = !!dailySummaries[d];
-            const barColor = cal === 0 ? 'bg-gray-800'
-              : isOver ? 'bg-red-500/70'
-              : isUnder ? 'bg-yellow-500/70'
-              : 'bg-blue-500/70';
+            const barColor = cal === 0 ? 'bg-plate'
+              : isOver ? 'bg-orange'
+              : isUnder ? 'bg-brass'
+              : 'bg-orange';
             return (
               <div key={d} className="flex-1 flex flex-col items-center gap-1">
                 <div className="w-full flex flex-col justify-end" style={{ height: '80px' }}>
@@ -154,15 +154,15 @@ export default function WeeklySummaryView({ onApplyTargets }) {
                     style={{ height: `${heightPct}%` }}
                   >
                     {hasSummary && (
-                      <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-green-400" />
+                      <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-teal" />
                     )}
                   </div>
                 </div>
-                <span className={`text-xs font-semibold ${isToday ? 'text-white' : 'text-gray-600'}`}>
+                <span className={`text-xs font-semibold ${isToday ? 'text-chalk' : 'text-ash'}`}>
                   {DAY_LABELS[i]}
                 </span>
                 {cal > 0 && (
-                  <span className="text-xs text-gray-500">{Math.round(cal / 100) * 100 >= 1000 ? `${(cal/1000).toFixed(1)}k` : cal}</span>
+                  <span className="text-xs text-dust">{Math.round(cal / 100) * 100 >= 1000 ? `${(cal/1000).toFixed(1)}k` : cal}</span>
                 )}
               </div>
             );
@@ -170,60 +170,60 @@ export default function WeeklySummaryView({ onApplyTargets }) {
         </div>
         {/* Target line label */}
         <div className="flex items-center gap-2 mt-2">
-          <div className="h-px flex-1 border-t border-dashed border-gray-700" />
-          <span className="text-xs text-gray-600">target {goals.calories} cal</span>
-          <div className="h-px flex-1 border-t border-dashed border-gray-700" />
+          <div className="h-px flex-1 border-t border-dashed border-seam" />
+          <span className="text-xs text-ash">target {goals.calories} cal</span>
+          <div className="h-px flex-1 border-t border-dashed border-seam" />
         </div>
       </div>
 
       {/* Weekly stats */}
       <div className="grid grid-cols-2 gap-3">
-        <div className="bg-gray-900 rounded-xl border border-gray-800 p-3">
-          <p className="text-xs text-gray-500 mb-1">Avg Daily</p>
-          <p className="text-lg font-black text-white">{avgDailyCalories > 0 ? avgDailyCalories : '—'}</p>
-          <p className="text-xs text-gray-600">cal / day ({daysWithData.length} days logged)</p>
+        <div className="bg-bench rounded-xl border border-seam p-3">
+          <p className="text-xs text-dust mb-1">Avg Daily</p>
+          <p className="text-lg font-black text-chalk">{avgDailyCalories > 0 ? avgDailyCalories : '—'}</p>
+          <p className="text-xs text-ash">cal / day ({daysWithData.length} days logged)</p>
         </div>
-        <div className="bg-gray-900 rounded-xl border border-gray-800 p-3">
-          <p className="text-xs text-gray-500 mb-1">Weekly Deficit</p>
-          <p className={`text-lg font-black ${weeklyDeficit > 0 ? 'text-green-400' : weeklyDeficit < 0 ? 'text-red-400' : 'text-gray-400'}`}>
+        <div className="bg-bench rounded-xl border border-seam p-3">
+          <p className="text-xs text-dust mb-1">Weekly Deficit</p>
+          <p className={`text-lg font-black ${weeklyDeficit > 0 ? 'text-teal' : weeklyDeficit < 0 ? 'text-orange' : 'text-dust'}`}>
             {weeklyDeficit !== 0 ? `${weeklyDeficit > 0 ? '+' : ''}${Math.round(weeklyDeficit)}` : '—'}
           </p>
-          <p className="text-xs text-gray-600">cal vs target</p>
+          <p className="text-xs text-ash">cal vs target</p>
         </div>
       </div>
 
       {/* Sunday weigh-in */}
-      <div className="bg-gray-900 rounded-2xl border border-gray-800 p-4">
+      <div className="bg-bench rounded-card border border-seam p-4">
         <div className="flex items-center gap-2 mb-3">
-          <Scale size={16} className="text-gray-400" />
-          <p className="text-sm font-bold text-white">Sunday Weigh-In</p>
+          <Scale size={16} className="text-dust" />
+          <p className="text-sm font-bold text-chalk">Sunday Weigh-In</p>
         </div>
 
         {sundayWeight !== null ? (
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-2xl font-black text-white">{sundayWeight} <span className="text-sm text-gray-500 font-normal">lbs</span></p>
+              <p className="text-2xl font-black text-chalk">{sundayWeight} <span className="text-sm text-dust font-normal">lbs</span></p>
               {weightChange !== null && (
                 <div className={`flex items-center gap-1 mt-1 text-sm font-semibold ${
-                  weightChange < 0 ? 'text-green-400' : weightChange > 0 ? 'text-red-400' : 'text-gray-400'
+                  weightChange < 0 ? 'text-teal' : weightChange > 0 ? 'text-orange' : 'text-dust'
                 }`}>
                   {weightChange < 0 ? <TrendingDown size={14} /> : weightChange > 0 ? <TrendingUp size={14} /> : <Minus size={14} />}
                   {weightChange > 0 ? '+' : ''}{weightChange} lbs vs last week
                 </div>
               )}
               {prevSundayWeight === null && (
-                <p className="text-xs text-gray-600 mt-1">Log last Sunday's weight to see change</p>
+                <p className="text-xs text-ash mt-1">Log last Sunday's weight to see change</p>
               )}
             </div>
             <button
               onClick={() => { setWeightInput(String(sundayWeight)); }}
-              className="text-xs text-blue-400 font-semibold"
+              className="text-xs text-orange font-semibold"
             >
               Edit
             </button>
           </div>
         ) : (
-          <p className="text-xs text-gray-500 mb-2">Enter your weight for this Sunday</p>
+          <p className="text-xs text-dust mb-2">Enter your weight for this Sunday</p>
         )}
 
         {(sundayWeight === null || weightInput !== '') && (
@@ -234,11 +234,11 @@ export default function WeeklySummaryView({ onApplyTargets }) {
               placeholder="lbs"
               value={weightInput}
               onChange={e => setWeightInput(e.target.value)}
-              className="flex-1 bg-gray-800 text-white font-bold text-lg rounded-xl px-3 py-2.5 text-center placeholder-gray-600"
+              className="flex-1 bg-plate text-chalk font-bold text-lg rounded-xl px-3 py-2.5 text-center placeholder-ash"
             />
             <button
               onClick={handleSaveWeight}
-              className="bg-blue-600 text-white font-bold px-4 rounded-xl"
+              className="bg-orange text-floor font-bold px-4 rounded-xl"
             >
               Save
             </button>
@@ -248,12 +248,12 @@ export default function WeeklySummaryView({ onApplyTargets }) {
 
       {/* Next week recommendations */}
       {nextWeekTargets && (
-        <div className="bg-gray-900 rounded-2xl border border-gray-800 p-4">
+        <div className="bg-bench rounded-card border border-seam p-4">
           <div className="flex items-center justify-between mb-2">
-            <p className="text-sm font-bold text-white">Next Week Targets</p>
+            <p className="text-sm font-bold text-chalk">Next Week Targets</p>
             <button
               onClick={() => setShowRec(r => !r)}
-              className="text-xs text-blue-400 font-semibold"
+              className="text-xs text-orange font-semibold"
             >
               {showRec ? 'Hide' : 'Show'}
             </button>
@@ -261,7 +261,7 @@ export default function WeeklySummaryView({ onApplyTargets }) {
 
           {showRec && (
             <div className="space-y-3">
-              <p className="text-xs text-gray-400 leading-relaxed">{nextWeekTargets.reasoning}</p>
+              <p className="text-xs text-dust leading-relaxed">{nextWeekTargets.reasoning}</p>
 
               <div className="grid grid-cols-4 gap-2">
                 {[
@@ -270,9 +270,9 @@ export default function WeeklySummaryView({ onApplyTargets }) {
                   { label: 'Carbs', value: nextWeekTargets.carbs, unit: 'g', highlight: nextWeekTargets.adjustment !== 0 },
                   { label: 'Fat', value: nextWeekTargets.fat, unit: 'g', highlight: false },
                 ].map(({ label, value, unit, highlight }) => (
-                  <div key={label} className={`rounded-xl p-2 text-center ${highlight ? 'bg-blue-900/40 border border-blue-700/40' : 'bg-gray-800'}`}>
-                    <p className="text-xs text-gray-500">{label}</p>
-                    <p className={`font-bold text-sm ${highlight ? 'text-blue-300' : 'text-white'}`}>{value}{unit}</p>
+                  <div key={label} className={`rounded-xl p-2 text-center ${highlight ? 'bg-orange-deep border border-orange/40' : 'bg-plate'}`}>
+                    <p className="text-xs text-dust">{label}</p>
+                    <p className={`font-bold text-sm ${highlight ? 'text-orange' : 'text-chalk'}`}>{value}{unit}</p>
                   </div>
                 ))}
               </div>
@@ -283,19 +283,19 @@ export default function WeeklySummaryView({ onApplyTargets }) {
                     onApplyTargets(nextWeekTargets);
                     setShowRec(false);
                   }}
-                  className="w-full bg-blue-600 text-white font-bold py-3 rounded-xl text-sm"
+                  className="w-full bg-orange text-floor font-bold py-3 rounded-xl text-sm"
                 >
                   Apply These Targets
                 </button>
               )}
               {nextWeekTargets.adjustment === 0 && (
-                <p className="text-center text-xs text-green-400 font-semibold">✓ Current targets unchanged</p>
+                <p className="text-center text-xs text-teal font-semibold">✓ Current targets unchanged</p>
               )}
             </div>
           )}
 
           {!showRec && (
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-dust">
               {nextWeekTargets.adjustment === 0
                 ? '✓ On track — no adjustment needed'
                 : `${nextWeekTargets.adjustment > 0 ? '+' : ''}${nextWeekTargets.adjustment} cal adjustment recommended`}
@@ -305,7 +305,7 @@ export default function WeeklySummaryView({ onApplyTargets }) {
       )}
 
       {daysWithData.length < 4 && (
-        <p className="text-xs text-gray-600 text-center">Log at least 4 days this week to unlock next-week recommendations</p>
+        <p className="text-xs text-ash text-center">Log at least 4 days this week to unlock next-week recommendations</p>
       )}
     </div>
   );

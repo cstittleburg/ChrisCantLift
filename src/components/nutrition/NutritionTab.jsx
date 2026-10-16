@@ -9,9 +9,13 @@ import {
 } from '../../utils/storage';
 import {
   Plus, Minus, Trash2, X, Check, Loader, SlidersHorizontal, Pencil,
-  Droplets, AlertTriangle, Clock, Camera, ChevronDown, ChevronUp,
+  Droplets, AlertTriangle, Clock, Camera, ChevronDown, ChevronUp, Utensils, Hourglass,
 } from 'lucide-react';
 import GoalsModal from './GoalsModal';
+import Button from '../ui/Button';
+import SectionLabel from '../ui/SectionLabel';
+import SegmentedControl from '../ui/SegmentedControl';
+import SyncStatus from '../ui/SyncStatus';
 import WeeklySummaryView from './WeeklySummaryView';
 import { analyzeNutritionDay, formatDuration, FOOD_CATEGORIES } from '../../utils/insulinUtils';
 
@@ -97,30 +101,23 @@ export default function NutritionTab() {
 
   return (
     <div className="pb-6">
-      <div className="sticky top-0 bg-gray-950 z-10 px-4 pt-4 pb-3">
-        <div className="flex items-center justify-between mb-3">
-          <h1 className="text-2xl font-bold text-white">Nutrition</h1>
-          <button
-            onClick={() => setShowGoals(true)}
-            className="flex items-center gap-1.5 bg-gray-800 text-gray-400 text-xs font-semibold px-3 py-2 rounded-full"
-          >
-            <SlidersHorizontal size={14} />
+      <div className="sticky top-0 bg-floor z-10 px-4 pt-6 pb-3">
+        <div className="flex items-end justify-between mb-1">
+          <div>
+            <SectionLabel>Nutrition</SectionLabel>
+            <h1 className="font-display font-extrabold uppercase text-[40px] leading-none mt-1">Fuel</h1>
+          </div>
+          <Button variant="secondary" onClick={() => setShowGoals(true)} className="text-sm">
+            <SlidersHorizontal size={16} />
             Goals
-          </button>
+          </Button>
         </div>
-        <div className="flex gap-1.5">
-          {[['today', 'Today'], ['library', 'Foods'], ['meals', 'Meals'], ['week', 'Week']].map(([v, label]) => (
-            <button
-              key={v}
-              onClick={() => setView(v)}
-              className={`flex-1 py-2 rounded-full text-xs font-semibold transition-colors ${
-                view === v ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-400'
-              }`}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
+        <SyncStatus className="mb-3" />
+        <SegmentedControl
+          options={[['today', 'Today'], ['library', 'Foods'], ['meals', 'Meals'], ['week', 'Week']]}
+          value={view}
+          onChange={setView}
+        />
       </div>
 
       <div className="px-4">
@@ -292,74 +289,42 @@ Grade scale: A=excellent, B=good, C=average, D=needs work, F=poor.`,
   };
 
   const remainingCals = target - totals.calories;
+  const over = remainingCals < 0;
+
+  // Calorie ring: 150px, 14px stroke
+  const R = 68, C = 2 * Math.PI * R;
+  const ringPct = target > 0 ? Math.min(totals.calories / target, 1) : 0;
 
   return (
-    <div className="space-y-4">
-      {/* Daily summary card */}
-      <div className="bg-gray-900 rounded-2xl border border-gray-800 p-4">
-        <div className="flex items-center justify-between mb-3">
-          <div>
-            <p className="text-xs text-gray-500 font-semibold uppercase tracking-wider">Calories</p>
-            <p className="text-3xl font-black text-white">{Math.round(totals.calories)}</p>
-            <p className={`text-sm font-semibold ${remainingCals >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-              {remainingCals >= 0 ? `${Math.round(remainingCals)} remaining` : `${Math.round(Math.abs(remainingCals))} over`}
-            </p>
+    <div className="space-y-4 pt-1">
+      {/* Calories + macros */}
+      <section className="bg-bench border border-seam rounded-card p-4 flex items-center gap-4">
+        <div className="relative w-[150px] h-[150px] flex-shrink-0">
+          <svg viewBox="0 0 150 150" className="w-full h-full -rotate-90" aria-hidden="true">
+            <circle cx="75" cy="75" r={R} fill="none" stroke="#262320" strokeWidth="14" />
+            <circle
+              cx="75" cy="75" r={R} fill="none"
+              stroke={over ? '#E8C468' : '#FF6B2C'} strokeWidth="14" strokeLinecap="round"
+              strokeDasharray={C} strokeDashoffset={C * (1 - ringPct)}
+            />
+          </svg>
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <span className={`font-display font-extrabold text-4xl leading-none tabular-nums ${over ? 'text-brass' : 'text-chalk'}`}>
+              {Math.round(Math.abs(remainingCals)).toLocaleString()}
+            </span>
+            <span className="text-xs font-bold uppercase tracking-[0.14em] text-dust mt-1">{over ? 'over' : 'cal left'}</span>
+            <span className="text-xs text-ash tabular-nums">{Math.round(totals.calories)} / {target}</span>
           </div>
-          <div className="text-right">
-            <p className="text-xs text-gray-500">Target</p>
-            <p className="text-xl font-bold text-gray-300">{target}</p>
-          </div>
         </div>
-        <div className="h-3 bg-gray-800 rounded-full overflow-hidden">
-          <div
-            className={`h-full rounded-full transition-all ${pctCalories >= 100 ? 'bg-red-500' : 'bg-blue-500'}`}
-            style={{ width: `${pctCalories}%` }}
-          />
+        <div className="flex-1 min-w-0 space-y-3">
+          <MacroBar label="Protein" value={totals.protein} target={goals.protein} color="bg-chalk" />
+          <MacroBar label="Carbs" value={totals.carbs} target={goals.carbs} color="bg-brass" />
+          <MacroBar label="Fat" value={totals.fat} target={goals.fat} color="bg-teal" />
         </div>
-        <div className="grid grid-cols-3 gap-3 mt-4">
-          <MacroBar label="Protein" value={totals.protein} target={goals.protein} unit="g" color="bg-blue-500" />
-          <MacroBar label="Carbs" value={totals.carbs} target={goals.carbs} unit="g" color="bg-yellow-500" />
-          <MacroBar label="Fat" value={totals.fat} target={goals.fat} unit="g" color="bg-orange-500" />
-        </div>
-      </div>
+      </section>
 
       {/* Meal window status */}
       {analysis.mealWindow && <MealWindowBanner window={analysis.mealWindow} />}
-
-      {/* Add food button */}
-      <button
-        onClick={() => setShowAdd(true)}
-        className="w-full bg-blue-600 text-white font-bold py-3.5 rounded-xl flex items-center justify-center gap-2"
-      >
-        <Plus size={20} />
-        Add Food / Drink
-      </button>
-
-      {/* Food log */}
-      {log.length > 0 && (
-        <div className="space-y-1.5">
-          <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-500">Today's Log</h3>
-          {log.map((entry) => {
-            return (
-              <FoodLogItem
-                key={entry.id}
-                entry={entry}
-                onDelete={() => handleDelete(entry.id)}
-                onUpdateQuantity={(qty) => handleUpdateQuantity(entry, qty)}
-                timingWarning={analysis.timingWarnings[entry.id]}
-                glycemicWarning={analysis.warnings[entry.id]}
-              />
-            );
-          })}
-        </div>
-      )}
-
-      {log.length === 0 && !showAdd && (
-        <div className="text-center py-6 text-gray-600">
-          <p className="text-sm">No food logged yet today</p>
-          <p className="text-xs mt-1">Tap "Add Food" to get started</p>
-        </div>
-      )}
 
       {/* Water tracker */}
       <WaterTracker
@@ -371,26 +336,52 @@ Grade scale: A=excellent, B=good, C=average, D=needs work, F=poor.`,
         onDelete={(id) => { deleteWaterEntry(date, id); onUpdate(); }}
       />
 
-      {/* Complete Day */}
-      <div className="pt-2 border-t border-gray-800">
-        {existingSummary && !showDaySummary ? (
-          <button
-            onClick={() => setShowDaySummary(true)}
-            className="w-full bg-gray-800 text-gray-300 font-semibold py-3 rounded-xl text-sm flex items-center justify-center gap-2"
-          >
-            View Day Summary (Grade: {existingSummary.grade})
-          </button>
-        ) : (
-          <button
-            onClick={handleCompleteDay}
-            disabled={generatingSummary || log.length === 0}
-            className="w-full bg-green-700 active:bg-green-800 text-white font-bold py-3.5 rounded-xl text-sm flex items-center justify-center gap-2 disabled:opacity-50"
-          >
-            {generatingSummary ? <Loader size={16} className="animate-spin" /> : <Check size={16} />}
-            {generatingSummary ? 'Generating summary...' : 'Complete Day & Get AI Summary'}
-          </button>
+      {/* Add food */}
+      <Button onClick={() => setShowAdd(true)} className="w-full">
+        <Plus size={20} strokeWidth={3} />
+        Add food
+      </Button>
+
+      {/* Food log + day grade */}
+      <section>
+        <div className="flex items-center justify-between mb-2">
+          <SectionLabel>Today's log</SectionLabel>
+          {existingSummary ? (
+            <button onClick={() => setShowDaySummary(true)} className="min-h-[44px] px-1 text-sm font-semibold text-orange">
+              Day grade: {existingSummary.grade}
+            </button>
+          ) : (
+            <button
+              onClick={handleCompleteDay}
+              disabled={generatingSummary || log.length === 0}
+              className="min-h-[44px] px-1 text-sm font-semibold text-orange flex items-center gap-1.5 disabled:opacity-40"
+            >
+              {generatingSummary && <Loader size={14} className="animate-spin" />}
+              {generatingSummary ? 'Grading…' : 'Grade my day'}
+            </button>
+          )}
+        </div>
+
+        {log.length > 0 ? (
+          <div className="bg-bench border border-seam rounded-card divide-y divide-seam overflow-hidden">
+            {log.map((entry) => (
+              <FoodLogItem
+                key={entry.id}
+                entry={entry}
+                onDelete={() => handleDelete(entry.id)}
+                onUpdateQuantity={(qty) => handleUpdateQuantity(entry, qty)}
+                timingWarning={analysis.timingWarnings[entry.id]}
+                glycemicWarning={analysis.warnings[entry.id]}
+              />
+            ))}
+          </div>
+        ) : !showAdd && (
+          <div className="text-center py-6 text-dust bg-bench border border-seam rounded-card">
+            <p className="text-sm">No food logged yet today</p>
+            <p className="text-xs mt-1 text-ash">Tap "Add food" to get started</p>
+          </div>
         )}
-      </div>
+      </section>
 
       {/* Day summary modal */}
       {showDaySummary && existingSummary && (
@@ -416,66 +407,68 @@ const fmtTime = (d) => d.toLocaleTimeString('en-US', { hour: 'numeric', minute: 
 function MealWindowBanner({ window: w }) {
   // Three live states: window open (finish eating), resting (insulin settling),
   // or rested (free to open a new window).
-  let style, icon, headline, detail;
+  let Icon, headline, detail;
 
   if (w.isOpen) {
-    style = 'bg-blue-900/20 border-blue-800/30 text-blue-300';
-    icon = '🍽';
+    Icon = Utensils;
     headline = `Window open — ${formatDuration(w.msUntilClose)} left`;
     detail = `Opened ${fmtTime(w.openedAt)} · close by ${fmtTime(w.closesAt)}`;
   } else if (w.canOpenNow) {
-    style = 'bg-green-900/30 border-green-800/40 text-green-400';
-    icon = '✓';
+    Icon = Check;
     headline = 'Rested — ready for your next meal';
     detail = `Last bite ${fmtTime(w.lastBiteAt)}`;
   } else {
-    style = 'bg-gray-800/60 border-gray-700/50 text-gray-300';
-    icon = '⏳';
+    Icon = Hourglass;
     headline = `Resting — ${formatDuration(w.msUntilNextOpen)} until you can eat`;
     detail = `Last bite ${fmtTime(w.lastBiteAt)} · next window ${fmtTime(w.nextOpenAt)}`;
   }
 
   return (
-    <div className={`px-4 py-2.5 rounded-xl border text-xs font-semibold ${style}`}>
-      <div className="flex items-center gap-2">
-        <Clock size={13} className="flex-shrink-0" />
-        <span>{icon} {headline}</span>
+    <section className="bg-bench border border-seam rounded-tile px-4 py-3 flex items-start gap-3">
+      <span className="w-10 h-10 rounded-input bg-brass-deep flex items-center justify-center flex-shrink-0">
+        <Clock size={18} className="text-brass" />
+      </span>
+      <div className="min-w-0">
+        <p className="font-semibold text-chalk flex items-center gap-1.5">
+          <Icon size={15} className="text-brass flex-shrink-0" />
+          {headline}
+        </p>
+        <p className="text-sm text-dust mt-0.5">{detail}</p>
       </div>
-      <p className="text-gray-500 font-normal mt-1 ml-[21px]">{detail}</p>
-    </div>
+    </section>
   );
 }
 
 // ─── Day Summary Modal ────────────────────────────────────────────────────────
 
-const GRADE_COLORS = { A: 'text-green-400', B: 'text-blue-400', C: 'text-yellow-400', D: 'text-orange-400', F: 'text-red-400' };
+const GRADE_COLORS = { A: 'text-teal', B: 'text-orange', C: 'text-brass', D: 'text-orange', F: 'text-orange' };
 
 function DaySummaryModal({ summary, onClose }) {
   return (
     <div className="fixed inset-0 bg-black/90 flex items-end justify-center z-[60]">
-      <div className="bg-gray-900 rounded-t-2xl p-5 w-full max-w-lg border-t border-gray-700 max-h-[82vh] overflow-y-auto">
+      <div className="bg-bench rounded-t-2xl p-5 w-full max-w-lg border-t border-seam max-h-[82vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold text-white">Day Summary</h2>
-          <button onClick={onClose}><X size={22} className="text-gray-500" /></button>
+          <h2 className="text-xl font-bold text-chalk">Day Summary</h2>
+          <button onClick={onClose}><X size={22} className="text-dust" /></button>
         </div>
 
         {/* Grade */}
         <div className="flex items-center gap-4 mb-4">
-          <div className={`text-6xl font-black ${GRADE_COLORS[summary.grade] || 'text-white'}`}>
+          <div className={`text-6xl font-black ${GRADE_COLORS[summary.grade] || 'text-chalk'}`}>
             {summary.grade}
           </div>
-          <p className="text-sm text-gray-300 flex-1">{summary.headline}</p>
+          <p className="text-sm text-chalk flex-1">{summary.headline}</p>
         </div>
 
         {/* Wins */}
         {summary.wins?.length > 0 && (
           <div className="mb-3">
-            <p className="text-xs font-semibold text-green-400 uppercase tracking-wider mb-2">Wins</p>
+            <p className="text-xs font-semibold text-teal uppercase tracking-wider mb-2">Wins</p>
             <div className="space-y-1.5">
               {summary.wins.map((w, i) => (
-                <div key={i} className="flex items-start gap-2 bg-green-900/20 rounded-lg px-3 py-2">
-                  <span className="text-green-400 mt-0.5">✓</span>
-                  <p className="text-sm text-gray-300">{w}</p>
+                <div key={i} className="flex items-start gap-2 bg-plate rounded-lg px-3 py-2">
+                  <span className="text-teal mt-0.5">✓</span>
+                  <p className="text-sm text-chalk">{w}</p>
                 </div>
               ))}
             </div>
@@ -485,12 +478,12 @@ function DaySummaryModal({ summary, onClose }) {
         {/* Improvements */}
         {summary.improvements?.length > 0 && (
           <div className="mb-3">
-            <p className="text-xs font-semibold text-yellow-400 uppercase tracking-wider mb-2">Improve</p>
+            <p className="text-xs font-semibold text-brass uppercase tracking-wider mb-2">Improve</p>
             <div className="space-y-1.5">
               {summary.improvements.map((imp, i) => (
-                <div key={i} className="flex items-start gap-2 bg-yellow-900/20 rounded-lg px-3 py-2">
-                  <span className="text-yellow-400 mt-0.5">→</span>
-                  <p className="text-sm text-gray-300">{imp}</p>
+                <div key={i} className="flex items-start gap-2 bg-brass-deep rounded-lg px-3 py-2">
+                  <span className="text-brass mt-0.5">→</span>
+                  <p className="text-sm text-chalk">{imp}</p>
                 </div>
               ))}
             </div>
@@ -499,21 +492,21 @@ function DaySummaryModal({ summary, onClose }) {
 
         {/* Timing note */}
         {summary.timingNote && (
-          <div className="mb-3 bg-blue-900/20 rounded-lg px-3 py-2.5 flex items-start gap-2">
-            <Clock size={14} className="text-blue-400 mt-0.5 flex-shrink-0" />
-            <p className="text-sm text-gray-300">{summary.timingNote}</p>
+          <div className="mb-3 bg-orange-deep rounded-lg px-3 py-2.5 flex items-start gap-2">
+            <Clock size={14} className="text-orange mt-0.5 flex-shrink-0" />
+            <p className="text-sm text-chalk">{summary.timingNote}</p>
           </div>
         )}
 
         {/* Next day tip */}
         {summary.nextDayTip && (
-          <div className="bg-gray-800 rounded-xl px-4 py-3">
-            <p className="text-xs text-gray-500 font-semibold mb-1">Tomorrow's Focus</p>
-            <p className="text-sm text-white">{summary.nextDayTip}</p>
+          <div className="bg-plate rounded-xl px-4 py-3">
+            <p className="text-xs text-dust font-semibold mb-1">Tomorrow's Focus</p>
+            <p className="text-sm text-chalk">{summary.nextDayTip}</p>
           </div>
         )}
 
-        <button onClick={onClose} className="mt-4 w-full bg-gray-800 text-gray-300 font-semibold py-3 rounded-xl text-sm">
+        <button onClick={onClose} className="mt-4 w-full bg-plate text-chalk font-semibold py-3 rounded-xl text-sm">
           Close
         </button>
       </div>
@@ -536,97 +529,97 @@ function WaterTracker({ totalOz, goal, standaloneEntries, foodWaterOz, onAdd, on
   };
 
   return (
-    <div className="bg-gray-900 rounded-2xl border border-gray-800 p-4">
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
-          <Droplets size={18} className="text-blue-400" />
-          <span className="text-sm font-bold text-white">Water</span>
+    <section className="bg-bench border border-seam rounded-card p-4">
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <span className="w-10 h-10 rounded-input bg-plate flex items-center justify-center">
+            <Droplets size={20} className="text-teal" />
+          </span>
+          <div>
+            <SectionLabel>Water</SectionLabel>
+            <p className="tabular-nums">
+              <span className="font-display font-bold text-2xl text-chalk">{Math.round(totalOz)}</span>
+              <span className="text-dust text-sm"> / {goal} oz</span>
+            </p>
+          </div>
         </div>
-        <div className="text-right">
-          <span className="text-xl font-black text-blue-400">{Math.round(totalOz)}</span>
-          <span className="text-gray-500 text-sm font-semibold"> / {goal} oz</span>
+        <div className="flex gap-2">
+          {[16, 32].map(oz => (
+            <Button key={oz} variant="secondary" onClick={() => onAdd(oz)} className="text-sm px-3 tabular-nums">
+              +{oz} oz
+            </Button>
+          ))}
         </div>
       </div>
 
-      <div className="h-2.5 bg-gray-800 rounded-full overflow-hidden mb-3">
-        <div
-          className={`h-full rounded-full transition-all ${pct >= 100 ? 'bg-green-500' : 'bg-blue-500'}`}
-          style={{ width: `${pct}%` }}
-        />
+      <div className="h-2 bg-plate rounded-full overflow-hidden mt-3">
+        <div className="h-full rounded-full bg-teal transition-all" style={{ width: `${pct}%` }} />
       </div>
-
       {remaining > 0
-        ? <p className="text-xs text-gray-500 mb-3">{Math.round(remaining)} oz remaining today</p>
-        : <p className="text-xs text-green-400 font-semibold mb-3">✓ Daily goal reached!</p>
+        ? <p className="text-xs text-dust mt-2">{Math.round(remaining)} oz remaining today</p>
+        : <p className="text-xs text-teal font-semibold mt-2 flex items-center gap-1"><Check size={13} /> Daily goal reached</p>
       }
 
-      <div className="flex gap-2 mb-3">
-        {[8, 16, 20].map(oz => (
-          <button key={oz} onClick={() => onAdd(oz)}
-            className="flex-1 bg-blue-900/40 border border-blue-800/50 text-blue-300 text-sm font-bold py-2 rounded-xl active:bg-blue-800/50">
-            +{oz}oz
-          </button>
-        ))}
-        <div className="flex-1 flex gap-1">
-          <input
-            type="number" inputMode="decimal" placeholder="oz"
-            value={customOz} onChange={e => setCustomOz(e.target.value)}
-            className="w-full bg-gray-800 text-white text-sm font-bold rounded-xl px-2 py-2 text-center placeholder-gray-600"
-          />
-          <button onClick={handleCustomAdd} className="bg-gray-700 text-white px-2 rounded-xl active:bg-gray-600">
-            <Plus size={16} />
-          </button>
-        </div>
+      <div className="flex gap-2 mt-3">
+        <input
+          type="number" inputMode="decimal" placeholder="Custom oz" aria-label="Custom ounces"
+          value={customOz} onChange={e => setCustomOz(e.target.value)}
+          className="flex-1 min-w-0 h-11 bg-floor border border-seam rounded-input px-3 text-chalk font-semibold tabular-nums placeholder-ash"
+        />
+        <Button variant="secondary" onClick={handleCustomAdd} aria-label="Add custom ounces" className="px-3">
+          <Plus size={18} />
+        </Button>
       </div>
 
       {(standaloneEntries.length > 0 || foodWaterOz > 0) && (
-        <div className="space-y-1 border-t border-gray-800 pt-3">
+        <div className="space-y-1.5 border-t border-seam pt-3 mt-3">
           {foodWaterOz > 0 && (
-            <div className="flex items-center justify-between text-xs text-gray-500 px-1">
-              <span className="flex items-center gap-1.5"><Droplets size={12} className="text-blue-500" />From food & drinks</span>
-              <span className="font-semibold text-blue-400">{Math.round(foodWaterOz)} oz</span>
+            <div className="flex items-center justify-between text-sm text-dust px-1">
+              <span className="flex items-center gap-1.5"><Droplets size={13} className="text-teal" />From food & drinks</span>
+              <span className="font-semibold text-chalk tabular-nums">{Math.round(foodWaterOz)} oz</span>
             </div>
           )}
           {standaloneEntries.map(e => (
-            <div key={e.id} className="flex items-center justify-between bg-gray-800 rounded-lg px-3 py-1.5">
+            <div key={e.id} className="flex items-center justify-between bg-plate rounded-xl pl-3 min-h-[44px]">
               <div className="flex items-center gap-2">
-                <Droplets size={12} className="text-blue-400" />
-                <span className="text-sm text-white font-semibold">{e.oz} oz</span>
-                <span className="text-xs text-gray-600">
+                <Droplets size={13} className="text-teal" />
+                <span className="text-sm text-chalk font-semibold tabular-nums">{e.oz} oz</span>
+                <span className="text-xs text-ash">
                   {new Date(e.loggedAt).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
                 </span>
               </div>
-              <button onClick={() => onDelete(e.id)} className="text-gray-600 p-1"><Trash2 size={14} /></button>
+              <button onClick={() => onDelete(e.id)} aria-label={`Delete ${e.oz} oz`} className="w-11 h-11 flex items-center justify-center text-ash">
+                <Trash2 size={15} />
+              </button>
             </div>
           ))}
         </div>
       )}
-    </div>
+    </section>
   );
 }
 
-function MacroBar({ label, value, target, unit, color }) {
-  const pct = Math.min((value / target) * 100, 100);
+function MacroBar({ label, value, target, color }) {
+  const pct = target > 0 ? Math.min((value / target) * 100, 100) : 0;
   return (
     <div>
-      <div className="flex justify-between mb-1">
-        <span className="text-xs text-gray-400">{label}</span>
-        <span className="text-xs text-gray-300 font-semibold">{Math.round(value)}{unit}</span>
+      <div className="flex justify-between items-baseline mb-1">
+        <span className="text-sm text-dust">{label}</span>
+        <span className="text-sm text-chalk font-semibold tabular-nums">{Math.round(value)} / {target}g</span>
       </div>
-      <div className="h-1.5 bg-gray-800 rounded-full overflow-hidden">
+      <div className="h-2 bg-plate rounded-full overflow-hidden">
         <div className={`h-full rounded-full ${color}`} style={{ width: `${pct}%` }} />
       </div>
-      <p className="text-xs text-gray-600 mt-0.5">/{target}{unit}</p>
     </div>
   );
 }
 
 const CATEGORY_COLORS = {
-  Meal: 'bg-blue-900/40 text-blue-300 border-blue-800/40',
-  Snack: 'bg-yellow-900/40 text-yellow-300 border-yellow-800/40',
+  Meal: 'bg-orange-deep text-orange border-orange/40',
+  Snack: 'bg-brass-deep text-brass border-brass-edge',
   Vitamins: 'bg-purple-900/40 text-purple-300 border-purple-800/40',
-  Supplement: 'bg-green-900/40 text-green-300 border-green-800/40',
-  Other: 'bg-gray-800 text-gray-400 border-gray-700',
+  Supplement: 'bg-plate text-teal border-teal/40',
+  Other: 'bg-plate text-dust border-seam',
 };
 
 function FoodLogItem({ entry, onDelete, onUpdateQuantity, timingWarning, glycemicWarning }) {
@@ -636,8 +629,6 @@ function FoodLogItem({ entry, onDelete, onUpdateQuantity, timingWarning, glycemi
   const timeStr = entry.loggedAt
     ? new Date(entry.loggedAt).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
     : '';
-  const catStyle = CATEGORY_COLORS[entry.category] || CATEGORY_COLORS.Other;
-  const hasWarning = timingWarning || glycemicWarning;
 
   const openQtyEditor = () => {
     setQtyInput(entry.quantity || 1);
@@ -649,74 +640,74 @@ function FoodLogItem({ entry, onDelete, onUpdateQuantity, timingWarning, glycemi
     setEditingQty(false);
   };
 
+  const macros = [
+    entry.protein ? `P${Math.round(entry.protein)}` : null,
+    entry.carbs ? `C${Math.round(entry.carbs)}` : null,
+    entry.fat ? `F${Math.round(entry.fat)}` : null,
+    entry.waterOz ? `${entry.waterOz} oz water` : null,
+  ].filter(Boolean).join(' · ');
+
   return (
-    <div className={`bg-gray-900 rounded-xl border px-4 py-3 ${hasWarning ? 'border-yellow-800/50' : 'border-gray-800'}`}>
-      <div className="flex items-start justify-between">
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1 flex-wrap">
-            {entry.category && (
-              <span className={`text-xs font-semibold px-2 py-0.5 rounded-full border ${catStyle}`}>
-                {entry.category}
-              </span>
-            )}
-            {timeStr && (
-              <span className="text-xs text-gray-600 flex items-center gap-1">
-                <Clock size={10} />
-                {timeStr}
-              </span>
-            )}
-            {entry.quantity && entry.quantity !== 1 && (
-              <span className="text-xs text-gray-500 font-semibold">{entry.quantity}×</span>
-            )}
-          </div>
-          <p className="font-semibold text-white text-sm truncate">{entry.name}</p>
-          <p className="text-xs text-gray-500 mt-0.5">
-            {entry.calories ? `${Math.round(entry.calories)} cal` : ''}
-            {entry.protein ? ` · P${Math.round(entry.protein)}g` : ''}
-            {entry.carbs ? ` · C${Math.round(entry.carbs)}g` : ''}
-            {entry.fat ? ` · F${Math.round(entry.fat)}g` : ''}
-            {entry.waterOz ? ` · 💧${entry.waterOz}oz` : ''}
+    <div className="px-4 py-3">
+      <button
+        onClick={() => (editingQty ? setEditingQty(false) : openQtyEditor())}
+        aria-expanded={editingQty}
+        aria-label={`${entry.name}, ${Math.round(entry.calories || 0)} calories. Edit or delete`}
+        className="w-full grid grid-cols-[3.75rem_1fr_auto] items-center gap-3 min-h-[44px] text-left"
+      >
+        <span className="text-xs text-ash tabular-nums leading-tight">{timeStr}</span>
+        <div className="min-w-0">
+          <p className="font-semibold text-chalk truncate">
+            {entry.name}
+            {entry.quantity && entry.quantity !== 1 && <span className="text-dust font-normal"> · {entry.quantity}×</span>}
+          </p>
+          <p className="text-xs text-dust tabular-nums truncate">
+            {entry.category ? `${entry.category}${macros ? ' · ' : ''}` : ''}{macros}
           </p>
         </div>
-        <div className="flex items-center gap-1 ml-2 flex-shrink-0">
-          <button onClick={openQtyEditor} className="text-gray-600 p-1"><Pencil size={16} /></button>
-          <button onClick={onDelete} className="text-gray-600 p-1"><Trash2 size={16} /></button>
-        </div>
-      </div>
+        <span className="font-display font-bold text-xl text-chalk tabular-nums">{Math.round(entry.calories || 0)}</span>
+      </button>
 
       {/* Inline quantity editor */}
       {editingQty && (
-        <div className="mt-2 flex items-center justify-between bg-gray-800 rounded-lg px-3 py-2">
-          <span className="text-xs text-gray-400 font-semibold">Quantity</span>
-          <div className="flex items-center gap-3">
+        <div className="mt-1 flex items-center justify-between bg-plate rounded-xl pl-3 pr-1 min-h-[52px]">
+          <span className="text-sm text-dust font-semibold">Quantity</span>
+          <div className="flex items-center gap-1">
             <button
               onClick={() => setQtyInput(q => Math.max(0.25, +(q - 0.5).toFixed(2)))}
-              className="w-7 h-7 rounded-full bg-gray-700 text-white flex items-center justify-center active:bg-gray-600"
+              aria-label="Less"
+              className="w-11 h-11 rounded-input bg-floor border border-seam text-chalk flex items-center justify-center"
             >
-              <Minus size={14} />
+              <Minus size={16} />
             </button>
-            <span className="text-white font-bold text-sm w-10 text-center">{qtyInput}×</span>
+            <span className="text-chalk font-display font-bold text-xl w-12 text-center tabular-nums">{qtyInput}×</span>
             <button
               onClick={() => setQtyInput(q => +(q + 0.5).toFixed(2))}
-              className="w-7 h-7 rounded-full bg-gray-700 text-white flex items-center justify-center active:bg-gray-600"
+              aria-label="More"
+              className="w-11 h-11 rounded-input bg-floor border border-seam text-chalk flex items-center justify-center"
             >
-              <Plus size={14} />
+              <Plus size={16} />
             </button>
-            <button onClick={handleSaveQty} className="ml-1 text-green-400 p-1"><Check size={16} /></button>
-            <button onClick={() => setEditingQty(false)} className="text-gray-500 p-1"><X size={16} /></button>
+            <button onClick={handleSaveQty} aria-label="Save quantity" className="w-11 h-11 flex items-center justify-center text-teal"><Check size={18} /></button>
+            <button onClick={() => setEditingQty(false)} aria-label="Cancel" className="w-11 h-11 flex items-center justify-center text-ash"><X size={18} /></button>
           </div>
         </div>
+      )}
+      {editingQty && (
+        <button onClick={onDelete} className="mt-2 w-full min-h-[44px] rounded-input border border-seam text-dust text-sm font-semibold flex items-center justify-center gap-2 active:bg-plate">
+          <Trash2 size={15} /> Delete {entry.name}
+        </button>
       )}
 
       {/* Inline warnings */}
       {timingWarning && (
-        <div className="mt-2 flex items-start gap-1.5 text-xs text-yellow-400">
+        <div className="mt-2 flex items-start gap-1.5 text-xs text-brass">
           <AlertTriangle size={12} className="flex-shrink-0 mt-0.5" />
           <span>{timingWarning}</span>
         </div>
       )}
       {glycemicWarning && (
-        <div className="mt-1.5 flex items-start gap-1.5 text-xs text-orange-400">
+        <div className="mt-1.5 flex items-start gap-1.5 text-xs text-orange">
           <AlertTriangle size={12} className="flex-shrink-0 mt-0.5" />
           <span>{glycemicWarning}</span>
         </div>
@@ -836,24 +827,24 @@ waterOz = fluid ounces of water (e.g. 22 for a 22oz drink, 0 for solid food). Us
 
   return (
     <div className="fixed inset-0 bg-black/90 flex items-end justify-center z-[60]">
-      <div className="bg-gray-900 rounded-t-2xl p-5 w-full max-w-lg border-t border-gray-700 max-h-[82vh] overflow-y-auto">
+      <div className="bg-bench rounded-t-2xl p-5 w-full max-w-lg border-t border-seam max-h-[82vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold">Add Food</h2>
-          <button onClick={onClose}><X size={22} className="text-gray-500" /></button>
+          <button onClick={onClose}><X size={22} className="text-dust" /></button>
         </div>
 
         {!apiKey && (
           <div className="mb-4">
-            <label className="text-xs text-gray-500 block mb-1">Anthropic API Key</label>
+            <label className="text-xs text-dust block mb-1">Anthropic API Key</label>
             <input type="password" value={apiKey} onChange={e => setApiKey(e.target.value)}
-              placeholder="sk-ant-..." className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm" />
+              placeholder="sk-ant-..." className="w-full bg-plate text-chalk rounded-lg px-3 py-2 text-sm" />
           </div>
         )}
 
         <div className="flex gap-2 mb-4">
           {[['text', 'Describe'], ['photo', 'Upload Label'], ['library', 'Saved Foods']].map(([m, label]) => (
             <button key={m} onClick={() => { setMode(m); setParsed(null); setQuantity(1); setError(null); }}
-              className={`flex-1 py-2 rounded-full text-xs font-semibold ${mode === m ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-400'}`}>
+              className={`flex-1 py-2 rounded-full text-xs font-semibold ${mode === m ? 'bg-orange text-floor' : 'bg-plate text-dust'}`}>
               {label}
             </button>
           ))}
@@ -865,14 +856,14 @@ waterOz = fluid ounces of water (e.g. 22 for a 22oz drink, 0 for solid food). Us
             <textarea
               placeholder="e.g. '2 eggs, cup of oatmeal' or '22oz protein shake 2 scoops'"
               value={text} onChange={e => setText(e.target.value)}
-              className="w-full bg-gray-800 text-white rounded-xl px-4 py-3 text-sm resize-none"
+              className="w-full bg-plate text-chalk rounded-xl px-4 py-3 text-sm resize-none"
               rows={3} autoFocus
             />
             <button onClick={analyzeText} disabled={!text.trim() || !apiKey}
-              className="w-full py-3 bg-blue-600 text-white rounded-xl font-bold text-sm disabled:opacity-50">
+              className="w-full py-3 bg-orange text-floor rounded-xl font-bold text-sm disabled:opacity-50">
               Analyze with AI
             </button>
-            {error && <p className="text-red-400 text-xs">{error}</p>}
+            {error && <p className="text-orange text-xs">{error}</p>}
           </div>
         )}
 
@@ -880,16 +871,16 @@ waterOz = fluid ounces of water (e.g. 22 for a 22oz drink, 0 for solid food). Us
         {mode === 'photo' && !parsed && !loading && (
           <div className="space-y-3">
             <button onClick={() => fileRef.current?.click()}
-              className="w-full border-2 border-dashed border-gray-700 rounded-xl py-5 flex flex-col items-center gap-2 text-gray-500 active:border-blue-700">
+              className="w-full border-2 border-dashed border-seam rounded-xl py-5 flex flex-col items-center gap-2 text-dust active:border-orange">
               <Camera size={24} />
-              <span className="text-sm font-semibold text-gray-400">Upload photo of nutrition label</span>
-              <span className="text-xs text-gray-600">Select from your photo library</span>
+              <span className="text-sm font-semibold text-dust">Upload photo of nutrition label</span>
+              <span className="text-xs text-ash">Select from your photo library</span>
             </button>
             {/* No capture="environment" — uses photo library picker */}
             <input ref={fileRef} type="file" accept="image/*"
               onChange={e => { if (e.target.files?.[0]) analyzePhoto(e.target.files[0]); }}
               className="hidden" />
-            {error && <p className="text-red-400 text-xs">{error}</p>}
+            {error && <p className="text-orange text-xs">{error}</p>}
           </div>
         )}
 
@@ -897,26 +888,26 @@ waterOz = fluid ounces of water (e.g. 22 for a 22oz drink, 0 for solid food). Us
         {mode === 'library' && (
           <div className="space-y-2">
             {savedFoods.length === 0 && (
-              <p className="text-gray-600 text-sm text-center py-6">No saved foods yet.</p>
+              <p className="text-ash text-sm text-center py-6">No saved foods yet.</p>
             )}
             {savedFoods.map(food => (
               <button key={food.id} onClick={() => handleQuickAdd(food)}
-                className="w-full bg-gray-800 rounded-xl p-3 text-left flex items-center justify-between">
+                className="w-full bg-plate rounded-xl p-3 text-left flex items-center justify-between">
                 <div>
                   <div className="flex items-center gap-2">
-                    <p className="font-semibold text-white text-sm">{food.name}</p>
+                    <p className="font-semibold text-chalk text-sm">{food.name}</p>
                     {food.category && (
                       <span className={`text-xs px-1.5 py-0.5 rounded-full border ${CATEGORY_COLORS[food.category] || CATEGORY_COLORS.Other}`}>
                         {food.category}
                       </span>
                     )}
                   </div>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-dust">
                     {food.calories}cal · P{food.protein}g · C{food.carbs}g · F{food.fat}g
                     {food.waterOz ? ` · 💧${food.waterOz}oz` : ''}
                   </p>
                 </div>
-                <Plus size={18} className="text-blue-400 flex-shrink-0" />
+                <Plus size={18} className="text-orange flex-shrink-0" />
               </button>
             ))}
           </div>
@@ -924,45 +915,45 @@ waterOz = fluid ounces of water (e.g. 22 for a 22oz drink, 0 for solid food). Us
 
         {loading && (
           <div className="flex flex-col items-center py-8 gap-3">
-            <Loader size={28} className="animate-spin text-blue-400" />
-            <p className="text-sm text-gray-400">
+            <Loader size={28} className="animate-spin text-orange" />
+            <p className="text-sm text-dust">
               {mode === 'photo' ? 'Reading label...' : 'Analyzing nutrition...'}
             </p>
             {mode === 'photo' && (
-              <p className="text-xs text-gray-600">Compressing & sending to AI</p>
+              <p className="text-xs text-ash">Compressing & sending to AI</p>
             )}
           </div>
         )}
 
         {parsed && !loading && (
           <div className="space-y-4">
-            <div className="bg-gray-800 rounded-xl p-4">
+            <div className="bg-plate rounded-xl p-4">
               {/* Editable name */}
               <input
                 type="text"
                 value={parsed.name || ''}
                 onChange={e => setParsed(p => ({ ...p, name: e.target.value }))}
                 placeholder="Food name"
-                className="w-full bg-gray-700 text-white font-bold text-sm rounded-lg px-3 py-2 mb-2"
+                className="w-full bg-seam text-chalk font-bold text-sm rounded-lg px-3 py-2 mb-2"
               />
-              {parsed.servingDescription && <p className="text-xs text-gray-500 mb-3">{parsed.servingDescription}</p>}
+              {parsed.servingDescription && <p className="text-xs text-dust mb-3">{parsed.servingDescription}</p>}
 
               {/* Quantity */}
-              <div className="flex items-center justify-between bg-gray-700 rounded-lg px-3 py-2 mb-2">
-                <span className="text-xs text-gray-400 font-semibold">Quantity</span>
+              <div className="flex items-center justify-between bg-seam rounded-lg px-3 py-2 mb-2">
+                <span className="text-xs text-dust font-semibold">Quantity</span>
                 <div className="flex items-center gap-3">
                   <button
                     type="button"
                     onClick={() => setQuantity(q => Math.max(0.25, +(q - 0.5).toFixed(2)))}
-                    className="w-7 h-7 rounded-full bg-gray-600 text-white flex items-center justify-center active:bg-gray-500"
+                    className="w-7 h-7 rounded-full bg-seam text-chalk flex items-center justify-center active:bg-plate"
                   >
                     <Minus size={14} />
                   </button>
-                  <span className="text-white font-bold text-sm w-10 text-center">{quantity}×</span>
+                  <span className="text-chalk font-bold text-sm w-10 text-center">{quantity}×</span>
                   <button
                     type="button"
                     onClick={() => setQuantity(q => +(q + 0.5).toFixed(2))}
-                    className="w-7 h-7 rounded-full bg-gray-600 text-white flex items-center justify-center active:bg-gray-500"
+                    className="w-7 h-7 rounded-full bg-seam text-chalk flex items-center justify-center active:bg-plate"
                   >
                     <Plus size={14} />
                   </button>
@@ -976,35 +967,35 @@ waterOz = fluid ounces of water (e.g. 22 for a 22oz drink, 0 for solid food). Us
                   { label: 'Carbs', value: parsed.carbs, unit: 'g' },
                   { label: 'Fat', value: parsed.fat, unit: 'g' },
                 ].map(({ label, value, unit }) => (
-                  <div key={label} className="text-center bg-gray-700 rounded-lg p-2">
-                    <p className="text-xs text-gray-400">{label}</p>
-                    <p className="font-bold text-white text-sm">{Math.round((value || 0) * quantity)}{unit}</p>
+                  <div key={label} className="text-center bg-seam rounded-lg p-2">
+                    <p className="text-xs text-dust">{label}</p>
+                    <p className="font-bold text-chalk text-sm">{Math.round((value || 0) * quantity)}{unit}</p>
                   </div>
                 ))}
               </div>
               {/* Editable water field */}
-              <div className="flex items-center gap-2 bg-blue-900/30 border border-blue-800/40 rounded-lg px-3 py-2 mt-2">
-                <Droplets size={14} className="text-blue-400 flex-shrink-0" />
-                <span className="text-xs text-blue-300 font-semibold flex-1">Water (oz)</span>
+              <div className="flex items-center gap-2 bg-orange-deep border border-orange/40 rounded-lg px-3 py-2 mt-2">
+                <Droplets size={14} className="text-orange flex-shrink-0" />
+                <span className="text-xs text-orange font-semibold flex-1">Water (oz)</span>
                 <input
                   type="number" inputMode="decimal"
                   value={parsed.waterOz ?? 0}
                   onChange={e => setParsed(p => ({ ...p, waterOz: parseFloat(e.target.value) || 0 }))}
-                  className="w-16 bg-gray-800 text-white text-sm font-bold rounded-lg px-2 py-1 text-center"
+                  className="w-16 bg-plate text-chalk text-sm font-bold rounded-lg px-2 py-1 text-center"
                 />
               </div>
             </div>
 
             {/* Category picker */}
             <div>
-              <p className="text-xs text-gray-500 mb-2 font-semibold">Category</p>
+              <p className="text-xs text-dust mb-2 font-semibold">Category</p>
               <div className="flex flex-wrap gap-2">
                 {FOOD_CATEGORIES.map(cat => (
                   <button key={cat} onClick={() => setSelectedCategory(cat)}
                     className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors ${
                       selectedCategory === cat
                         ? (CATEGORY_COLORS[cat] || CATEGORY_COLORS.Other) + ' ring-1 ring-white/20'
-                        : 'bg-gray-800 text-gray-500 border-gray-700'
+                        : 'bg-plate text-dust border-seam'
                     }`}>
                     {cat}
                   </button>
@@ -1013,10 +1004,10 @@ waterOz = fluid ounces of water (e.g. 22 for a 22oz drink, 0 for solid food). Us
             </div>
 
             <div className="flex gap-2">
-              <button onClick={() => { setParsed(null); setQuantity(1); setText(''); }} className="flex-1 py-3 bg-gray-800 text-gray-300 rounded-xl font-semibold text-sm">
+              <button onClick={() => { setParsed(null); setQuantity(1); setText(''); }} className="flex-1 py-3 bg-plate text-chalk rounded-xl font-semibold text-sm">
                 Try Again
               </button>
-              <button onClick={handleSave} className="flex-1 py-3 bg-green-600 text-white rounded-xl font-bold text-sm flex items-center justify-center gap-1">
+              <button onClick={handleSave} className="flex-1 py-3 bg-teal text-floor rounded-xl font-bold text-sm flex items-center justify-center gap-1">
                 <Check size={16} /> Save
               </button>
             </div>
@@ -1040,25 +1031,25 @@ function FoodsLibrary({ onUpdate }) {
 
   return (
     <div className="space-y-3 pt-2">
-      <p className="text-xs text-gray-500">Foods are saved automatically when you log them.</p>
-      {foods.length === 0 && <p className="text-gray-600 text-sm text-center py-8">No saved foods yet</p>}
+      <p className="text-xs text-dust">Foods are saved automatically when you log them.</p>
+      {foods.length === 0 && <p className="text-ash text-sm text-center py-8">No saved foods yet</p>}
       {foods.map(food => (
-        <div key={food.id} className="bg-gray-900 rounded-xl border border-gray-800 px-4 py-3 flex items-center justify-between">
+        <div key={food.id} className="bg-bench rounded-xl border border-seam px-4 py-3 flex items-center justify-between">
           <div>
             <div className="flex items-center gap-2">
-              <p className="font-semibold text-white text-sm">{food.name}</p>
+              <p className="font-semibold text-chalk text-sm">{food.name}</p>
               {food.category && (
                 <span className={`text-xs px-1.5 py-0.5 rounded-full border ${CATEGORY_COLORS[food.category] || CATEGORY_COLORS.Other}`}>
                   {food.category}
                 </span>
               )}
             </div>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-dust">
               {food.calories}cal · P{food.protein}g · C{food.carbs}g · F{food.fat}g
               {food.waterOz ? ` · 💧${food.waterOz}oz` : ''}
             </p>
           </div>
-          <button onClick={() => handleDelete(food.id)} className="text-gray-600 p-1"><Trash2 size={16} /></button>
+          <button onClick={() => handleDelete(food.id)} className="text-ash p-1"><Trash2 size={16} /></button>
         </div>
       ))}
     </div>
@@ -1116,24 +1107,24 @@ function SavedMealsView({ date, onUpdate }) {
   return (
     <div className="space-y-4 pt-2">
       <button onClick={() => setShowCreate(true)}
-        className="w-full bg-gray-800 border border-gray-700 border-dashed text-gray-400 font-semibold py-3.5 rounded-xl flex items-center justify-center gap-2 text-sm">
+        className="w-full bg-plate border border-seam border-dashed text-dust font-semibold py-3.5 rounded-xl flex items-center justify-center gap-2 text-sm">
         <Plus size={18} /> Create Saved Meal
       </button>
 
-      {meals.length === 0 && <p className="text-gray-600 text-sm text-center py-6">No saved meals yet</p>}
+      {meals.length === 0 && <p className="text-ash text-sm text-center py-6">No saved meals yet</p>}
 
       {meals.map(meal => (
-        <div key={meal.id} className="bg-gray-900 rounded-xl border border-gray-800 p-4">
+        <div key={meal.id} className="bg-bench rounded-xl border border-seam p-4">
           <div className="flex items-start justify-between mb-2">
             <div>
-              <p className="font-bold text-white">{meal.name}</p>
-              <p className="text-xs text-gray-500">{meal.foods.length} foods · ~{Math.round(meal.totalCalories)} cal</p>
+              <p className="font-bold text-chalk">{meal.name}</p>
+              <p className="text-xs text-dust">{meal.foods.length} foods · ~{Math.round(meal.totalCalories)} cal</p>
             </div>
-            <button onClick={() => logMeal(meal)} className="bg-blue-600 text-white text-xs font-bold px-3 py-2 rounded-lg">Log</button>
+            <button onClick={() => logMeal(meal)} className="bg-orange text-floor text-xs font-bold px-3 py-2 rounded-lg">Log</button>
           </div>
           <div className="flex flex-wrap gap-1 mt-2">
             {meal.foods.map((f, i) => (
-              <span key={i} className="bg-gray-800 text-gray-400 text-xs px-2 py-1 rounded-full">{f.name}</span>
+              <span key={i} className="bg-plate text-dust text-xs px-2 py-1 rounded-full">{f.name}</span>
             ))}
           </div>
         </div>
@@ -1141,35 +1132,35 @@ function SavedMealsView({ date, onUpdate }) {
 
       {showCreate && (
         <div className="fixed inset-0 bg-black/90 flex items-end justify-center z-[60]">
-          <div className="bg-gray-900 rounded-t-2xl p-5 w-full max-w-lg border-t border-gray-700 max-h-[82vh] overflow-y-auto">
+          <div className="bg-bench rounded-t-2xl p-5 w-full max-w-lg border-t border-seam max-h-[82vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold">Create Meal</h2>
-              <button onClick={() => setShowCreate(false)}><X size={22} className="text-gray-500" /></button>
+              <button onClick={() => setShowCreate(false)}><X size={22} className="text-dust" /></button>
             </div>
             <input type="text" placeholder="Meal name (e.g. Breakfast)"
               value={newMealName} onChange={e => setNewMealName(e.target.value)}
-              className="w-full bg-gray-800 text-white rounded-xl px-4 py-3 text-sm mb-4" />
-            <p className="text-xs text-gray-500 mb-2">Select foods to include:</p>
-            {savedFoods.length === 0 && <p className="text-xs text-gray-600 text-center py-4">No saved foods yet</p>}
+              className="w-full bg-plate text-chalk rounded-xl px-4 py-3 text-sm mb-4" />
+            <p className="text-xs text-dust mb-2">Select foods to include:</p>
+            {savedFoods.length === 0 && <p className="text-xs text-ash text-center py-4">No saved foods yet</p>}
             <div className="space-y-2 mb-4">
               {savedFoods.map(food => {
                 const selected = !!selectedFoods.find(f => f.id === food.id);
                 return (
                   <button key={food.id} onClick={() => toggleFood(food)}
-                    className={`w-full rounded-xl p-3 text-left flex items-center gap-3 ${selected ? 'bg-blue-900/40 border border-blue-700/50' : 'bg-gray-800'}`}>
-                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${selected ? 'border-blue-400 bg-blue-400' : 'border-gray-600'}`}>
-                      {selected && <Check size={12} className="text-white" />}
+                    className={`w-full rounded-xl p-3 text-left flex items-center gap-3 ${selected ? 'bg-orange-deep border border-orange/40' : 'bg-plate'}`}>
+                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${selected ? 'border-orange bg-orange' : 'border-seam'}`}>
+                      {selected && <Check size={12} className="text-chalk" />}
                     </div>
                     <div>
-                      <p className="font-semibold text-white text-sm">{food.name}</p>
-                      <p className="text-xs text-gray-500">{food.calories}cal</p>
+                      <p className="font-semibold text-chalk text-sm">{food.name}</p>
+                      <p className="text-xs text-dust">{food.calories}cal</p>
                     </div>
                   </button>
                 );
               })}
             </div>
             <button onClick={handleCreateMeal} disabled={!newMealName.trim() || selectedFoods.length === 0}
-              className="w-full bg-blue-600 text-white font-bold py-3 rounded-xl disabled:opacity-50">
+              className="w-full bg-orange text-floor font-bold py-3 rounded-xl disabled:opacity-50">
               Save Meal
             </button>
           </div>
