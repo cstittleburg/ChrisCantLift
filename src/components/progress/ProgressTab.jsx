@@ -381,7 +381,7 @@ function ExerciseStrengthChart({ data, onBack }) {
 
   return (
     <div className="pt-2 space-y-4">
-      <button onClick={onBack} className="text-orange text-sm font-semibold flex items-center gap-1">← Back</button>
+      <button onClick={onBack} className="min-h-[44px] -ml-1 px-1 text-orange text-sm font-semibold flex items-center gap-1">← Back</button>
       <h2 className="text-xl font-bold text-chalk">{data.name}</h2>
       <p className="text-sm text-brass font-semibold">🏆 PR: {pr}lbs</p>
 

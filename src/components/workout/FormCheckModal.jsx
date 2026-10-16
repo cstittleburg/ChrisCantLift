@@ -94,23 +94,24 @@ Provide structured feedback in this exact JSON format:
 
   return (
     <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4">
-      <div className="bg-gray-900 rounded-2xl p-5 w-full max-w-sm border border-gray-700 max-h-[90vh] overflow-y-auto">
+      <div className="bg-bench rounded-card p-5 w-full max-w-sm border border-seam max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-4">
           <h2 className="font-bold text-lg">Form Check</h2>
-          <button onClick={onClose} className="text-gray-500"><X size={22} /></button>
+          <button onClick={onClose} aria-label="Close" className="w-11 h-11 -mr-2 flex items-center justify-center text-dust"><X size={22} /></button>
         </div>
 
-        <p className="text-sm text-gray-400 mb-4">{exercise.name}</p>
+        <p className="text-sm text-dust mb-4">{exercise.name}</p>
 
         {!apiKey && (
           <div className="mb-4">
-            <label className="text-xs text-gray-500 block mb-1">Anthropic API Key</label>
+            <label className="text-xs text-dust block mb-1">Anthropic API Key</label>
             <input
               type="password"
               value={apiKey}
               onChange={e => setApiKey(e.target.value)}
               placeholder="sk-ant-..."
-              className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm"
+              aria-label="Anthropic API key"
+              className="w-full h-11 bg-floor border border-seam text-chalk rounded-input px-3 text-sm placeholder-ash"
             />
           </div>
         )}
@@ -119,7 +120,7 @@ Provide structured feedback in this exact JSON format:
           <>
             <button
               onClick={() => fileRef.current?.click()}
-              className="w-full border-2 border-dashed border-gray-700 rounded-xl py-8 flex flex-col items-center gap-2 text-gray-500 mb-4"
+              className="w-full border-2 border-dashed border-seam rounded-xl py-8 flex flex-col items-center gap-2 text-dust mb-4"
             >
               <Upload size={24} />
               <span className="text-sm">{videoFile ? videoFile.name : 'Upload video or image'}</span>
@@ -127,13 +128,13 @@ Provide structured feedback in this exact JSON format:
             <input ref={fileRef} type="file" accept="video/*,image/*" onChange={handleFileChange} className="hidden" />
 
             {error && (
-              <p className="text-red-400 text-sm mb-3">{error}</p>
+              <p className="text-orange text-sm mb-3">{error}</p>
             )}
 
             <button
               onClick={handleAnalyze}
               disabled={!videoFile || !apiKey}
-              className="w-full bg-purple-600 text-white font-bold py-3 rounded-xl disabled:opacity-50"
+              className="w-full bg-purple-600 text-chalk font-bold py-3 rounded-xl disabled:opacity-50"
             >
               Analyze Form
             </button>
@@ -143,18 +144,18 @@ Provide structured feedback in this exact JSON format:
         {loading && (
           <div className="flex flex-col items-center py-8 gap-3">
             <Loader size={32} className="animate-spin text-purple-400" />
-            <p className="text-gray-400 text-sm">Analyzing your form...</p>
+            <p className="text-dust text-sm">Analyzing your form...</p>
           </div>
         )}
 
         {feedback && (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <p className="text-sm text-gray-300">{feedback.summary}</p>
+              <p className="text-sm text-chalk">{feedback.summary}</p>
               <span className={`text-xs px-2 py-1 rounded-full font-semibold ml-2 flex-shrink-0 ${
-                feedback.confidence === 'high' ? 'bg-green-900 text-green-300' :
-                feedback.confidence === 'medium' ? 'bg-yellow-900 text-yellow-300' :
-                'bg-gray-800 text-gray-400'
+                feedback.confidence === 'high' ? 'bg-plate text-teal' :
+                feedback.confidence === 'medium' ? 'bg-brass-deep text-brass' :
+                'bg-plate text-dust'
               }`}>
                 {feedback.confidence} confidence
               </span>
@@ -162,13 +163,13 @@ Provide structured feedback in this exact JSON format:
 
             {feedback.looksGood?.length > 0 && (
               <div>
-                <p className="text-xs font-bold text-green-400 mb-2 flex items-center gap-1">
+                <p className="text-xs font-bold text-teal mb-2 flex items-center gap-1">
                   <CheckCircle size={12} /> Looks Good
                 </p>
                 <ul className="space-y-1">
                   {feedback.looksGood.map((item, i) => (
-                    <li key={i} className="text-xs text-gray-300 flex items-start gap-2">
-                      <span className="text-green-500 mt-0.5">•</span>{item}
+                    <li key={i} className="text-xs text-chalk flex items-start gap-2">
+                      <span className="text-teal mt-0.5">•</span>{item}
                     </li>
                   ))}
                 </ul>
@@ -177,13 +178,13 @@ Provide structured feedback in this exact JSON format:
 
             {feedback.needsAttention?.length > 0 && (
               <div>
-                <p className="text-xs font-bold text-yellow-400 mb-2 flex items-center gap-1">
+                <p className="text-xs font-bold text-brass mb-2 flex items-center gap-1">
                   <Info size={12} /> Needs Attention
                 </p>
                 <ul className="space-y-1">
                   {feedback.needsAttention.map((item, i) => (
-                    <li key={i} className="text-xs text-gray-300 flex items-start gap-2">
-                      <span className="text-yellow-500 mt-0.5">•</span>{item}
+                    <li key={i} className="text-xs text-chalk flex items-start gap-2">
+                      <span className="text-brass mt-0.5">•</span>{item}
                     </li>
                   ))}
                 </ul>
@@ -191,13 +192,13 @@ Provide structured feedback in this exact JSON format:
             )}
 
             {feedback.injuryRiskFlags?.length > 0 && (
-              <div className="bg-red-900/30 border border-red-700/50 rounded-xl p-3">
-                <p className="text-xs font-bold text-red-400 mb-2 flex items-center gap-1">
+              <div className="bg-orange-deep border border-orange/40 rounded-xl p-3">
+                <p className="text-xs font-bold text-orange mb-2 flex items-center gap-1">
                   <AlertTriangle size={12} /> Injury Risk
                 </p>
                 <ul className="space-y-1">
                   {feedback.injuryRiskFlags.map((item, i) => (
-                    <li key={i} className="text-xs text-red-300 flex items-start gap-2">
+                    <li key={i} className="text-xs text-orange flex items-start gap-2">
                       <span className="mt-0.5">⚠</span>{item}
                     </li>
                   ))}
@@ -207,7 +208,7 @@ Provide structured feedback in this exact JSON format:
 
             <button
               onClick={() => setFeedback(null)}
-              className="w-full bg-gray-800 text-gray-300 py-3 rounded-xl text-sm font-semibold"
+              className="w-full bg-plate text-chalk py-3 rounded-xl text-sm font-semibold"
             >
               Analyze Again
             </button>

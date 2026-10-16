@@ -150,12 +150,10 @@ export default function GoalsModal({ onClose, onSave }) {
         <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-seam">
           <h2 className="text-xl font-bold text-chalk">Nutrition Goals</h2>
           <div className="flex gap-2">
-            <button onClick={handleReset} className="text-dust p-2 hover:text-chalk">
+            <button onClick={handleReset} aria-label="Reset to default goals" className="w-11 h-11 flex items-center justify-center text-dust hover:text-chalk">
               <RotateCcw size={18} />
             </button>
-            <button onClick={onClose} className="text-dust p-2 hover:text-chalk">
-              <X size={20} />
-            </button>
+            <button onClick={onClose} aria-label="Close" className="w-11 h-11 -mr-2 flex items-center justify-center text-dust"><X size={20} /></button>
           </div>
         </div>
 
@@ -188,7 +186,7 @@ export default function GoalsModal({ onClose, onSave }) {
             <div className="flex bg-plate rounded-xl p-1 gap-1">
               <button
                 onClick={() => setMode('grams')}
-                className={`flex-1 py-2.5 rounded-lg text-sm font-semibold transition-colors ${
+                className={`flex-1 min-h-[44px] rounded-lg text-sm font-semibold transition-colors ${
                   mode === 'grams' ? 'bg-seam text-chalk' : 'text-dust'
                 }`}
               >
@@ -196,7 +194,7 @@ export default function GoalsModal({ onClose, onSave }) {
               </button>
               <button
                 onClick={() => setMode('percent')}
-                className={`flex-1 py-2.5 rounded-lg text-sm font-semibold transition-colors ${
+                className={`flex-1 min-h-[44px] rounded-lg text-sm font-semibold transition-colors ${
                   mode === 'percent' ? 'bg-seam text-chalk' : 'text-dust'
                 }`}
               >
@@ -233,7 +231,7 @@ export default function GoalsModal({ onClose, onSave }) {
                           else setFat(Math.max(0, Number(e.target.value)));
                         }
                       }}
-                      className={`w-full bg-seam text-chalk font-bold text-lg rounded-xl px-3 py-2.5 text-center ${
+                      className={`w-full bg-seam text-chalk font-bold text-lg rounded-xl px-3 h-12 text-center ${
                         mode === 'grams' ? 'ring-2 ring-orange' : ''
                       }`}
                     />
@@ -255,7 +253,7 @@ export default function GoalsModal({ onClose, onSave }) {
                           handlePctChange(key, e.target.value);
                         }
                       }}
-                      className={`w-full bg-seam text-chalk font-bold text-lg rounded-xl px-3 py-2.5 text-center ${
+                      className={`w-full bg-seam text-chalk font-bold text-lg rounded-xl px-3 h-12 text-center ${
                         mode === 'percent' ? 'ring-2 ring-orange' : ''
                       }`}
                     />

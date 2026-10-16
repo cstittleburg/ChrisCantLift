@@ -55,17 +55,15 @@ export default function EndWorkoutModal({ workout, session, onClose }) {
 
   return (
     <div className="fixed inset-0 bg-black/85 flex items-end justify-center z-[60]">
-      <div className="bg-gray-900 rounded-t-2xl p-6 w-full max-w-lg border-t border-gray-700">
+      <div className="bg-bench rounded-t-2xl p-6 w-full max-w-lg border-t border-seam">
         <div className="flex items-center justify-between mb-5">
           <h2 className="text-xl font-bold">End Workout Early</h2>
-          <button onClick={onClose} className="text-gray-500 p-1">
-            <X size={22} />
-          </button>
+          <button onClick={onClose} aria-label="Close" className="w-11 h-11 -mr-2 flex items-center justify-center text-dust"><X size={22} /></button>
         </div>
 
         {!showLowerBackPrompt ? (
           <>
-            <p className="text-sm text-gray-400 mb-4">
+            <p className="text-sm text-dust mb-4">
               {incompleteExercises.length > 0
                 ? `${incompleteExercises.length} exercise(s) incomplete. What caused you to end early?`
                 : 'What caused you to end early?'}
@@ -78,8 +76,8 @@ export default function EndWorkoutModal({ workout, session, onClose }) {
                   onClick={() => toggleReason(reason)}
                   className={`py-3 rounded-xl font-semibold text-sm capitalize transition-colors ${
                     selectedReasons.includes(reason)
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-800 text-gray-300'
+                      ? 'bg-orange text-floor'
+                      : 'bg-plate text-chalk'
                   }`}
                 >
                   {reason}
@@ -91,21 +89,21 @@ export default function EndWorkoutModal({ workout, session, onClose }) {
               placeholder="Optional note..."
               value={note}
               onChange={e => setNote(e.target.value)}
-              className="w-full bg-gray-800 text-white rounded-xl px-4 py-3 text-sm mb-4 resize-none"
+              className="w-full bg-plate text-chalk rounded-xl px-4 py-3 text-sm mb-4 resize-none"
               rows={2}
             />
 
             <div className="flex gap-3">
               <button
                 onClick={onClose}
-                className="flex-1 py-3 bg-gray-800 text-white rounded-xl font-semibold"
+                className="flex-1 py-3 bg-plate text-chalk rounded-xl font-semibold"
               >
                 Cancel
               </button>
               <button
                 onClick={handleContinue}
                 disabled={selectedReasons.length === 0}
-                className="flex-1 py-3 bg-red-600 text-white rounded-xl font-bold disabled:opacity-50"
+                className="flex-1 py-3 bg-orange text-floor rounded-xl font-bold disabled:opacity-50"
               >
                 End Workout
               </button>
@@ -113,11 +111,11 @@ export default function EndWorkoutModal({ workout, session, onClose }) {
           </>
         ) : (
           <>
-            <div className="bg-yellow-900/30 border border-yellow-700/50 rounded-xl p-4 mb-5 flex items-start gap-3">
-              <AlertTriangle size={20} className="text-yellow-400 mt-0.5 flex-shrink-0" />
+            <div className="bg-brass-deep border border-brass-edge rounded-xl p-4 mb-5 flex items-start gap-3">
+              <AlertTriangle size={20} className="text-brass mt-0.5 flex-shrink-0" />
               <div>
-                <p className="text-sm font-bold text-yellow-400">Pain reported on major lift</p>
-                <p className="text-sm text-gray-300 mt-1">Was any pain lower-back related?</p>
+                <p className="text-sm font-bold text-brass">Pain reported on major lift</p>
+                <p className="text-sm text-chalk mt-1">Was any pain lower-back related?</p>
               </div>
             </div>
 
@@ -125,7 +123,7 @@ export default function EndWorkoutModal({ workout, session, onClose }) {
               <button
                 onClick={() => setLowerBackPain(false)}
                 className={`flex-1 py-3 rounded-xl font-semibold text-sm ${
-                  lowerBackPain === false ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-300'
+                  lowerBackPain === false ? 'bg-orange text-floor' : 'bg-plate text-floor'
                 }`}
               >
                 No
@@ -133,7 +131,7 @@ export default function EndWorkoutModal({ workout, session, onClose }) {
               <button
                 onClick={() => setLowerBackPain(true)}
                 className={`flex-1 py-3 rounded-xl font-semibold text-sm ${
-                  lowerBackPain === true ? 'bg-red-600 text-white' : 'bg-gray-800 text-gray-300'
+                  lowerBackPain === true ? 'bg-orange text-floor' : 'bg-plate text-floor'
                 }`}
               >
                 Yes — Lower Back
@@ -142,7 +140,7 @@ export default function EndWorkoutModal({ workout, session, onClose }) {
 
             <button
               onClick={handleConfirm}
-              className="w-full py-3 bg-red-600 text-white rounded-xl font-bold"
+              className="w-full py-3 bg-orange text-floor rounded-xl font-bold"
             >
               Confirm & End Workout
             </button>

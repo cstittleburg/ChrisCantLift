@@ -23,7 +23,7 @@ export default function Stepper({ label, value, onChange, step = 1, inputMode = 
           value={value}
           placeholder={placeholder}
           onChange={e => onChange(e.target.value)}
-          className="flex-1 min-w-0 w-full bg-transparent text-center font-display font-bold text-[30px] leading-none text-chalk tabular-nums placeholder-ash focus:outline-none"
+          className="flex-1 min-w-0 w-full h-full bg-transparent text-center font-display font-bold text-[30px] leading-none text-chalk tabular-nums placeholder-ash focus:outline-none"
         />
         <button type="button" onClick={() => bump(1)} aria-label={`Increase ${label}`}
           className="w-11 h-full flex items-center justify-center text-dust active:text-chalk flex-shrink-0">

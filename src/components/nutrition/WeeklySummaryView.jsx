@@ -119,14 +119,14 @@ export default function WeeklySummaryView({ onApplyTargets }) {
     <div className="space-y-4 pt-2">
       {/* Week navigator */}
       <div className="flex items-center justify-between">
-        <button onClick={prevWeek} className="p-2 text-dust">
+        <button onClick={prevWeek} aria-label="Previous week" className="w-11 h-11 flex items-center justify-center text-dust">
           <ChevronLeft size={20} />
         </button>
         <div className="text-center">
           <p className="text-sm font-bold text-chalk">{weekLabel}</p>
           {isCurrentWeek && <p className="text-xs text-orange">Current week</p>}
         </div>
-        <button onClick={nextWeek} className={`p-2 ${isCurrentWeek ? 'text-ash' : 'text-dust'}`} disabled={isCurrentWeek}>
+        <button onClick={nextWeek} aria-label="Next week" className={`w-11 h-11 flex items-center justify-center ${isCurrentWeek ? 'text-ash' : 'text-dust'}`} disabled={isCurrentWeek}>
           <ChevronRight size={20} />
         </button>
       </div>
@@ -234,7 +234,7 @@ export default function WeeklySummaryView({ onApplyTargets }) {
               placeholder="lbs"
               value={weightInput}
               onChange={e => setWeightInput(e.target.value)}
-              className="flex-1 bg-plate text-chalk font-bold text-lg rounded-xl px-3 py-2.5 text-center placeholder-ash"
+              className="flex-1 bg-plate text-chalk font-bold text-lg rounded-xl px-3 h-12 text-center placeholder-ash"
             />
             <button
               onClick={handleSaveWeight}

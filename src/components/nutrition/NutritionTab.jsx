@@ -449,7 +449,7 @@ function DaySummaryModal({ summary, onClose }) {
       <div className="bg-bench rounded-t-2xl p-5 w-full max-w-lg border-t border-seam max-h-[82vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold text-chalk">Day Summary</h2>
-          <button onClick={onClose}><X size={22} className="text-dust" /></button>
+          <button onClick={onClose} aria-label="Close" className="w-11 h-11 -mr-2 flex items-center justify-center text-dust"><X size={22} className="text-dust" /></button>
         </div>
 
         {/* Grade */}
@@ -830,21 +830,21 @@ waterOz = fluid ounces of water (e.g. 22 for a 22oz drink, 0 for solid food). Us
       <div className="bg-bench rounded-t-2xl p-5 w-full max-w-lg border-t border-seam max-h-[82vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold">Add Food</h2>
-          <button onClick={onClose}><X size={22} className="text-dust" /></button>
+          <button onClick={onClose} aria-label="Close" className="w-11 h-11 -mr-2 flex items-center justify-center text-dust"><X size={22} className="text-dust" /></button>
         </div>
 
         {!apiKey && (
           <div className="mb-4">
             <label className="text-xs text-dust block mb-1">Anthropic API Key</label>
             <input type="password" value={apiKey} onChange={e => setApiKey(e.target.value)}
-              placeholder="sk-ant-..." className="w-full bg-plate text-chalk rounded-lg px-3 py-2 text-sm" />
+              placeholder="sk-ant-..." aria-label="Anthropic API key" className="w-full h-11 bg-floor border border-seam text-chalk rounded-input px-3 text-sm placeholder-ash" />
           </div>
         )}
 
         <div className="flex gap-2 mb-4">
           {[['text', 'Describe'], ['photo', 'Upload Label'], ['library', 'Saved Foods']].map(([m, label]) => (
             <button key={m} onClick={() => { setMode(m); setParsed(null); setQuantity(1); setError(null); }}
-              className={`flex-1 py-2 rounded-full text-xs font-semibold ${mode === m ? 'bg-orange text-floor' : 'bg-plate text-dust'}`}>
+              className={`flex-1 min-h-[44px] rounded-full text-sm font-semibold ${mode === m ? 'bg-orange text-floor' : 'bg-plate text-dust'}`}>
               {label}
             </button>
           ))}
@@ -934,18 +934,19 @@ waterOz = fluid ounces of water (e.g. 22 for a 22oz drink, 0 for solid food). Us
                 value={parsed.name || ''}
                 onChange={e => setParsed(p => ({ ...p, name: e.target.value }))}
                 placeholder="Food name"
-                className="w-full bg-seam text-chalk font-bold text-sm rounded-lg px-3 py-2 mb-2"
+                className="w-full bg-seam text-chalk font-bold text-sm rounded-lg px-3 h-11 mb-2"
               />
               {parsed.servingDescription && <p className="text-xs text-dust mb-3">{parsed.servingDescription}</p>}
 
               {/* Quantity */}
-              <div className="flex items-center justify-between bg-seam rounded-lg px-3 py-2 mb-2">
+              <div className="flex items-center justify-between bg-plate rounded-lg px-3 py-1 mb-2">
                 <span className="text-xs text-dust font-semibold">Quantity</span>
                 <div className="flex items-center gap-3">
                   <button
                     type="button"
                     onClick={() => setQuantity(q => Math.max(0.25, +(q - 0.5).toFixed(2)))}
-                    className="w-7 h-7 rounded-full bg-seam text-chalk flex items-center justify-center active:bg-plate"
+                    aria-label="Less"
+                    className="w-11 h-11 rounded-full bg-floor border border-seam text-chalk flex items-center justify-center active:bg-plate"
                   >
                     <Minus size={14} />
                   </button>
@@ -953,7 +954,8 @@ waterOz = fluid ounces of water (e.g. 22 for a 22oz drink, 0 for solid food). Us
                   <button
                     type="button"
                     onClick={() => setQuantity(q => +(q + 0.5).toFixed(2))}
-                    className="w-7 h-7 rounded-full bg-seam text-chalk flex items-center justify-center active:bg-plate"
+                    aria-label="More"
+                    className="w-11 h-11 rounded-full bg-floor border border-seam text-chalk flex items-center justify-center active:bg-plate"
                   >
                     <Plus size={14} />
                   </button>
@@ -981,7 +983,7 @@ waterOz = fluid ounces of water (e.g. 22 for a 22oz drink, 0 for solid food). Us
                   type="number" inputMode="decimal"
                   value={parsed.waterOz ?? 0}
                   onChange={e => setParsed(p => ({ ...p, waterOz: parseFloat(e.target.value) || 0 }))}
-                  className="w-16 bg-plate text-chalk text-sm font-bold rounded-lg px-2 py-1 text-center"
+                  className="w-16 bg-plate text-chalk text-sm font-bold rounded-lg px-2 h-11 text-center"
                 />
               </div>
             </div>
@@ -992,7 +994,7 @@ waterOz = fluid ounces of water (e.g. 22 for a 22oz drink, 0 for solid food). Us
               <div className="flex flex-wrap gap-2">
                 {FOOD_CATEGORIES.map(cat => (
                   <button key={cat} onClick={() => setSelectedCategory(cat)}
-                    className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors ${
+                    className={`px-3 min-h-[44px] rounded-full text-xs font-semibold border transition-colors ${
                       selectedCategory === cat
                         ? (CATEGORY_COLORS[cat] || CATEGORY_COLORS.Other) + ' ring-1 ring-white/20'
                         : 'bg-plate text-dust border-seam'
@@ -1049,7 +1051,7 @@ function FoodsLibrary({ onUpdate }) {
               {food.waterOz ? ` · 💧${food.waterOz}oz` : ''}
             </p>
           </div>
-          <button onClick={() => handleDelete(food.id)} className="text-ash p-1"><Trash2 size={16} /></button>
+          <button onClick={() => handleDelete(food.id)} aria-label={`Delete ${food.name}`} className="w-11 h-11 flex items-center justify-center -mr-2 text-ash"><Trash2 size={16} /></button>
         </div>
       ))}
     </div>
@@ -1120,7 +1122,7 @@ function SavedMealsView({ date, onUpdate }) {
               <p className="font-bold text-chalk">{meal.name}</p>
               <p className="text-xs text-dust">{meal.foods.length} foods · ~{Math.round(meal.totalCalories)} cal</p>
             </div>
-            <button onClick={() => logMeal(meal)} className="bg-orange text-floor text-xs font-bold px-3 py-2 rounded-lg">Log</button>
+            <button onClick={() => logMeal(meal)} className="bg-orange text-floor text-xs font-bold px-3 min-h-[44px] rounded-lg">Log</button>
           </div>
           <div className="flex flex-wrap gap-1 mt-2">
             {meal.foods.map((f, i) => (
@@ -1135,7 +1137,7 @@ function SavedMealsView({ date, onUpdate }) {
           <div className="bg-bench rounded-t-2xl p-5 w-full max-w-lg border-t border-seam max-h-[82vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold">Create Meal</h2>
-              <button onClick={() => setShowCreate(false)}><X size={22} className="text-dust" /></button>
+              <button onClick={() => setShowCreate(false)} aria-label="Close" className="w-11 h-11 flex items-center justify-center -mr-2 text-dust"><X size={22} /></button>
             </div>
             <input type="text" placeholder="Meal name (e.g. Breakfast)"
               value={newMealName} onChange={e => setNewMealName(e.target.value)}
