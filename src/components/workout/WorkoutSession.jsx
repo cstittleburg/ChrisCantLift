@@ -73,15 +73,15 @@ export default function WorkoutSession() {
       <div className="sticky top-0 bg-floor border-b border-plate px-4 pt-4 pb-3 z-10">
         <div className="flex items-start justify-between gap-3 max-w-lg mx-auto">
           <div className="min-w-0">
-            <div className="flex items-center gap-2">
-              <h1 className="font-display font-bold uppercase text-[28px] leading-none truncate">
-                {workout.id} · {bodyPartOf(workout)}
-              </h1>
+            <h1 className="font-display font-bold uppercase text-[28px] leading-none truncate">
+              {workout.id} · {bodyPartOf(workout)}
+            </h1>
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mt-1.5">
               <FocusBadge workout={workout} className="flex-shrink-0" />
+              <p className="text-sm text-dust tabular-nums">
+                {elapsed} elapsed · {done} of {total} sets
+              </p>
             </div>
-            <p className="text-sm text-dust tabular-nums mt-1">
-              {elapsed} elapsed · {done} of {total} sets
-            </p>
           </div>
           <div className="flex gap-2 flex-shrink-0">
             <IconButton aria-label="Switch workout or end early" onClick={() => setShowMenu(true)}>
