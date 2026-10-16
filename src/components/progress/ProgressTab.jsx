@@ -4,9 +4,14 @@ import { USER_PROFILE } from '../../data/userProfile';
 import { PROGRAM_SEQUENCE, WORKOUT_PROGRAM } from '../../data/workoutProgram';
 import { getAllExercisesMap } from '../../utils/exerciseRegistry';
 import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, BarChart, Bar
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, BarChart, Bar, Cell
 } from 'recharts';
 import { Plus, X, TrendingDown, Award, Calendar, Dumbbell } from 'lucide-react';
+import Button from '../ui/Button';
+import IconButton from '../ui/IconButton';
+import SectionLabel from '../ui/SectionLabel';
+import SegmentedControl from '../ui/SegmentedControl';
+import SyncStatus from '../ui/SyncStatus';
 
 const BODY_FAT_KEY = 'fitness_body_fat_log';
 
@@ -28,20 +33,11 @@ export default function ProgressTab() {
 
   return (
     <div className="pb-6">
-      <div className="sticky top-0 bg-gray-950 z-10 px-4 pt-4 pb-3">
-        <h1 className="text-2xl font-bold text-white mb-3">Progress</h1>
-        <div className="flex gap-2">
-          {VIEWS.map(v => (
-            <button
-              key={v}
-              onClick={() => setView(v)}
-              className={`flex-1 py-2 rounded-full text-sm font-semibold transition-colors ${
-                view === v ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-400'
-              }`}
-            >
-              {v}
-            </button>
-          ))}
+      <div className="sticky top-0 bg-floor z-10 px-4 pt-6 pb-3">
+        <h1 className="font-display font-extrabold uppercase text-[40px] leading-none">Progress</h1>
+        <SyncStatus className="mt-1" />
+        <div className="mt-3">
+          <SegmentedControl options={VIEWS.map(v => [v, v])} value={view} onChange={setView} />
         </div>
       </div>
 
@@ -123,107 +119,110 @@ function BodyProgress() {
 
   return (
     <div className="space-y-5">
-      {/* Stats row */}
-      <div className="grid grid-cols-2 gap-3">
-        <div className="bg-gray-900 rounded-2xl border border-gray-800 p-4">
-          <p className="text-xs text-gray-500 font-semibold uppercase tracking-wider">Current Weight</p>
-          <p className="text-3xl font-black text-white mt-1">{currentWeight}<span className="text-base text-gray-500 font-normal">lbs</span></p>
+      {/* Current weight hero */}
+      <section className="bg-bench border border-seam rounded-card p-5 flex items-end justify-between gap-3">
+        <div>
+          <SectionLabel>Current weight</SectionLabel>
+          <p className="mt-1 tabular-nums">
+            <span className="font-display font-extrabold text-[56px] leading-none text-chalk">{currentWeight}</span>
+            <span className="text-dust text-lg ml-1">lbs</span>
+          </p>
           {weightChange !== 0 && (
-            <p className={`text-sm font-semibold mt-1 ${weightChange < 0 ? 'text-green-400' : 'text-red-400'}`}>
-              {weightChange < 0 ? '↓' : '↑'} {Math.abs(weightChange).toFixed(1)}lbs since start
+            <p className="text-sm text-dust mt-1 tabular-nums">
+              {weightChange < 0 ? '↓' : '↑'} {Math.abs(weightChange).toFixed(1)} lbs since start
             </p>
           )}
         </div>
-        <div className="bg-gray-900 rounded-2xl border border-gray-800 p-4">
-          <p className="text-xs text-gray-500 font-semibold uppercase tracking-wider">To Goal</p>
-          <p className={`text-3xl font-black mt-1 ${toGoal <= 0 ? 'text-green-400' : 'text-white'}`}>
-            {toGoal <= 0 ? '✓' : `${toGoal.toFixed(1)}`}
-            {toGoal > 0 && <span className="text-base text-gray-500 font-normal">lbs</span>}
+        <div className="text-right pb-1">
+          <p className="text-sm text-dust tabular-nums">Goal {USER_PROFILE.targetWeightLbs}</p>
+          <p className={`font-display font-bold text-xl tabular-nums ${toGoal <= 0 ? 'text-teal' : 'text-orange'}`}>
+            {toGoal <= 0 ? 'Goal reached' : `${toGoal.toFixed(1)} to go`}
           </p>
-          <p className="text-xs text-gray-500 mt-1">Target: {USER_PROFILE.targetWeightLbs}lbs</p>
         </div>
-      </div>
+      </section>
 
-      <div className="grid grid-cols-2 gap-3">
-        <div className="bg-gray-900 rounded-2xl border border-gray-800 p-4">
-          <p className="text-xs text-gray-500 font-semibold uppercase tracking-wider">Body Fat</p>
-          <p className="text-2xl font-black text-white mt-1">{currentBf}<span className="text-sm text-gray-500 font-normal">%</span></p>
-          <p className="text-xs text-gray-500 mt-1">Fat: {fatMass.toFixed(1)}lbs</p>
-        </div>
-        <div className="bg-gray-900 rounded-2xl border border-gray-800 p-4">
-          <p className="text-xs text-gray-500 font-semibold uppercase tracking-wider">Lean Mass</p>
-          <p className="text-2xl font-black text-white mt-1">{leanMass.toFixed(1)}<span className="text-sm text-gray-500 font-normal">lbs</span></p>
-          <p className="text-xs text-gray-500 mt-1">{(100 - currentBf).toFixed(0)}% of body</p>
-        </div>
+      {/* Body composition tiles */}
+      <div className="grid grid-cols-3 gap-2">
+        {[
+          ['Body fat', currentBf, '%'],
+          ['Lean mass', leanMass.toFixed(1), 'lbs'],
+          ['Fat mass', fatMass.toFixed(1), 'lbs'],
+        ].map(([label, value, unit]) => (
+          <div key={label} className="bg-bench border border-seam rounded-tile p-3">
+            <p className="text-xs font-bold uppercase tracking-[0.1em] text-dust">{label}</p>
+            <p className="mt-1 tabular-nums">
+              <span className="font-display font-bold text-2xl text-chalk">{value}</span>
+              <span className="text-dust text-xs ml-0.5">{unit}</span>
+            </p>
+          </div>
+        ))}
       </div>
 
       {/* Log buttons */}
       <div className="flex gap-3">
-        <button
-          onClick={() => setShowWeightEntry(!showWeightEntry)}
-          className="flex-1 bg-blue-600 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 text-sm"
-        >
-          <Plus size={18} /> Log Weight
-        </button>
-        <button
-          onClick={() => setShowBfEntry(!showBfEntry)}
-          className="flex-1 bg-gray-800 text-gray-300 font-bold py-3 rounded-xl flex items-center justify-center gap-2 text-sm"
-        >
-          <Plus size={18} /> Log Body Fat
-        </button>
+        <Button onClick={() => setShowWeightEntry(!showWeightEntry)} className="flex-1 text-lg whitespace-nowrap px-3">
+          <Plus size={18} strokeWidth={3} /> Log weight
+        </Button>
+        <Button variant="secondary" onClick={() => setShowBfEntry(!showBfEntry)} className="flex-1 min-h-[56px] rounded-tile whitespace-nowrap px-3">
+          <Plus size={18} /> Log body fat
+        </Button>
       </div>
 
       {showWeightEntry && (
-        <div className="bg-gray-900 rounded-xl border border-gray-800 p-4 flex gap-3">
+        <div className="bg-bench border border-seam rounded-tile p-3 flex gap-2">
           <input
             type="number"
+            inputMode="decimal"
             value={weightInput}
             onChange={e => setWeightInput(e.target.value)}
             placeholder="Weight in lbs"
-            className="flex-1 bg-gray-800 text-white rounded-xl px-4 py-3 text-sm"
+            aria-label="Weight in lbs"
+            className="flex-1 min-w-0 h-11 bg-floor border border-seam rounded-input px-3 text-chalk tabular-nums placeholder-ash"
             autoFocus
           />
-          <button onClick={handleLogWeight} className="bg-blue-600 text-white px-4 py-3 rounded-xl font-bold text-sm">Save</button>
-          <button onClick={() => setShowWeightEntry(false)} className="text-gray-500 px-2"><X size={18} /></button>
+          <Button variant="secondary" onClick={handleLogWeight}>Save</Button>
+          <IconButton aria-label="Cancel" onClick={() => setShowWeightEntry(false)}><X size={18} /></IconButton>
         </div>
       )}
 
       {showBfEntry && (
-        <div className="bg-gray-900 rounded-xl border border-gray-800 p-4 flex gap-3">
+        <div className="bg-bench border border-seam rounded-tile p-3 flex gap-2">
           <input
             type="number"
+            inputMode="decimal"
             value={bfInput}
             onChange={e => setBfInput(e.target.value)}
             placeholder="Body fat %"
-            className="flex-1 bg-gray-800 text-white rounded-xl px-4 py-3 text-sm"
+            aria-label="Body fat percent"
+            className="flex-1 min-w-0 h-11 bg-floor border border-seam rounded-input px-3 text-chalk tabular-nums placeholder-ash"
             autoFocus
           />
-          <button onClick={handleLogBf} className="bg-blue-600 text-white px-4 py-3 rounded-xl font-bold text-sm">Save</button>
-          <button onClick={() => setShowBfEntry(false)} className="text-gray-500 px-2"><X size={18} /></button>
+          <Button variant="secondary" onClick={handleLogBf}>Save</Button>
+          <IconButton aria-label="Cancel" onClick={() => setShowBfEntry(false)}><X size={18} /></IconButton>
         </div>
       )}
 
       {/* Weight chart */}
       {weightChartData.length > 1 && (
-        <div className="bg-gray-900 rounded-2xl border border-gray-800 p-4">
-          <h3 className="text-sm font-bold text-white mb-4">Weight Over Time</h3>
+        <div className="bg-bench rounded-card border border-seam p-4">
+          <h3 className="text-sm font-bold text-chalk mb-4">Weight Over Time</h3>
           <ResponsiveContainer width="100%" height={180}>
             <AreaChart data={weightChartData} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
               <defs>
                 <linearGradient id="weightGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
-                  <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                  <stop offset="5%" stopColor="#FF6B2C" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="#FF6B2C" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
-              <XAxis dataKey="date" tick={{ fontSize: 10, fill: '#6b7280' }} tickLine={false} />
-              <YAxis tick={{ fontSize: 10, fill: '#6b7280' }} tickLine={false} domain={['dataMin - 5', 'dataMax + 5']} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#33302C" vertical={false} />
+              <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#8C877E' }} tickLine={false} />
+              <YAxis tick={{ fontSize: 11, fill: '#8C877E' }} tickLine={false} domain={['dataMin - 5', 'dataMax + 5']} />
               <Tooltip
-                contentStyle={{ background: '#111827', border: '1px solid #374151', borderRadius: 8 }}
-                labelStyle={{ color: '#9ca3af', fontSize: 11 }}
-                itemStyle={{ color: '#60a5fa', fontSize: 12 }}
+                contentStyle={{ background: '#1C1A18', border: '1px solid #33302C', borderRadius: 12 }}
+                labelStyle={{ color: '#A39E95', fontSize: 11 }}
+                itemStyle={{ color: '#FF6B2C', fontSize: 12 }}
               />
-              <Area type="monotone" dataKey="weight" stroke="#3b82f6" strokeWidth={2} fill="url(#weightGrad)" dot={{ fill: '#3b82f6', r: 3 }} />
+              <Area type="monotone" dataKey="weight" stroke="#FF6B2C" strokeWidth={2} fill="url(#weightGrad)" dot={{ fill: '#FF6B2C', r: 3 }} />
             </AreaChart>
           </ResponsiveContainer>
         </div>
@@ -231,41 +230,41 @@ function BodyProgress() {
 
       {/* Fat vs Lean chart */}
       {compositionData.length > 1 && (
-        <div className="bg-gray-900 rounded-2xl border border-gray-800 p-4">
-          <h3 className="text-sm font-bold text-white mb-4">Fat vs Lean Mass</h3>
+        <div className="bg-bench rounded-card border border-seam p-4">
+          <h3 className="text-sm font-bold text-chalk mb-4">Fat vs Lean Mass</h3>
           <ResponsiveContainer width="100%" height={180}>
             <AreaChart data={compositionData} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
               <defs>
                 <linearGradient id="leanGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#22c55e" stopOpacity={0.4} />
-                  <stop offset="95%" stopColor="#22c55e" stopOpacity={0} />
+                  <stop offset="5%" stopColor="#4FB3A9" stopOpacity={0.4} />
+                  <stop offset="95%" stopColor="#4FB3A9" stopOpacity={0} />
                 </linearGradient>
                 <linearGradient id="fatGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#ef4444" stopOpacity={0.3} />
-                  <stop offset="95%" stopColor="#ef4444" stopOpacity={0} />
+                  <stop offset="5%" stopColor="#FF6B2C" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="#FF6B2C" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
-              <XAxis dataKey="date" tick={{ fontSize: 10, fill: '#6b7280' }} tickLine={false} />
-              <YAxis tick={{ fontSize: 10, fill: '#6b7280' }} tickLine={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#33302C" vertical={false} />
+              <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#8C877E' }} tickLine={false} />
+              <YAxis tick={{ fontSize: 11, fill: '#8C877E' }} tickLine={false} />
               <Tooltip
-                contentStyle={{ background: '#111827', border: '1px solid #374151', borderRadius: 8 }}
-                labelStyle={{ color: '#9ca3af', fontSize: 11 }}
+                contentStyle={{ background: '#1C1A18', border: '1px solid #33302C', borderRadius: 12 }}
+                labelStyle={{ color: '#A39E95', fontSize: 11 }}
                 itemStyle={{ fontSize: 12 }}
               />
-              <Area type="monotone" dataKey="Lean Mass" stroke="#22c55e" strokeWidth={2} fill="url(#leanGrad)" />
-              <Area type="monotone" dataKey="Fat Mass" stroke="#ef4444" strokeWidth={2} fill="url(#fatGrad)" />
+              <Area type="monotone" dataKey="Lean Mass" stroke="#4FB3A9" strokeWidth={2} fill="url(#leanGrad)" />
+              <Area type="monotone" dataKey="Fat Mass" stroke="#FF6B2C" strokeWidth={2} fill="url(#fatGrad)" />
             </AreaChart>
           </ResponsiveContainer>
           <div className="flex gap-4 mt-2 justify-center">
-            <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded-full bg-green-500" /><span className="text-xs text-gray-400">Lean</span></div>
-            <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded-full bg-red-500" /><span className="text-xs text-gray-400">Fat</span></div>
+            <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded-full bg-teal" /><span className="text-xs text-dust">Lean</span></div>
+            <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded-full bg-orange" /><span className="text-xs text-dust">Fat</span></div>
           </div>
         </div>
       )}
 
       {weightChartData.length <= 1 && (
-        <div className="bg-gray-900 rounded-2xl border border-gray-800 p-6 text-center text-gray-600">
+        <div className="bg-bench rounded-card border border-seam p-6 text-center text-ash">
           <TrendingDown size={32} className="mx-auto mb-2 opacity-30" />
           <p className="text-sm">Log weight on multiple days to see trends</p>
         </div>
@@ -273,13 +272,13 @@ function BodyProgress() {
 
       {/* Weight history list */}
       {weightLog.length > 0 && (
-        <div className="bg-gray-900 rounded-2xl border border-gray-800 p-4">
-          <h3 className="text-sm font-bold text-white mb-3">Weight Log</h3>
+        <div className="bg-bench rounded-card border border-seam p-4">
+          <h3 className="text-sm font-bold text-chalk mb-3">Weight Log</h3>
           <div className="space-y-2 max-h-48 overflow-y-auto">
             {[...weightLog].reverse().map((entry, i) => (
               <div key={entry.id || i} className="flex items-center justify-between text-sm">
-                <span className="text-gray-400">{new Date(entry.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
-                <span className="font-bold text-white">{entry.weight} lbs</span>
+                <span className="text-dust">{new Date(entry.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                <span className="font-bold text-chalk">{entry.weight} lbs</span>
               </div>
             ))}
           </div>
@@ -339,7 +338,7 @@ function StrengthProgress() {
   return (
     <div className="space-y-4 pt-2">
       {records.length === 0 && (
-        <div className="text-center py-16 text-gray-600">
+        <div className="text-center py-16 text-ash">
           <Dumbbell size={40} className="mx-auto mb-3 opacity-30" />
           <p className="font-semibold">No strength data yet</p>
           <p className="text-sm mt-1">Log weighted exercises to track progression</p>
@@ -348,7 +347,7 @@ function StrengthProgress() {
 
       {records.length > 0 && (
         <>
-          <p className="text-xs text-gray-500">Tap an exercise to see its progression chart</p>
+          <p className="text-xs text-dust">Tap an exercise to see its progression chart</p>
           <div className="space-y-2">
             {records.map((r, i) => (
               <button
@@ -357,16 +356,16 @@ function StrengthProgress() {
                   const id = Object.keys(exerciseMap).find(k => exerciseMap[k].name === r.name);
                   setSelectedExercise(id);
                 }}
-                className="w-full bg-gray-900 rounded-xl border border-gray-800 p-4 text-left flex items-center gap-3"
+                className="w-full bg-bench rounded-xl border border-seam p-4 text-left flex items-center gap-3"
               >
-                <span className="text-2xl font-black text-gray-700 w-7 text-center">{i + 1}</span>
+                <span className="text-2xl font-black text-ash w-7 text-center">{i + 1}</span>
                 <div className="flex-1">
-                  <p className="font-bold text-white text-sm">{r.name}</p>
-                  <p className="text-xs text-gray-500">{r.sessions} session{r.sessions !== 1 ? 's' : ''}</p>
+                  <p className="font-bold text-chalk text-sm">{r.name}</p>
+                  <p className="text-xs text-dust">{r.sessions} session{r.sessions !== 1 ? 's' : ''}</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-lg font-black text-yellow-400">{r.pr}lbs</p>
-                  <p className="text-xs text-gray-500">PR</p>
+                  <p className="text-lg font-black text-brass">{r.pr}lbs</p>
+                  <p className="text-xs text-dust">PR</p>
                 </div>
               </button>
             ))}
@@ -382,63 +381,67 @@ function ExerciseStrengthChart({ data, onBack }) {
 
   return (
     <div className="pt-2 space-y-4">
-      <button onClick={onBack} className="text-blue-400 text-sm font-semibold flex items-center gap-1">← Back</button>
-      <h2 className="text-xl font-bold text-white">{data.name}</h2>
-      <p className="text-sm text-yellow-400 font-semibold">🏆 PR: {pr}lbs</p>
+      <button onClick={onBack} className="text-orange text-sm font-semibold flex items-center gap-1">← Back</button>
+      <h2 className="text-xl font-bold text-chalk">{data.name}</h2>
+      <p className="text-sm text-brass font-semibold">🏆 PR: {pr}lbs</p>
 
       {data.data.length > 1 ? (
-        <div className="bg-gray-900 rounded-2xl border border-gray-800 p-4">
-          <h3 className="text-sm font-bold text-white mb-4">Max Weight Per Session</h3>
+        <div className="bg-bench rounded-card border border-seam p-4">
+          <h3 className="text-sm font-bold text-chalk mb-4">Max Weight Per Session</h3>
           <ResponsiveContainer width="100%" height={200}>
             <LineChart data={data.data} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
-              <XAxis dataKey="date" tick={{ fontSize: 10, fill: '#6b7280' }} tickLine={false} />
-              <YAxis tick={{ fontSize: 10, fill: '#6b7280' }} tickLine={false} domain={['dataMin - 10', 'dataMax + 10']} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#33302C" vertical={false} />
+              <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#8C877E' }} tickLine={false} />
+              <YAxis tick={{ fontSize: 11, fill: '#8C877E' }} tickLine={false} domain={['dataMin - 10', 'dataMax + 10']} />
               <Tooltip
-                contentStyle={{ background: '#111827', border: '1px solid #374151', borderRadius: 8 }}
-                labelStyle={{ color: '#9ca3af', fontSize: 11 }}
-                itemStyle={{ color: '#facc15', fontSize: 12 }}
+                contentStyle={{ background: '#1C1A18', border: '1px solid #33302C', borderRadius: 12 }}
+                labelStyle={{ color: '#A39E95', fontSize: 11 }}
+                itemStyle={{ color: '#FF6B2C', fontSize: 12 }}
               />
-              <Line type="monotone" dataKey="weight" stroke="#facc15" strokeWidth={2} dot={{ fill: '#facc15', r: 4 }} />
+              <Line type="monotone" dataKey="weight" stroke="#FF6B2C" strokeWidth={2} dot={{ fill: '#FF6B2C', r: 4 }} />
             </LineChart>
           </ResponsiveContainer>
         </div>
       ) : (
-        <div className="bg-gray-900 rounded-2xl border border-gray-800 p-4 text-center text-gray-600 text-sm py-8">
+        <div className="bg-bench rounded-card border border-seam p-4 text-center text-ash text-sm py-8">
           Log this exercise in more sessions to see a trend
         </div>
       )}
 
       {/* Volume chart */}
       {data.data.length > 1 && (
-        <div className="bg-gray-900 rounded-2xl border border-gray-800 p-4">
-          <h3 className="text-sm font-bold text-white mb-4">Volume (lbs × reps)</h3>
+        <div className="bg-bench rounded-card border border-seam p-4">
+          <h3 className="text-sm font-bold text-chalk mb-4">Volume (lbs × reps)</h3>
           <ResponsiveContainer width="100%" height={160}>
             <BarChart data={data.data} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
-              <XAxis dataKey="date" tick={{ fontSize: 10, fill: '#6b7280' }} tickLine={false} />
-              <YAxis tick={{ fontSize: 10, fill: '#6b7280' }} tickLine={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#33302C" vertical={false} />
+              <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#8C877E' }} tickLine={false} />
+              <YAxis tick={{ fontSize: 11, fill: '#8C877E' }} tickLine={false} />
               <Tooltip
-                contentStyle={{ background: '#111827', border: '1px solid #374151', borderRadius: 8 }}
-                labelStyle={{ color: '#9ca3af', fontSize: 11 }}
-                itemStyle={{ color: '#60a5fa', fontSize: 12 }}
+                contentStyle={{ background: '#1C1A18', border: '1px solid #33302C', borderRadius: 12 }}
+                labelStyle={{ color: '#A39E95', fontSize: 11 }}
+                itemStyle={{ color: '#FF6B2C', fontSize: 12 }}
               />
-              <Bar dataKey="volume" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="volume" radius={[4, 4, 0, 0]}>
+                {data.data.map((_, i) => (
+                  <Cell key={i} fill={i === data.data.length - 1 ? '#FF6B2C' : '#33302C'} />
+                ))}
+              </Bar>
             </BarChart>
           </ResponsiveContainer>
         </div>
       )}
 
       {/* Session history */}
-      <div className="bg-gray-900 rounded-2xl border border-gray-800 p-4">
-        <h3 className="text-sm font-bold text-white mb-3">Session History</h3>
+      <div className="bg-bench rounded-card border border-seam p-4">
+        <h3 className="text-sm font-bold text-chalk mb-3">Session History</h3>
         <div className="space-y-2">
           {[...data.data].reverse().map((d, i) => (
-            <div key={i} className="flex items-center justify-between text-sm border-b border-gray-800 pb-2 last:border-0 last:pb-0">
-              <span className="text-gray-400">{d.date}</span>
+            <div key={i} className="flex items-center justify-between text-sm border-b border-seam pb-2 last:border-0 last:pb-0">
+              <span className="text-dust">{d.date}</span>
               <div className="text-right">
-                <span className={`font-bold ${d.weight === pr ? 'text-yellow-400' : 'text-white'}`}>{d.weight}lbs</span>
-                {d.weight === pr && <span className="text-xs text-yellow-400 ml-1">PR</span>}
+                <span className={`font-bold ${d.weight === pr ? 'text-brass' : 'text-chalk'}`}>{d.weight}lbs</span>
+                {d.weight === pr && <span className="text-xs text-brass ml-1">PR</span>}
               </div>
             </div>
           ))}
@@ -508,55 +511,60 @@ function ConsistencyProgress() {
     <div className="space-y-5 pt-2">
       {/* Stats */}
       <div className="grid grid-cols-3 gap-3">
-        <div className="bg-gray-900 rounded-xl border border-gray-800 p-3 text-center">
-          <p className="text-2xl font-black text-white">{totalSessions}</p>
-          <p className="text-xs text-gray-500 mt-0.5 leading-tight">Total Sessions</p>
+        <div className="bg-bench rounded-xl border border-seam p-3 text-center">
+          <p className="text-2xl font-black text-chalk">{totalSessions}</p>
+          <p className="text-xs text-dust mt-0.5 leading-tight">Total Sessions</p>
         </div>
-        <div className="bg-gray-900 rounded-xl border border-gray-800 p-3 text-center">
-          <p className="text-2xl font-black text-green-400">{completedSessions}</p>
-          <p className="text-xs text-gray-500 mt-0.5 leading-tight">Completed</p>
+        <div className="bg-bench rounded-xl border border-seam p-3 text-center">
+          <p className="text-2xl font-black text-teal">{completedSessions}</p>
+          <p className="text-xs text-dust mt-0.5 leading-tight">Completed</p>
         </div>
-        <div className="bg-gray-900 rounded-xl border border-gray-800 p-3 text-center">
-          <p className="text-2xl font-black text-blue-400">{currentStreak}</p>
-          <p className="text-xs text-gray-500 mt-0.5 leading-tight">Day Streak</p>
+        <div className="bg-bench rounded-xl border border-seam p-3 text-center">
+          <p className="text-2xl font-black text-orange">{currentStreak}</p>
+          <p className="text-xs text-dust mt-0.5 leading-tight">Day Streak</p>
         </div>
       </div>
 
       {/* Weekly chart */}
-      <div className="bg-gray-900 rounded-2xl border border-gray-800 p-4">
+      <div className="bg-bench rounded-card border border-seam p-4">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-bold text-white">Sessions Per Week</h3>
-          <span className="text-xs text-gray-500">{avgPerWeek} avg/wk</span>
+          <h3 className="text-sm font-bold text-chalk">Sessions Per Week</h3>
+          <span className="text-xs text-dust">{avgPerWeek} avg/wk</span>
         </div>
         {sessions.length === 0 ? (
-          <div className="text-center py-8 text-gray-600 text-sm">No sessions yet</div>
+          <div className="text-center py-8 text-ash text-sm">No sessions yet</div>
         ) : (
           <ResponsiveContainer width="100%" height={160}>
             <BarChart data={weeklyData} margin={{ top: 5, right: 5, left: -25, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
-              <XAxis dataKey="week" tick={{ fontSize: 10, fill: '#6b7280' }} tickLine={false} />
-              <YAxis tick={{ fontSize: 10, fill: '#6b7280' }} tickLine={false} allowDecimals={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#33302C" vertical={false} />
+              <XAxis dataKey="week" tick={{ fontSize: 11, fill: '#8C877E' }} tickLine={false} />
+              <YAxis tick={{ fontSize: 11, fill: '#8C877E' }} tickLine={false} allowDecimals={false} />
               <Tooltip
-                contentStyle={{ background: '#111827', border: '1px solid #374151', borderRadius: 8 }}
+                contentStyle={{ background: '#1C1A18', border: '1px solid #33302C', borderRadius: 12 }}
                 labelFormatter={(label, payload) => payload?.[0]?.payload?.label || label}
-                labelStyle={{ color: '#9ca3af', fontSize: 11 }}
-                itemStyle={{ color: '#60a5fa', fontSize: 12 }}
+                labelStyle={{ color: '#A39E95', fontSize: 11 }}
+                itemStyle={{ color: '#FF6B2C', fontSize: 12 }}
               />
-              <Bar dataKey="completed" fill="#22c55e" radius={[3, 3, 0, 0]} name="Completed" stackId="a" />
-              <Bar dataKey="sessions" fill="#3b82f630" radius={[3, 3, 0, 0]} name="Total" />
+              <Bar dataKey="completed" radius={[3, 3, 0, 0]} name="Completed" stackId="a">
+                {weeklyData.map((_, i) => (
+                  <Cell key={i} fill={i === weeklyData.length - 1 ? '#FF6B2C' : '#8C877E'} />
+                ))}
+              </Bar>
+              <Bar dataKey="sessions" fill="#262320" radius={[3, 3, 0, 0]} name="Total" />
             </BarChart>
           </ResponsiveContainer>
         )}
         <div className="flex gap-4 mt-2 justify-center">
-          <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded-full bg-green-500" /><span className="text-xs text-gray-400">Completed</span></div>
-          <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded-full bg-blue-500/30" /><span className="text-xs text-gray-400">All Sessions</span></div>
+          <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded-full bg-ash" /><span className="text-xs text-dust">Completed</span></div>
+          <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded-full bg-orange" /><span className="text-xs text-dust">This week</span></div>
+          <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded-full bg-plate border border-seam" /><span className="text-xs text-dust">All Sessions</span></div>
         </div>
       </div>
 
       {/* Workout type breakdown */}
       {sessions.length > 0 && (
-        <div className="bg-gray-900 rounded-2xl border border-gray-800 p-4">
-          <h3 className="text-sm font-bold text-white mb-3">Workout Breakdown</h3>
+        <div className="bg-bench rounded-card border border-seam p-4">
+          <h3 className="text-sm font-bold text-chalk mb-3">Workout Breakdown</h3>
           <div className="space-y-2">
             {/* Current workouts first, then any older ones found in past sessions */}
             {[...new Set([...PROGRAM_SEQUENCE, ...sessions.map(s => s.workoutId)])].map(id => {
@@ -569,11 +577,11 @@ function ConsistencyProgress() {
               return (
                 <div key={id}>
                   <div className="flex justify-between mb-1">
-                    <span className="text-xs text-gray-400">{name}</span>
-                    <span className="text-xs text-gray-500">{count}×</span>
+                    <span className="text-xs text-dust">{name}</span>
+                    <span className="text-xs text-dust">{count}×</span>
                   </div>
-                  <div className="h-1.5 bg-gray-800 rounded-full overflow-hidden">
-                    <div className="h-full bg-blue-500 rounded-full" style={{ width: `${pct}%` }} />
+                  <div className="h-1.5 bg-plate rounded-full overflow-hidden">
+                    <div className="h-full bg-orange rounded-full" style={{ width: `${pct}%` }} />
                   </div>
                 </div>
               );
