@@ -34,16 +34,16 @@ export const WORKOUT_PROGRAM = {
         id: 'ss-b',
         label: 'Superset B',
         exercises: [
-          { id: 'split-squat-fri', name: 'Split Squat', sets: 2, repsTarget: 8, repsMin: 6, note: 'each leg', type: EXERCISE_TYPE.WEIGHTED },
-          { id: 'lying-leg-raise-fri', name: 'Lying Leg Raises', sets: 2, repsTarget: 8, repsMin: 6, type: EXERCISE_TYPE.REPS_ONLY },
+          { id: 'split-squat-fri', name: 'Split Squat', sets: 3, repsTarget: 8, repsMin: 6, note: 'each leg', type: EXERCISE_TYPE.WEIGHTED },
+          { id: 'lying-leg-raise-fri', name: 'Lying Leg Raises', sets: 3, repsTarget: 8, repsMin: 6, type: EXERCISE_TYPE.REPS_ONLY },
         ],
       },
       {
         id: 'ss-c',
         label: 'Superset C',
         exercises: [
-          { id: 'hip-thrust-fri', name: 'Hip Thrust', sets: 2, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.WEIGHTED },
-          { id: 'side-lying-abduction-fri', name: 'Side-Lying Abduction', sets: 2, repsTarget: 15, repsMin: 12, note: 'each side', type: EXERCISE_TYPE.WEIGHTED },
+          { id: 'hip-thrust-fri', name: 'Hip Thrust', sets: 3, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.WEIGHTED },
+          { id: 'side-lying-abduction-fri', name: 'Side-Lying Abduction', sets: 3, repsTarget: 15, repsMin: 12, note: 'each side', type: EXERCISE_TYPE.WEIGHTED },
         ],
       },
     ],
@@ -72,16 +72,16 @@ export const WORKOUT_PROGRAM = {
         id: 'ss-b',
         label: 'Superset B',
         exercises: [
-          { id: 'meadows-row-sat', name: 'Meadows Row', sets: 2, repsTarget: 8, repsMin: 6, note: 'each arm', type: EXERCISE_TYPE.WEIGHTED },
-          { id: 'assisted-dips-sat', name: 'Assisted Dips', sets: 2, repsTarget: 8, repsMin: 6, type: EXERCISE_TYPE.REPS_ONLY },
+          { id: 'meadows-row-sat', name: 'Meadows Row', sets: 3, repsTarget: 8, repsMin: 6, note: 'each arm', type: EXERCISE_TYPE.WEIGHTED },
+          { id: 'assisted-dips-sat', name: 'Assisted Dips', sets: 3, repsTarget: 8, repsMin: 6, type: EXERCISE_TYPE.REPS_ONLY },
         ],
       },
       {
         id: 'ss-c',
         label: 'Superset C',
         exercises: [
-          { id: 'incline-db-curl-sat', name: 'Incline DB Curl', sets: 2, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.WEIGHTED },
-          { id: 'incline-db-flye-sat', name: 'Incline DB Flye', sets: 2, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.WEIGHTED },
+          { id: 'incline-db-curl-sat', name: 'Incline DB Curl', sets: 3, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.WEIGHTED },
+          { id: 'incline-db-flye-sat', name: 'Incline DB Flye', sets: 3, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.WEIGHTED },
         ],
       },
     ],
@@ -109,16 +109,16 @@ export const WORKOUT_PROGRAM = {
         id: 'ss-b',
         label: 'Superset B',
         exercises: [
-          { id: 'sl-rdl-sun', name: 'Single-Leg RDL', sets: 2, repsTarget: 8, repsMin: 6, note: 'each leg', type: EXERCISE_TYPE.WEIGHTED },
-          { id: 'sl-glute-bridge-sun', name: 'Single-Leg Glute Bridge', sets: 2, repsTarget: 8, repsMin: 6, note: 'each leg, hold a dumbbell', type: EXERCISE_TYPE.WEIGHTED },
+          { id: 'sl-rdl-sun', name: 'Single-Leg RDL', sets: 3, repsTarget: 8, repsMin: 6, note: 'each leg', type: EXERCISE_TYPE.WEIGHTED },
+          { id: 'sl-glute-bridge-sun', name: 'Single-Leg Glute Bridge', sets: 3, repsTarget: 8, repsMin: 6, note: 'each leg, hold a dumbbell', type: EXERCISE_TYPE.WEIGHTED },
         ],
       },
       {
         id: 'ss-c',
         label: 'Superset C',
         exercises: [
-          { id: 'step-up-sun', name: 'Step-Ups', sets: 2, repsTarget: 10, repsMin: 8, note: 'each leg', type: EXERCISE_TYPE.WEIGHTED },
-          { id: 'side-lying-abduction-sun', name: 'Side-Lying Abduction', sets: 2, repsTarget: 15, repsMin: 12, note: 'each side', type: EXERCISE_TYPE.WEIGHTED },
+          { id: 'step-up-sun', name: 'Step-Ups', sets: 3, repsTarget: 10, repsMin: 8, note: 'each leg', type: EXERCISE_TYPE.WEIGHTED },
+          { id: 'side-lying-abduction-sun', name: 'Side-Lying Abduction', sets: 3, repsTarget: 15, repsMin: 12, note: 'each side', type: EXERCISE_TYPE.WEIGHTED },
         ],
       },
     ],
@@ -146,16 +146,16 @@ export const WORKOUT_PROGRAM = {
         id: 'ss-b',
         label: 'Superset B',
         exercises: [
-          { id: 'cs-db-row-mon', name: 'Chest-Supported DB Row', sets: 2, repsTarget: 8, repsMin: 6, type: EXERCISE_TYPE.WEIGHTED },
-          { id: 'lat-prayer-pulldown-mon', name: 'Lat Prayer Pulldown', sets: 2, repsTarget: 8, repsMin: 6, type: EXERCISE_TYPE.WEIGHTED },
+          { id: 'cs-db-row-mon', name: 'Chest-Supported DB Row', sets: 3, repsTarget: 8, repsMin: 6, type: EXERCISE_TYPE.WEIGHTED },
+          { id: 'lat-prayer-pulldown-mon', name: 'Lat Prayer Pulldown', sets: 3, repsTarget: 8, repsMin: 6, type: EXERCISE_TYPE.WEIGHTED },
         ],
       },
       {
         id: 'ss-c',
         label: 'Superset C',
         exercises: [
-          { id: 'bb-curl-mon', name: 'Barbell Curl', sets: 2, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.WEIGHTED },
-          { id: 'bb-oh-tricep-ext-mon', name: 'Barbell Overhead Triceps Extension', sets: 2, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.WEIGHTED },
+          { id: 'bb-curl-mon', name: 'Barbell Curl', sets: 3, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.WEIGHTED },
+          { id: 'bb-oh-tricep-ext-mon', name: 'Barbell Overhead Triceps Extension', sets: 3, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.WEIGHTED },
         ],
       },
     ],
