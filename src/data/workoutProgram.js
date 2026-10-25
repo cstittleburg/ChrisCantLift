@@ -118,7 +118,7 @@ export const WORKOUT_PROGRAM = {
         label: 'Superset C',
         exercises: [
           { id: 'step-up-sun', name: 'Step-Ups', sets: 3, repsTarget: 10, repsMin: 8, note: 'each leg', type: EXERCISE_TYPE.WEIGHTED },
-          { id: 'side-lying-abduction-sun', name: 'Side-Lying Abduction', sets: 3, repsTarget: 15, repsMin: 12, note: 'each side', type: EXERCISE_TYPE.WEIGHTED },
+          { id: 'copenhagen-plank-sun', name: 'Copenhagen Plank', sets: 3, repsTarget: 15, repsMin: 12, note: 'each side', type: EXERCISE_TYPE.REPS_ONLY },
         ],
       },
     ],
@@ -221,7 +221,7 @@ export const WORKOUT_PROGRAM = {
         exercises: [
           { id: 'incline-db-curl-thu', name: 'Incline DB Curl', sets: 3, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.WEIGHTED },
           { id: 'oh-cable-tricep-ext-thu', name: 'Overhead Cable Triceps Extension', sets: 3, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.WEIGHTED },
-          { id: 'side-lying-abduction-thu', name: 'Side-Lying Abduction', sets: 3, repsTarget: 15, repsMin: 12, note: 'each side', type: EXERCISE_TYPE.WEIGHTED },
+          { id: 'copenhagen-plank-thu', name: 'Copenhagen Plank', sets: 3, repsTarget: 15, repsMin: 12, note: 'each side', type: EXERCISE_TYPE.REPS_ONLY },
         ],
       },
     ],
@@ -318,4 +318,6 @@ export const RETIRED_EXERCISES = {
   'sl-glute-bridge-sun': 'Single-Leg Glute Bridge',
   'sl-glute-bridge-tue': 'Single-Leg Glute Bridge',
   'plate-twist-sun': 'Plate Twist',
+  'side-lying-abduction-sun': 'Side-Lying Abduction',
+  'side-lying-abduction-thu': 'Side-Lying Abduction',
 };
