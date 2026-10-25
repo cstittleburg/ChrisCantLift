@@ -110,7 +110,7 @@ export const WORKOUT_PROGRAM = {
         label: 'Superset B',
         exercises: [
           { id: 'sl-rdl-sun', name: 'Single-Leg RDL', sets: 3, repsTarget: 8, repsMin: 6, note: 'each leg', type: EXERCISE_TYPE.WEIGHTED },
-          { id: 'sl-glute-bridge-sun', name: 'Single-Leg Glute Bridge', sets: 3, repsTarget: 8, repsMin: 6, note: 'each leg, hold a dumbbell', type: EXERCISE_TYPE.WEIGHTED },
+          { id: 'jefferson-curl-sun', name: 'Jefferson Curl', sets: 3, repsTarget: 8, repsMin: 6, type: EXERCISE_TYPE.WEIGHTED },
         ],
       },
       {
@@ -178,7 +178,7 @@ export const WORKOUT_PROGRAM = {
         exercises: [
           { id: 'hammer-curl-tue', name: 'Hammer Curl', sets: 3, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.WEIGHTED },
           { id: 'cable-pushdown-tue', name: 'Cable Pushdown', sets: 3, repsTarget: 10, repsMin: 8, type: EXERCISE_TYPE.WEIGHTED },
-          { id: 'sl-glute-bridge-tue', name: 'Single-Leg Glute Bridge', sets: 3, repsTarget: 15, repsMin: 12, note: 'each leg', type: EXERCISE_TYPE.WEIGHTED },
+          { id: 'jefferson-curl-tue', name: 'Jefferson Curl', sets: 3, repsTarget: 15, repsMin: 12, type: EXERCISE_TYPE.WEIGHTED },
         ],
       },
     ],
@@ -315,4 +315,6 @@ export const RETIRED_EXERCISES = {
   'jefferson-curl-medium': 'Jefferson Curl',
   // Weekly plan (swapped out Oct 2026)
   'weighted-cable-crunch-fri': 'Weighted Cable Crunch',
+  'sl-glute-bridge-sun': 'Single-Leg Glute Bridge',
+  'sl-glute-bridge-tue': 'Single-Leg Glute Bridge',
 };
