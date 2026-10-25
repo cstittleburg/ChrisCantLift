@@ -34,7 +34,7 @@ export const WORKOUT_PROGRAM = {
         id: 'ss-b',
         label: 'Superset B',
         exercises: [
-          { id: 'split-squat-fri', name: 'Split Squat', sets: 3, repsTarget: 8, repsMin: 6, note: 'each leg', type: EXERCISE_TYPE.WEIGHTED },
+          { id: 'step-up-fri', name: 'Step-Ups', sets: 3, repsTarget: 8, repsMin: 6, note: 'each leg', type: EXERCISE_TYPE.WEIGHTED },
           { id: 'lying-leg-raise-fri', name: 'Lying Leg Raises', sets: 3, repsTarget: 8, repsMin: 6, type: EXERCISE_TYPE.REPS_ONLY },
         ],
       },
@@ -320,4 +320,5 @@ export const RETIRED_EXERCISES = {
   'plate-twist-sun': 'Plate Twist',
   'side-lying-abduction-sun': 'Side-Lying Abduction',
   'side-lying-abduction-thu': 'Side-Lying Abduction',
+  'split-squat-fri': 'Split Squat',
 };
