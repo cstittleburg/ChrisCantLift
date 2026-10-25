@@ -102,7 +102,7 @@ export const WORKOUT_PROGRAM = {
         label: 'Superset A',
         exercises: [
           { id: 'half-squat-pins-sun', name: 'Half Squat to Pins', sets: 3, repsTarget: 6, repsMin: 4, type: EXERCISE_TYPE.WEIGHTED },
-          { id: 'plate-twist-sun', name: 'Plate Twist', sets: 3, repsTarget: 8, note: 'each side', type: EXERCISE_TYPE.WEIGHTED },
+          { id: 'db-side-bend-sun', name: 'Dumbbell Side Bend', sets: 3, repsTarget: 8, note: 'each side', type: EXERCISE_TYPE.WEIGHTED },
         ],
       },
       {
@@ -317,4 +317,5 @@ export const RETIRED_EXERCISES = {
   'weighted-cable-crunch-fri': 'Weighted Cable Crunch',
   'sl-glute-bridge-sun': 'Single-Leg Glute Bridge',
   'sl-glute-bridge-tue': 'Single-Leg Glute Bridge',
+  'plate-twist-sun': 'Plate Twist',
 };
